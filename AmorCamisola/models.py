@@ -1,7 +1,10 @@
 import uuid
 from django.db import models
+from django.db.models import ManyToManyField
+from django.template.defaultfilters import length
+from phonenumber_field.modelfields import PhoneNumberField
 
-# Create your models here.
+
 class User(models.Model):
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True)
@@ -9,6 +12,8 @@ class User(models.Model):
     primeiroNome = models.CharField(max_length=50)
     ultimoNome = models.CharField(max_length=50)
     cc = models.CharField(max_length=50, primary_key=True)
+    address = models.CharField(max_length=50)
+    telemovel = PhoneNumberField(unique=True, null=False, blank=False)
     wallet = models.DecimalField(max_digits=50, decimal_places=2)
     following = models.ManyToManyField(to="self", related_name="followings", symmetrical=False)
 
@@ -25,6 +30,7 @@ class Produto(models.Model):
     nome = models.CharField(max_length=50)
     vendedor = models.ManyToOneRel(User, on_delete=models.CASCADE, field_name='user')
     #compra = models.ManyToOneRel(Purchase) isto seria caso tenhamos historico de compras
+    imagem = models.ImageField(upload_to='produtos')
     preco = models.DecimalField(max_digits=5, decimal_places=2)
     equipa = models.CharField(max_length=50)
     descricao = models.TextField()
