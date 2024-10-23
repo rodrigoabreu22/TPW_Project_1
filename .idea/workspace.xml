@@ -5,16 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0651ba9e-7f9c-431d-9010-36bdefdb3564" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/AmorCamisola/static/css/bootstrap.min.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AmorCamisola/static/scripts/bootstrap.min.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AmorCamisola/static/scripts/jquery-3.4.1.min.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AmorCamisola/static/scripts/jquery.validate.min.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AmorCamisola/static/scripts/popper.min.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AmorCamisola/templates/layout.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AmorCamisola/templates/register.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AmorCamisola/templates/createAccount.html" beforeDir="false" afterPath="$PROJECT_DIR$/AmorCamisola/templates/createAccount.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AmorCamisola/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/AmorCamisola/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TPW_Project_1/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/TPW_Project_1/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/TPW_Project_1/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/TPW_Project_1/urls.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -37,22 +30,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Django Server.TPW_Project_1.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;sellProductForm&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/rodrigoabreu/Desktop/LEI/TerceiroAno/TPW/projeto1/TPW_Project_1/AmorCamisola/static&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Django Server.TPW_Project_1.executor": "Run",
+    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
+    "git-widget-placeholder": "sellProductForm",
+    "last_opened_file_path": "/home/rodrigoabreu/Desktop/LEI/TerceiroAno/TPW/projeto1/TPW_Project_1/AmorCamisola/static",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/AmorCamisola/static" />
@@ -93,8 +87,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PY-242.23339.19" />
-        <option value="bundled-python-sdk-0029f7779945-399fe30bd8c1-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.23339.19" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PY-242.23726.102" />
+        <option value="bundled-python-sdk-5e1850174b45-399fe30bd8c1-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.23726.102" />
       </set>
     </attachedChunks>
   </component>
@@ -109,6 +103,7 @@
       <workItem from="1729520554009" duration="1223000" />
       <workItem from="1729618056849" duration="28000" />
       <workItem from="1729693040065" duration="13202000" />
+      <workItem from="1729713534368" duration="2801000" />
     </task>
     <servers />
   </component>

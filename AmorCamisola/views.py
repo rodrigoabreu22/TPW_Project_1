@@ -26,36 +26,33 @@ def home(request):
 
 
 
-def register(request):
+def createAccount(request):
     if request.method == 'POST':
         form = CreateAccountForm(request.POST)
         print(form.errors)
 
         if form.is_valid():
-            # Check if user already exists
-            u = User.objects.filter(username=form.cleaned_data['username'])
+            user = User.objects.filter(username=form.cleaned_data['username'])
 
-            if u:
-                return render(request, 'register.html', {'form': form, 'error': True})
-
+            if user:
+                return render(request, 'createAccount.html', {'form': form, 'error': True})
             else:
                 form.save()
+                firstname = form.cleaned_data['firstname']
+                lastname = form.cleaned_data['lastname']
                 email = form.cleaned_data.get('email')
                 username = form.cleaned_data.get('username')
-                raw_password = form.cleaned_data.get('password1')
+                password = form.cleaned_data.get('password1')
 
-                # Authenticate user then login
-                user = authenticate(username=username, password=raw_password)
+                user = authenticate(username=username, password=password)
                 auth_login(request, user)
 
-                # Create user in our database
-                user = User.objects.create(username=username, email=email, password=raw_password,
-                                           name=form.cleaned_data['name'])
+                user = User.objects.create(firstname=firstname, lastname=lastname, username=username, email=email, password=password)
                 user.save()
 
                 return redirect('/')
         else:
-            return render(request, 'register.html', {'form': form, 'error': True})
+            return render(request, 'createAccount.html', {'form': form, 'error': True})
     else:
-        form = RegisterForm()
-        return render(request, 'register.html', {'form': form, 'error': False})
+        form = CreateAccountForm()
+        return render(request, 'createAccount.html', {'form': form, 'error': False})
