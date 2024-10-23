@@ -3,13 +3,12 @@ from django.db import models
 
 # Create your models here.
 class User(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=50)
     primeiroNome = models.CharField(max_length=50)
     ultimoNome = models.CharField(max_length=50)
-    cc = models.CharField(max_length=50)
+    cc = models.CharField(max_length=50, primary_key=True)
     wallet = models.DecimalField(max_digits=50, decimal_places=2)
     following = models.ManyToManyField(to="self", related_name="followings", symmetrical=False)
 
@@ -19,6 +18,7 @@ class User(models.Model):
 
 class Moderador(models.Model):
     id = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    admin = models.BooleanField(default=False)
 
 class Produto(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -50,16 +50,18 @@ class Calcoes(models.Model):
         return self.id.nome
 
 class Meias(models.Model):
+    SIZE_CHOICES = ("S", "M", "L")
     id = models.OneToOneField(Produto, on_delete=models.CASCADE, primary_key=True)
-    tamanho = models.PositiveIntegerField()
+    tamanho = models.CharField(max_length=50, choices=SIZE_CHOICES)
 
     def __str__(self):
         return self.id.nome
 
 class Chuteiras(models.Model):
+    SIZE_CHOICES = (36, 36.5, 37, 37.5, 38, 38.5, 39, 39.5, 40, 40.5, 41, 41.5, 42, 42.5, 43, 43.5, 44, 44.5, 45, 45.5, 46, 46.5, 47)
     id = models.OneToOneField(Produto, on_delete=models.CASCADE, primary_key=True)
-    tamanho = models.PositiveIntegerField()
-
+    tamanho = models.DecimalField(max_digits=50, decimal_places=2, choices=SIZE_CHOICES
+                                  )
     def __str__(self):
         return self.id.nome
 
