@@ -12,12 +12,12 @@ class User(models.Model):
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=50)
-    primeiroNome = models.CharField(max_length=50)
-    ultimoNome = models.CharField(max_length=50)
+    firstname = models.CharField(max_length=50)
+    lastname = models.CharField(max_length=50)
     cc = models.CharField(max_length=50, primary_key=True)
     address = models.CharField(max_length=50)
-    telemovel = PhoneNumberField(unique=True, null=False, blank=False)
-    wallet = models.DecimalField(max_digits=50, decimal_places=2)
+    phone = PhoneNumberField(unique=True, null=False, blank=False)
+    wallet = models.DecimalField(max_digits=50, decimal_places=2, default=0)
 
     def __str__(self):
         return self.username
