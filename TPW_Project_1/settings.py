@@ -57,7 +57,7 @@ ROOT_URLCONF = 'TPW_Project_1.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
+        'DIRS': [BASE_DIR / 'AmorCamisola/templates']
         ,
         'APP_DIRS': True,
         'OPTIONS': {
