@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h1>Criar conta</h1>
+<form method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <div><button type="submit">Criar conta</button></div>
+</form>
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+  <p>Search by: <strong>{{ query }}</strong></p>
+  {% if boks %}
+    <p>Found {{ boks|length }} book{{ boks|pluralize }}.</p>
+    <ul>
+      {% for bok in boks %}
+        <li>{{ bok.title }}</li>
+        <ul>
+          <li>{{ bok.publisher }}</li>
+          <li>{{ bok.date }}</li>
+          <ul>
+            {% for aut in bok.authors.all %}
+              <li>{{ aut }}</li>
+            {% endfor %}
+          </ul>
+        </ul>
+          <form action="{% url 'buy_book' book.id %}">
+              {% csrf_token %}
+              <button type="submit">Buy</button>
+          </form>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Not found any result.</p>
+  {% endif %}
+{% endblock %}
