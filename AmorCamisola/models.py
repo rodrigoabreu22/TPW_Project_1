@@ -31,61 +31,62 @@ class Following(models.Model):
         return self.following.username + " follows " + self.followed.username
 
 
-class Moderador(models.Model):
-    id = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)
+class Moderator(models.Model):
+    cc = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)
     admin = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.cc
 
-class Produto(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    nome = models.CharField(max_length=50)
-    vendedor = models.ForeignKey(User, on_delete=models.CASCADE)
+
+class Product(models.Model):
+    name = models.CharField(max_length=50)
+    seller = models.ForeignKey(User, on_delete=models.CASCADE)
     # compra = models.ForeignKey(Purchase) isto seria caso tenhamos historico de compras
-    imagem = models.ImageField(upload_to='produtos')
-    preco = models.DecimalField(max_digits=5, decimal_places=2)
-    equipa = models.CharField(max_length=50)
-    descricao = models.TextField()
+    image = models.ImageField(upload_to='produtos')
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    team = models.CharField(max_length=50, null=True)
+    description = models.TextField()
 
     def __str__(self):
-        return self.nome
+        return self.name
 
 class Favorite(models.Model):
-    userId = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Produto, on_delete=models.CASCADE)
     def __str__(self):
-        return self.userId.username + " favorites " + self.product.nome
+        return self.user + " favorites " + self.product
 
-class Camisola(models.Model):
-    id = models.ForeignKey(Produto, on_delete=models.CASCADE, primary_key=True)
-    tamanho = models.CharField(max_length=50, choices=CLOTHES_CHOICES)
-
-    def __str__(self):
-        return self.id.nome
-
-
-class Calcoes(models.Model):
-
-    id = models.ForeignKey(Produto, on_delete=models.CASCADE, primary_key=True)
-    tamanho = models.CharField(max_length=50, choices=CLOTHES_CHOICES)
+class Jersey(models.Model):
+    product = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    size = models.CharField(max_length=50, choices=CLOTHES_CHOICES)
 
     def __str__(self):
-        return self.id.nome
+        return self.product
 
 
-class Meias(models.Model):
-    id = models.ForeignKey(Produto, on_delete=models.CASCADE, primary_key=True)
-    tamanho = models.CharField(max_length=50, choices=SOCKS_CHOICES)
-
-    def __str__(self):
-        return self.id.nome
-
-
-class Chuteiras(models.Model):
-    id = models.ForeignKey(Produto, on_delete=models.CASCADE, primary_key=True)
-    tamanho = models.DecimalField(max_digits=50, decimal_places=2, choices=BOOTS_CHOICES)
+class Shorts(models.Model):
+    product = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    size = models.CharField(max_length=50, choices=CLOTHES_CHOICES)
 
     def __str__(self):
-        return self.id.nome
+        return self.product
+
+
+class Socks(models.Model):
+    product = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    size = models.CharField(max_length=50, choices=SOCKS_CHOICES)
+
+    def __str__(self):
+        return self.product
+
+
+class Boots(models.Model):
+    product = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    size = models.DecimalField(max_digits=50, decimal_places=2, choices=BOOTS_CHOICES)
+
+    def __str__(self):
+        return self.product
 
 
 """Deixar para o fim!!!
