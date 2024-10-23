@@ -53,12 +53,12 @@ class Product(models.Model):
 
 class Favorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     def __str__(self):
         return self.user + " favorites " + self.product
 
 class Jersey(models.Model):
-    product = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     size = models.CharField(max_length=50, choices=CLOTHES_CHOICES)
 
     def __str__(self):
@@ -66,7 +66,7 @@ class Jersey(models.Model):
 
 
 class Shorts(models.Model):
-    product = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     size = models.CharField(max_length=50, choices=CLOTHES_CHOICES)
 
     def __str__(self):
@@ -74,7 +74,7 @@ class Shorts(models.Model):
 
 
 class Socks(models.Model):
-    product = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     size = models.CharField(max_length=50, choices=SOCKS_CHOICES)
 
     def __str__(self):
@@ -82,7 +82,7 @@ class Socks(models.Model):
 
 
 class Boots(models.Model):
-    product = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     size = models.DecimalField(max_digits=50, decimal_places=2, choices=BOOTS_CHOICES)
 
     def __str__(self):
