@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0651ba9e-7f9c-431d-9010-36bdefdb3564" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/AmorCamisola/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AmorCamisola/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/AmorCamisola/forms.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,7 +33,7 @@
     "Django Server.TPW_Project_1.executor": "Run",
     "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "createAccountForm",
+    "git-widget-placeholder": "sellProductForm",
     "last_opened_file_path": "/home/rodrigoabreu/Desktop/LEI/TerceiroAno/TPW/projeto1/TPW_Project_1",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -91,7 +90,7 @@
       <updated>1729520546837</updated>
       <workItem from="1729520554009" duration="1223000" />
       <workItem from="1729618056849" duration="28000" />
-      <workItem from="1729693040065" duration="6266000" />
+      <workItem from="1729693040065" duration="9638000" />
     </task>
     <servers />
   </component>
