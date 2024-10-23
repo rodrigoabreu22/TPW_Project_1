@@ -1,10 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-</head>
-<body>
+{% extends "layout.html" %}
 
-</body>
-</html>
+{% block content %}
+
+<h1>{{ user.username }}</h1>
+
+  <div class="container">
+    <div class="row profile-body mt-4">
+      <div class="col-md-4">
+        <h5>Following:</h5>
+        {{ user.following }}
+      </div>
+      <div class="col-md-4">
+        <h5>Currently selling:</h5>
+          {% for product in user.selling %}
+              {{ product }}
+          {% endfor %}
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Information</h5>
+        <p>Email: {{ user.address }}</p>
+        <p>Phone: {{ user.phone }}</p>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
