@@ -15,13 +15,18 @@ class CreateAccountForm(forms.Form):
 
 
 class ProductForm(forms.ModelForm):
-    class Meta:
-        model = Produto
-        fields = ['nome', 'descricao', 'preco', 'equipa']
-        widgets = {
-            'nome': forms.TextInput(attrs={'class': 'form-control'}),
-            'descricao': forms.Textarea(attrs={'class': 'form-control'}),
-            'preco': forms.NumberInput(attrs={'class': 'form-control'}),
-            'equipa': forms.TextInput(attrs={'class': 'form-control'}),
-        }
+    CATEGORIES= [
+        ('1', 'Camisola'),
+        ('2', 'Calções'),
+        ('3', 'Meias'),
+        ('4', 'Chuteira'),
+    ]
+
+    name = forms.CharField(label='Nome', max_length=255, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    description = forms.CharField(label='Descrição', required=True, widget=forms.Textarea(attrs={'class': 'form-control'}))
+    price = forms.DecimalField(label='Preço', required=True, widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    team = forms.CharField(label='Equipa', max_length=255, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    category = forms.ChoiceField(label='Categoria', choices=CATEGORIES, required=True, widget=forms.Select(attrs={'class': 'form-control'}))
+    image = forms.ImageField(label='Imagem do Produto', required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}))
+    size = forms.CharField(label='Tamanho', widget=forms.TextInput(attrs={'class': 'form-control'}))
 

@@ -55,3 +55,52 @@ def createAccount(request):
     else:
         form = CreateAccountForm()
     return render(request, 'createAccount.html', {'form': form, 'error': False})
+
+
+def pubProduct(request):
+    if request.method == 'POST':
+        form = (request.POST)
+        print(form.errors)
+
+        if form.is_valid():
+            if request.user.is_authenticated:
+                name = form.cleaned_data['name']
+                description = form.cleaned_data['description']
+                price = form.cleaned_data['price']
+                team = form.cleaned_data['team']
+                category = form.cleaned_data['category']
+                size = form.cleaned_data['size']
+
+                seller = request.user.username
+
+                product = Product(name=name, description=description, price=price, team=team, seller=seller)
+                product.save()
+
+                if category == "Camisola":
+                    if size in ['XS', 'S', 'M', 'L', 'XL', 'XXL']:
+                        camisola = Jersey(product=product.id, size=size)
+                        camisola.save()
+                elif category == "Shorts":
+                    if size in ['XS', 'S', 'M', 'L', 'XL', 'XXL']:
+                        shorts = Shorts(product=product.id, size=size)
+                        shorts.save()
+                elif category == "Socks":
+                    if size in ['XS', 'S', 'M', 'L', 'XL', 'XXL']:
+                        socks = Socks(product=product.id, size=size)
+                        socks.save()
+                elif category == "Boots":
+                    try:
+                        size = int(size)
+                    except ValueError:
+                        return render(request, 'publishProduct.html', {'form': form, 'error': True})
+
+                    if size in [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]:
+                        socks = Socks(product=product.id, size=size)
+                        socks.save()
+
+                return redirect('/')
+        else:
+            return render(request, 'publishProduct.html', {'form': form, 'error': True})
+    else:
+        form = CreateAccountForm()
+    return render(request, 'publishProduct.html', {'form': form, 'error': False})

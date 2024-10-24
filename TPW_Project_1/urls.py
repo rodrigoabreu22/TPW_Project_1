@@ -7,4 +7,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('createaccount/', views.createAccount, name='createAccount'),
+
+    path('publishproduct/', views.pubProduct, name='publishproduct'),
 ]
