@@ -55,3 +55,12 @@ def createAccount(request):
     else:
         form = CreateAccountForm()
     return render(request, 'createAccount.html', {'form': form, 'error': False})
+
+def viewProfile(request, user_id=0):
+    user = User.objects.filter(id=user_id)
+    following = Following.objects.filter(following_id=user_id)
+    selling = Product.objects.filter(seller_id=user_id)
+
+    tparams = {"user" : user, "following" : following, "selling" : selling}
+
+    return render(request, 'profilePage.html', tparams)
