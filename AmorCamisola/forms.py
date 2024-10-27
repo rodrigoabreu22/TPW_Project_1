@@ -16,8 +16,8 @@ class CreateAccountForm(forms.Form):
 
 class ProductForm(forms.ModelForm):
     class Meta:
-        model = Produto
-        fields = ['nome', 'descricao', 'preco', 'equipa']
+        model = Product
+        fields = ['name', 'description', 'price', 'team']
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control'}),
             'descricao': forms.Textarea(attrs={'class': 'form-control'}),
