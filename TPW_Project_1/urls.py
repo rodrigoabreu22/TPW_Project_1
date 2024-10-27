@@ -10,5 +10,5 @@ urlpatterns = [
 
     path('publishproduct/', views.pubProduct, name='publishproduct'),
 
-path('userprofile/', views.viewProfile, name='viewProfile'),
+    path('userprofile/', views.viewProfile, name='viewProfile'),
 ]
