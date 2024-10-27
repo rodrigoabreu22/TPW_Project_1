@@ -9,4 +9,6 @@ urlpatterns = [
     path('createaccount/', views.createAccount, name='createAccount'),
 
     path('publishproduct/', views.pubProduct, name='publishproduct'),
+
+path('userprofile/', views.viewProfile, name='viewProfile'),
 ]
