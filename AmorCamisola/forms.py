@@ -2,19 +2,20 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from AmorCamisola.models import *
+from AmorCamisola.models import User as DBUser
 
 
-class CreateAccountForm(forms.Form):
-    firstname = forms.CharField(label='Nome', max_length=100, required=True)
-    lastname = forms.CharField(label='Último nome', max_length=100, required=True)
+class CreateAccountForm(UserCreationForm):
+    name = forms.CharField(label='Nome', max_length=100, required=True)
     username = forms.CharField(label='Nome de utilizador', max_length=100, required=True)
     email = forms.EmailField(label='Email', required=True)
-    cc = forms.CharField(label='Número cartão de cidadão', required=True)
-    password = forms.CharField(label='Password', widget=forms.PasswordInput, required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'name', 'email', 'password1', 'password2')
 
 
-
-class ProductForm(forms.ModelForm):
+class ProductForm(forms.Form):
     CATEGORIES= [
         ('1', 'Camisola'),
         ('2', 'Calções'),

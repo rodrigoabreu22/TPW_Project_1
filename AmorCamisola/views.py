@@ -5,16 +5,6 @@ from AmorCamisola.models import *
 from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import render, redirect
 
-from django.contrib.auth.hashers import make_password
-
-from django.shortcuts import get_object_or_404
-from django.views.decorators.http import require_POST
-from django.http import HttpResponse
-
-from django.db.models import Q
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-
 # Create your views here.
 
 def home(request):
@@ -36,21 +26,29 @@ def createAccount(request):
             if User.objects.filter(username=form.cleaned_data['username']):
                 return render(request, 'createAccount.html', {'form': form, 'error': True})
             else:
-                firstname = form.cleaned_data['firstname']
-                lastname = form.cleaned_data['lastname']
+                form.save()
+                name = form.cleaned_data['name']
+                #lastname = name
                 email = form.cleaned_data.get('email')
                 username = form.cleaned_data.get('username')
                 password = form.cleaned_data.get('password1')
-                cc = form.cleaned_data.get('cc')
+                #cc = form.cleaned_data.get('cc')
+                #phone = form.cleaned_data.get('phone')
 
-                user = User(firstname=firstname, lastname=lastname, username=username, email=email, cc=cc, password=make_password(password))
-                user.save()
+                #user = User(firstname=firstname, lastname=lastname, username=username, email=email, cc=cc, phone=phone, password=make_password(password))
+                #user.set_password(password)  # This securely sets the password
+                #user.save()
 
+                # Authenticate the user and log them in
                 user = authenticate(username=username, password=password)
-                #auth_login(request, user)
-
-                return redirect('/')
+                if user is not None:
+                    auth_login(request, user)
+                    return redirect('/')
+                else:
+                    # In case authentication fails, return an error message
+                    return render(request, 'createAccount.html', {'form': form, 'error': True})
         else:
+            # If the form is not valid, re-render with error messages
             return render(request, 'createAccount.html', {'form': form, 'error': True})
     else:
         form = CreateAccountForm()
@@ -67,7 +65,7 @@ def viewProfile(request, user_id=0):
 
 def pubProduct(request):
     if request.method == 'POST':
-        form = (request.POST)
+        form = ProductForm(request.POST)
         print(form.errors)
 
         if form.is_valid():
@@ -110,5 +108,5 @@ def pubProduct(request):
         else:
             return render(request, 'publishProduct.html', {'form': form, 'error': True})
     else:
-        form = CreateAccountForm()
+        form = ProductForm()
     return render(request, 'publishProduct.html', {'form': form, 'error': False})
