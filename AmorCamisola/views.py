@@ -57,10 +57,11 @@ def createAccount(request):
     return render(request, 'createAccount.html', {'form': form, 'error': False})
 
 def viewProfile(request, user_id=0):
-    user = User.objects.filter(id=user_id)
+    user = User.objects.get(id=user_id)
+    #user = User.objects.all()[0]
     following = Following.objects.filter(following_id=user_id)
     selling = Product.objects.filter(seller_id=user_id)
 
-    tparams = {"user" : user, "following" : following, "selling" : selling}
+    tparams = {"user" : user, "followList" : following, "selling" : selling}
 
     return render(request, 'profilePage.html', tparams)
