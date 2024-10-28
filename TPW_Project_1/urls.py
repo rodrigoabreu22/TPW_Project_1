@@ -7,12 +7,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('createaccount/', views.createAccount, name='createAccount'),
-
-    path('publishproduct/', views.pubProduct, name='publishproduct'),
-
     path('userprofile/', views.viewProfile, name='viewProfile'),
-
+    path('publishproduct/', views.pubProduct, name='publishproduct'),
     path('login/',auth_views.LoginView.as_view(template_name="login.html"), name='login'),
-
     path('logout', auth_views.LogoutView.as_view(next_page='publishproduct'), name='logout'),
+    path('',views.home, name='home'),
 ]

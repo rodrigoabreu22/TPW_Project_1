@@ -2,9 +2,47 @@ import uuid
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
-CLOTHES_CHOICES = ((0, "XS"), (1, "S"), (2, "M"), (3, "L"), (4, "XL"), (5, "XXL"))
-SOCKS_CHOICES = ((0, "S"), (1, "M"), (2, "L"))
-BOOTS_CHOICES = ((0, 36), (1, 37), (2, 38), (3, 39), (4, 40), (5, 41), (6, 42), (7, 43), (8, 44), (9, 45), (10, 46), (11, 47))
+CLOTHES_CHOICES = (
+    ("XS", "XS"),
+    ("S", "S"),
+    ("M", "M"),
+    ("L", "L"),
+    ("XL", "XL"),
+    ("XXL", "XXL")
+)
+
+SOCKS_CHOICES = (
+    ("S", "S"),
+    ("M", "M"),
+    ("L", "L")
+)
+
+BOOTS_CHOICES = (
+    (36, 36),
+    (36.5, 36.5),
+    (37, 37),
+    (37.5, 37.5),
+    (38, 38),
+    (38.5, 38.5),
+    (39, 39),
+    (39.5, 39.5),
+    (40, 40),
+    (40.5, 40.5),
+    (41, 41),
+    (41.5, 41.5),
+    (42, 42),
+    (42.5, 42.5),
+    (43, 43),
+    (43.5, 43.5),
+    (44, 44),
+    (44.5, 44.5),
+    (45, 45),
+    (45.5, 45.5),
+    (46, 46),
+    (46.5, 46.5),
+    (47, 47)
+)
+
 
 
 
@@ -14,7 +52,7 @@ class User(models.Model):
     password = models.CharField(max_length=50)
     firstname = models.CharField(max_length=50)
     lastname = models.CharField(max_length=50)
-    cc = models.CharField(max_length=50, primary_key=True)
+    cc = models.CharField(max_length=50)
     address = models.CharField(max_length=50)
     phone = PhoneNumberField(unique=True, null=False, blank=False)
     wallet = models.DecimalField(max_digits=50, decimal_places=2, default=0)
@@ -24,19 +62,19 @@ class User(models.Model):
 
 
 class Following(models.Model):
-    following = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="follower")
-    followed = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="followed")
+    following = models.OneToOneField(User, on_delete=models.CASCADE, related_name='follower_id')
+    followed = models.OneToOneField(User, on_delete=models.CASCADE, related_name='followed_id')
 
     def __str__(self):
         return self.following.username + " follows " + self.followed.username
 
 
 class Moderator(models.Model):
-    cc = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     admin = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.cc
+        return self.user.username
 
 
 class Product(models.Model):
@@ -53,13 +91,13 @@ class Product(models.Model):
         return self.name
 
 class Favorite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE)
     def __str__(self):
-        return self.user + " favorites " + self.product
+        return self.user.username + " favorites " + self.product.name
 
 class Jersey(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE)
     size = models.CharField(max_length=50, choices=CLOTHES_CHOICES)
 
     def __str__(self):
@@ -67,7 +105,7 @@ class Jersey(models.Model):
 
 
 class Shorts(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE)
     size = models.CharField(max_length=50, choices=CLOTHES_CHOICES)
 
     def __str__(self):
@@ -75,7 +113,7 @@ class Shorts(models.Model):
 
 
 class Socks(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE)
     size = models.CharField(max_length=50, choices=SOCKS_CHOICES)
 
     def __str__(self):
@@ -83,7 +121,7 @@ class Socks(models.Model):
 
 
 class Boots(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE)
     size = models.DecimalField(max_digits=50, decimal_places=2, choices=BOOTS_CHOICES)
 
     def __str__(self):
