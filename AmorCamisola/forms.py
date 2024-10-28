@@ -3,16 +3,33 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from AmorCamisola.models import *
 from AmorCamisola.models import User as DBUser
+from phonenumber_field.formfields import PhoneNumberField
 
 
 class CreateAccountForm(UserCreationForm):
-    name = forms.CharField(label='Nome', max_length=100, required=True)
-    username = forms.CharField(label='Nome de utilizador', max_length=100, required=True)
     email = forms.EmailField(label='Email', required=True)
+    cc = forms.CharField(label='CC', max_length=50)
+    address = forms.CharField(label='Address', max_length=50)
+    phone = PhoneNumberField(label='Phone', required=True)
 
     class Meta:
         model = User
-        fields = ('username', 'name', 'email', 'password1', 'password2')
+        fields = ('username', 'email', 'password1', 'password2')
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+
+        if commit:
+            user.save()
+            # Save additional fields in UserProfile
+            UserProfile.objects.create(
+                user=user,
+                cc=self.cleaned_data['cc'],
+                address=self.cleaned_data['address'],
+                phone=self.cleaned_data['phone']
+            )
+        return user
 
 
 class ProductForm(forms.Form):

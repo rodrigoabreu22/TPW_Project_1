@@ -65,39 +65,47 @@ def home(request):
 def createAccount(request):
     if request.method == 'POST':
         form = CreateAccountForm(request.POST)
-        print(form.errors)
+        print(form.errors)  # Debugging: See form errors if the form is not valid
 
         if form.is_valid():
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password1']
+            cc = form.cleaned_data.get('cc')
+            address = form.cleaned_data.get('address')
+            phone = form.cleaned_data.get('phone')
 
-            if User.objects.filter(username=form.cleaned_data['username']):
-                return render(request, 'createAccount.html', {'form': form, 'error': True})
+            # Check if the username already exists
+            if User.objects.filter(username=username).exists():
+                return render(request, 'createAccount.html', {'form': form, 'error': 'Username already exists'})
+
+            # Save the user (this automatically hashes the password)
+            user = form.save(commit=True)
+
+            # Create the associated UserProfile
+            UserProfile.objects.create(
+                user=user,
+                cc=cc,
+                address=address,
+                phone=phone,
+                wallet=0  # Default wallet value; adjust if needed
+            )
+
+            # Authenticate and log the user in
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                auth_login(request, user)
+                return redirect('/')  # Redirect to home or another page
             else:
-                form.save()
-                name = form.cleaned_data['name']
-                #lastname = name
-                email = form.cleaned_data.get('email')
-                username = form.cleaned_data.get('username')
-                password = form.cleaned_data.get('password1')
-                #cc = form.cleaned_data.get('cc')
-                #phone = form.cleaned_data.get('phone')
+                # In case authentication fails, return an error message
+                return render(request, 'createAccount.html', {'form': form, 'error': 'Authentication failed'})
 
-                #user = User(firstname=firstname, lastname=lastname, username=username, email=email, cc=cc, phone=phone, password=make_password(password))
-                #user.set_password(password)  # This securely sets the password
-                #user.save()
-
-                # Authenticate the user and log them in
-                user = authenticate(username=username, password=password)
-                if user is not None:
-                    auth_login(request, user)
-                    return redirect('/')
-                else:
-                    # In case authentication fails, return an error message
-                    return render(request, 'createAccount.html', {'form': form, 'error': True})
         else:
             # If the form is not valid, re-render with error messages
-            return render(request, 'createAccount.html', {'form': form, 'error': True})
+            return render(request, 'createAccount.html', {'form': form, 'error': 'Form is not valid'})
+
     else:
-        form = CreateAccountForm()
+        form = CreateAccountForm()  # GET request, instantiate a blank form
     return render(request, 'createAccount.html', {'form': form, 'error': False})
 
 def viewProfile(request, user_id=0):
