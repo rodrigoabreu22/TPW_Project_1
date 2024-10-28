@@ -132,7 +132,7 @@ def pubProduct(request):
                 category = form.cleaned_data['category']
                 size = form.cleaned_data['size']
 
-                seller = request.user.username
+                seller = request.user
 
                 product = Product(name=name, description=description, price=price, team=team, seller=seller)
                 product.save()
