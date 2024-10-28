@@ -25,3 +25,58 @@ class ProductForm(forms.ModelForm):
             'equipa': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
+class ProductQuery(forms.Form):
+    name_query = forms.CharField(label='Search product name', max_length=50, required=False)
+    user_query = forms.CharField(label='Search seller', max_length=50, required=False)
+
+    # Dynamically load teams from the Product model
+    teams = forms.ModelMultipleChoiceField(
+        queryset=Product.objects.values_list('team', flat=True).distinct(),
+        widget=forms.CheckboxSelectMultiple(),
+        label='Teams',
+        required=False
+    )
+
+    PRODUCT_TYPE_CHOICES = [
+        ('Jersey', 'Jersey'),
+        ('Boots', 'Boots'),
+        ('Socks', 'Socks'),
+        ('Shorts', 'Shorts'),
+    ]
+    product_types = forms.MultipleChoiceField(
+        choices=PRODUCT_TYPE_CHOICES,
+        widget=forms.CheckboxSelectMultiple(),
+        label='Product Types',
+        required=False
+    )
+
+    # Price range fields
+    min_price = forms.DecimalField(
+        label='Minimum Price',
+        max_digits=10,
+        decimal_places=2,
+        required=False
+    )
+    max_price = forms.DecimalField(
+        label='Maximum Price',
+        max_digits=10,
+        decimal_places=2,
+        required=False
+    )
+
+    # Sorting options
+    SORT_CHOICES = [
+        ('price_asc', 'Price (Low to High)'),
+        ('price_desc', 'Price (High to Low)'),
+        ('name_asc', 'Product Name (A to Z)'),
+        ('name_desc', 'Product Name (Z to A)'),
+        ('seller_asc', 'Seller Name (A to Z)'),
+        ('seller_desc', 'Seller Name (Z to A)'),
+    ]
+    sort_by = forms.ChoiceField(
+        choices=SORT_CHOICES,
+        label='Sort By',
+        required=False
+    )
+
+
