@@ -3,7 +3,6 @@
 {% block content %}
 <div class="container">
     <h1>Product Search</h1>
-    
     <form method="GET" action="{% url 'home' %}">
         <div class="form-group">
             <label for="id_name_query">Search Product Name</label>
@@ -18,12 +17,17 @@
         <div class="form-group">
             <label>Teams</label>
             <div>
-                {% for team in form.teams %}
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="{{ team.id_for_label }}" name="{{ team.name }}" value="{{ team.choice_value }}">
-                        <label class="form-check-label" for="{{ team.id_for_label }}">{{ team.choice_label }}</label>
-                    </div>
-                {% endfor %}
+                {% if form.teams %}
+                    {% for team in form.teams %}
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="{{ team.choice_label }}" name="teams" value="{{ team.choice_label }}"
+                                   {% if team.choice_label in selected_teams %}checked{% endif %}>
+                            <label class="form-check-label" for="{{ team.choice_label }}">{{ team.choice_label }}</label>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No teams available to filter by.</p>
+                {% endif %}
             </div>
         </div>
 
@@ -32,8 +36,12 @@
             <div>
                 {% for product_type in form.product_types %}
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="{{ product_type.id_for_label }}" name="{{ product_type.name }}" value="{{ product_type.choice_value }}">
-                        <label class="form-check-label" for="{{ product_type.id_for_label }}">{{ product_type.choice_label }}</label>
+                        <input type="checkbox" class="form-check-input" 
+                               id="{{ product_type.choice_label }}" 
+                               name="product_types" 
+                               value="{{ product_type.choice_label }}"
+                               {% if product_type.choice_label in selected_types %}checked{% endif %}>
+                        <label class="form-check-label" for="{{ product_type.choice_label }}">{{ product_type.choice_label }}</label>
                     </div>
                 {% endfor %}
             </div>
