@@ -1,4 +1,5 @@
 import uuid
+from django.contrib.auth.models import User
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -46,19 +47,15 @@ BOOTS_CHOICES = (
 
 
 
-class User(models.Model):
-    username = models.CharField(max_length=50, unique=True)
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=50)
-    firstname = models.CharField(max_length=50)
-    lastname = models.CharField(max_length=50)
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     cc = models.CharField(max_length=50)
     address = models.CharField(max_length=50)
     phone = PhoneNumberField(unique=True, null=False, blank=False)
     wallet = models.DecimalField(max_digits=50, decimal_places=2, default=0)
 
     def __str__(self):
-        return self.username
+        return self.user.username
 
 
 class Following(models.Model):
