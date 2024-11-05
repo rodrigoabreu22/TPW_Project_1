@@ -61,7 +61,8 @@ class ProductQuery(forms.Form):
     # Dynamically load teams from the Product model
     teams = forms.MultipleChoiceField(
         label="Teams",
-        choices=[(team, team) for team in Product.objects.values_list("team", flat=True).distinct() if team],
+        choices=[],
+        #choices=[(team, team) for team in Product.objects.values_list("team", flat=True).distinct() if team],
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
@@ -107,5 +108,12 @@ class ProductQuery(forms.Form):
         label='Sort By',
         required=False
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Define os choices de 'teams' dinamicamente
+        self.fields['teams'].choices = [
+            (team, team) for team in Product.objects.values_list("team", flat=True).distinct() if team
+        ]
 
 
