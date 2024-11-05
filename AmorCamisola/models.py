@@ -78,7 +78,7 @@ class Product(models.Model):
     name = models.CharField(max_length=50)
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     # compra = models.ForeignKey(Purchase) isto seria caso tenhamos historico de compras
-    image = models.ImageField(upload_to='produtos')
+    image = models.ImageField(upload_to='produtos/')
     price = models.DecimalField(max_digits=5, decimal_places=2)
     team = models.CharField(max_length=50, null=True)
     description = models.TextField()

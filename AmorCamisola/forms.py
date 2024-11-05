@@ -59,10 +59,10 @@ class ProductQuery(forms.Form):
     user_query = forms.CharField(label='Search seller', max_length=50, required=False)
 
     # Dynamically load teams from the Product model
-    teams = forms.ModelMultipleChoiceField(
-        queryset=Product.objects.values_list('team', flat=True).distinct(),
-        widget=forms.CheckboxSelectMultiple(),
-        label='Teams',
+    teams = forms.MultipleChoiceField(
+        label="Teams",
+        choices=[(team, team) for team in Product.objects.values_list("team", flat=True).distinct() if team],
+        widget=forms.CheckboxSelectMultiple,
         required=False
     )
 
@@ -73,9 +73,9 @@ class ProductQuery(forms.Form):
         ('Shorts', 'Shorts'),
     ]
     product_types = forms.MultipleChoiceField(
+        label='Product Types',
         choices=PRODUCT_TYPE_CHOICES,
         widget=forms.CheckboxSelectMultiple(),
-        label='Product Types',
         required=False
     )
 
