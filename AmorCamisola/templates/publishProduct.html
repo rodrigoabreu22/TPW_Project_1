@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>a</h1>
+    <h1>a</h1> 
+    <h1>a</h1>
+<h1>Listar Produto</h1>
+<form action="." method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+        {{ form.name.label }}
+        <div class="col-md-10">
+            {{ form.name }}
+        </div>
+    </div>
+
+    <div class="form-group">
+        {{ form.description.label }}
+        <div class="col-md-10">
+            {{ form.description }}
+        </div>
+    </div>
+
+    <div class="form-group">
+        {{ form.price.label }}
+        <div class="col-md-10">
+            {{ form.price }}
+        </div>
+    </div>
+
+    <div class="form-group">
+        {{ form.image.label }}
+        <div class="col-md-10">
+            {{ form.image }}
+        </div>
+    </div>
+
+    <div class="form-group">
+        {{ form.team.label }}
+        <div class="col-md-10">
+            {{ form.team }}
+        </div>
+    </div>
+
+    <div class="form-group">
+        {{ form.category.label }}
+        <div class="col-md-10">
+            {{ form.category }}
+        </div>
+    </div>
+
+    <div class="form-group">
+        {{ form.size.label }}
+        <div class="col-md-10">
+            {{ form.size }}
+        </div>
+    </div>
+
+    <div><button type="submit">Listar Produto</button></div>
+</form>
+{% endblock %}

@@ -5,16 +5,6 @@ from AmorCamisola.models import *
 from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import render, redirect
 
-from django.contrib.auth.hashers import make_password
-
-from django.shortcuts import get_object_or_404
-from django.views.decorators.http import require_POST
-from django.http import HttpResponse
-
-from django.db.models import Q
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-
 # Create your views here.
 
 def home(request):
@@ -78,38 +68,83 @@ def home(request):
 def createAccount(request):
     if request.method == 'POST':
         form = CreateAccountForm(request.POST)
+        print(form.errors)  # Debugging: See form errors if the form is not valid
+
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+
+            # Save the user (this automatically hashes the password)
+            user = form.save(commit=True)
+
+            # Authenticate and log the user in
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                auth_login(request, user)
+                return redirect('/')  # Redirect to home or another page
+            else:
+                return render(request, 'createAccount.html', {'form': form, 'error': 'Authentication failed'})
+
+        else:
+            return render(request, 'createAccount.html', {'form': form, 'error': 'Form is not valid'})
+
+    else:
+        form = CreateAccountForm()  # GET request, instantiate a blank form
+    return render(request, 'createAccount.html', {'form': form, 'error': False})
+
+def viewProfile(request):
+    user = User.objects.get(id=request.user.id)
+    following = Following.objects.filter(following_id=request.user.id)
+    selling = Product.objects.filter(seller_id=request.user.id)
+    profile = UserProfile.objects.get(user=request.user)
+
+    tparams = {"user" : user, "followList" : following, "selling" : selling, "profile" : profile}
+
+    return render(request, 'profilePage.html', tparams)
+
+def pubProduct(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
         print(form.errors)
         if form.is_valid():
+            if request.user.is_authenticated:
+                name = form.cleaned_data['name']
+                description = form.cleaned_data['description']
+                price = form.cleaned_data['price']
+                team = form.cleaned_data['team']
+                category = form.cleaned_data['category']
+                size = form.cleaned_data['size']
 
-            if User.objects.filter(username=form.cleaned_data['username']):
-                return render(request, 'createAccount.html', {'form': form, 'error': True})
-            else:
-                firstname = form.cleaned_data['firstname']
-                lastname = form.cleaned_data['lastname']
-                email = form.cleaned_data.get('email')
-                username = form.cleaned_data.get('username')
-                password = form.cleaned_data.get('password1')
-                cc = form.cleaned_data.get('cc')
+                seller = request.user
 
-                user = User(firstname=firstname, lastname=lastname, username=username, email=email, cc=cc, password=make_password(password))
-                user.save()
+                product = Product(name=name, description=description, price=price, team=team, seller=seller)
+                product.save()
 
-                user = authenticate(username=username, password=password)
-                #auth_login(request, user)
+                if category == "Camisola":
+                    if size in ['XS', 'S', 'M', 'L', 'XL', 'XXL']:
+                        camisola = Jersey(product=product.id, size=size)
+                        camisola.save()
+                elif category == "Shorts":
+                    if size in ['XS', 'S', 'M', 'L', 'XL', 'XXL']:
+                        shorts = Shorts(product=product.id, size=size)
+                        shorts.save()
+                elif category == "Socks":
+                    if size in ['XS', 'S', 'M', 'L', 'XL', 'XXL']:
+                        socks = Socks(product=product.id, size=size)
+                        socks.save()
+                elif category == "Boots":
+                    try:
+                        size = int(size)
+                    except ValueError:
+                        return render(request, 'publishProduct.html', {'form': form, 'error': True})
+
+                    if size in [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]:
+                        socks = Socks(product=product.id, size=size)
+                        socks.save()
 
                 return redirect('/')
         else:
-            return render(request, 'createAccount.html', {'form': form, 'error': True})
+            return render(request, 'publishProduct.html', {'form': form, 'error': True})
     else:
-        form = CreateAccountForm()
-    return render(request, 'createAccount.html', {'form': form, 'error': False})
-
-def viewProfile(request, user_id=0):
-    user = User.objects.get(id=user_id)
-    #user = User.objects.all()[0]
-    following = Following.objects.filter(following_id=user_id)
-    selling = Product.objects.filter(seller_id=user_id)
-
-    tparams = {"user" : user, "followList" : following, "selling" : selling}
-
-    return render(request, 'profilePage.html', tparams)
+        form = ProductForm()
+    return render(request, 'publishProduct.html', {'form': form, 'error': False})
