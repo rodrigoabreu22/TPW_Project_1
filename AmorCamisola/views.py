@@ -69,27 +69,10 @@ def createAccount(request):
 
         if form.is_valid():
             username = form.cleaned_data['username']
-            email = form.cleaned_data['email']
             password = form.cleaned_data['password1']
-            cc = form.cleaned_data.get('cc')
-            address = form.cleaned_data.get('address')
-            phone = form.cleaned_data.get('phone')
-
-            # Check if the username already exists
-            if User.objects.filter(username=username).exists():
-                return render(request, 'createAccount.html', {'form': form, 'error': 'Username already exists'})
 
             # Save the user (this automatically hashes the password)
             user = form.save(commit=True)
-
-            # Create the associated UserProfile
-            UserProfile.objects.create(
-                user=user,
-                cc=cc,
-                address=address,
-                phone=phone,
-                wallet=0  # Default wallet value; adjust if needed
-            )
 
             # Authenticate and log the user in
             user = authenticate(username=username, password=password)
@@ -97,24 +80,22 @@ def createAccount(request):
                 auth_login(request, user)
                 return redirect('/')  # Redirect to home or another page
             else:
-                # In case authentication fails, return an error message
                 return render(request, 'createAccount.html', {'form': form, 'error': 'Authentication failed'})
 
         else:
-            # If the form is not valid, re-render with error messages
             return render(request, 'createAccount.html', {'form': form, 'error': 'Form is not valid'})
 
     else:
         form = CreateAccountForm()  # GET request, instantiate a blank form
     return render(request, 'createAccount.html', {'form': form, 'error': False})
 
-def viewProfile(request, user_id=0):
-    user = User.objects.get(id=user_id)
-    #user = User.objects.all()[0]
-    following = Following.objects.filter(following_id=user_id)
-    selling = Product.objects.filter(seller_id=user_id)
+def viewProfile(request):
+    user = User.objects.get(id=request.user.id)
+    following = Following.objects.filter(following_id=request.user.id)
+    selling = Product.objects.filter(seller_id=request.user.id)
+    profile = UserProfile.objects.get(user=request.user)
 
-    tparams = {"user" : user, "followList" : following, "selling" : selling}
+    tparams = {"user" : user, "followList" : following, "selling" : selling, "profile" : profile}
 
     return render(request, 'profilePage.html', tparams)
 

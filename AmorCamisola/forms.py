@@ -8,13 +8,16 @@ from phonenumber_field.formfields import PhoneNumberField
 
 class CreateAccountForm(UserCreationForm):
     email = forms.EmailField(label='Email', required=True)
+    first_name = forms.CharField(label='First Name', max_length=30, required=True)
+    last_name = forms.CharField(label='Last Name', max_length=30, required=True)
     cc = forms.CharField(label='CC', max_length=50)
     address = forms.CharField(label='Address', max_length=50)
     phone = PhoneNumberField(label='Phone', required=True)
 
+
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -22,6 +25,9 @@ class CreateAccountForm(UserCreationForm):
 
         if commit:
             user.save()
+            user.email = self.cleaned_data['email']
+            user.first_name = self.cleaned_data['first_name']
+            user.last_name = self.cleaned_data['last_name']
             # Save additional fields in UserProfile
             UserProfile.objects.create(
                 user=user,

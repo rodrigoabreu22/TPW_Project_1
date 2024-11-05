@@ -17,8 +17,8 @@
     <div class="row mt-4">
         <div class="col">
             <h5 class="text-primary">Personal Information</h5>
-            <p class="offset-md-1"><i class="bi bi-person-fill"></i> First name: {{ user.firstname }}</p>
-            <p class="offset-md-1"><i class="bi bi-person-badge-fill"></i> Last name: {{ user.lastname }}</p>
+            <p class="offset-md-1"><i class="bi bi-person-fill"></i> First name: {{ user.first_name }}</p>
+            <p class="offset-md-1"><i class="bi bi-person-badge-fill"></i> Last name: {{ user.last_name }}</p>
         </div>
     </div>
 
@@ -37,8 +37,6 @@
             </ul>
         </div>
     </div>
-
-    <!-- Currently Selling Section -->
     <div class="row mt-4">
         <div class="col">
             <h5 class="text-primary">Currently selling:</h5>
@@ -57,8 +55,8 @@
         <div class="col">
             <h5 class="text-primary">Contact Information</h5>
             <p class="offset-md-1"><i class="bi bi-envelope-fill"></i> Email: {{ user.email }}</p>
-            <p class="offset-md-1"><i class="bi bi-telephone-fill"></i> Phone: {{ user.phone }}</p>
-            <p class="offset-md-1"><i class="bi bi-geo-alt-fill"></i> Phone: {{ user.address }}</p>
+            <p class="offset-md-1"><i class="bi bi-telephone-fill"></i> Phone: {{ profile.phone }}</p>
+            <p class="offset-md-1"><i class="bi bi-geo-alt-fill"></i> Address: {{ profile.address }}</p>
         </div>
     </div>
 </div>
