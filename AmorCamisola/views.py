@@ -104,7 +104,7 @@ def viewProfile(request):
 
 def pubProduct(request):
     if request.method == 'POST':
-        form = ProductForm(request.POST)
+        form = ProductForm(request.POST,request.FILES)
         print(form.errors)
         if form.is_valid():
             if request.user.is_authenticated:
@@ -114,33 +114,34 @@ def pubProduct(request):
                 team = form.cleaned_data['team']
                 category = form.cleaned_data['category']
                 size = form.cleaned_data['size']
+                image = form.cleaned_data['image']
 
                 seller = request.user
 
-                product = Product(name=name, description=description, price=price, team=team, seller=seller)
+                product = Product(name=name, description=description, price=price, team=team, seller=seller, image=image)
                 product.save()
 
-                if category == "Camisola":
+                if category == '1':  # Camisola
                     if size in ['XS', 'S', 'M', 'L', 'XL', 'XXL']:
-                        camisola = Jersey(product=product.id, size=size)
+                        camisola = Jersey(product=product, size=size)
                         camisola.save()
-                elif category == "Shorts":
+                elif category == '2':  # Calções
                     if size in ['XS', 'S', 'M', 'L', 'XL', 'XXL']:
-                        shorts = Shorts(product=product.id, size=size)
+                        shorts = Shorts(product=product, size=size)
                         shorts.save()
-                elif category == "Socks":
+                elif category == '3':  # Meias
                     if size in ['XS', 'S', 'M', 'L', 'XL', 'XXL']:
-                        socks = Socks(product=product.id, size=size)
+                        socks = Socks(product=product, size=size)
                         socks.save()
-                elif category == "Boots":
+                elif category == '4':  # Chuteira
                     try:
                         size = int(size)
                     except ValueError:
                         return render(request, 'publishProduct.html', {'form': form, 'error': True})
 
                     if size in [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]:
-                        socks = Socks(product=product.id, size=size)
-                        socks.save()
+                        boots = Boots(product=product, size=size)
+                        boots.save()
 
                 return redirect('/')
         else:
