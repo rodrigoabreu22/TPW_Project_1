@@ -8,6 +8,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 
+from django.contrib import messages
+
 
 # Create your views here.
 
@@ -229,3 +231,62 @@ def userlist(request):
         'all_users': all_users,
         'query': query,
     })
+
+@login_required
+def walletLogic(request):
+    userinfo = UserProfile.objects.get(user=request.user)
+    depositoform = DepositForm()
+    levantamentoform = WithdrawalForm()
+
+    return render(request, 'wallet.html', {
+        'depositoform': depositoform,
+        'levantamentoform': levantamentoform,
+        'userinfo': userinfo,
+    })
+
+@login_required
+def deposit_money(request):
+    userinfo = UserProfile.objects.get(user=request.user)
+    depositoform = DepositForm(request.POST or None)
+
+    if request.method == "POST" and depositoform.is_valid():
+        deposit_amount = depositoform.cleaned_data['deposit_amount']
+        userinfo.wallet += deposit_amount
+        userinfo.save()
+        messages.success(request, "Depósito foi bem-sucedido!")
+        return redirect('wallet')  # Redirect back to main wallet page
+
+    # If form is invalid, render the page with errors
+    levantamentoform = WithdrawalForm()  # Provide empty form to avoid errors
+    return render(request, 'wallet.html', {
+        'depositoform': depositoform,
+        'levantamentoform': levantamentoform,
+        'userinfo': userinfo,
+    })
+
+@login_required
+def withdraw_money(request):
+    userinfo = UserProfile.objects.get(user=request.user)
+    levantamentoform = WithdrawalForm(request.POST or None)
+
+    if request.method == "POST" and levantamentoform.is_valid():
+        withdrawal_amount = levantamentoform.cleaned_data['withdrawal_amount']
+        if withdrawal_amount > userinfo.wallet:
+            messages.error(request, "Erro: O valor solicitado excede o saldo da carteira.")
+        else:
+            userinfo.wallet -= withdrawal_amount
+            userinfo.save()
+            messages.success(request, "Levantamento foi bem-sucedido!")
+        return redirect('wallet')  # Redirect back to main wallet page
+
+    # If form is invalid, render the page with errors
+    depositoform = DepositForm()  # Provide empty form to avoid errors
+    return render(request, 'wallet.html', {
+        'depositoform': depositoform,
+        'levantamentoform': levantamentoform,
+        'userinfo': userinfo,
+    })
+
+
+
+

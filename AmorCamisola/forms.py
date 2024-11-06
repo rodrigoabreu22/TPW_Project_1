@@ -117,4 +117,8 @@ class ProductQuery(forms.Form):
 class SearchUserForm(forms.Form):
     query = forms.CharField(label='Procurar utilizador', max_length=50, required=False)
 
+class DepositForm(forms.Form):
+    deposit_amount = forms.DecimalField(label="Quantia a Depositar", max_digits=10, decimal_places=2, min_value=0.01)
 
+class WithdrawalForm(forms.Form):
+    withdrawal_amount = forms.DecimalField(label="Quantia a Levantar", max_digits=10, decimal_places=2, min_value=0.01)

@@ -19,6 +19,9 @@ urlpatterns = [
     path('follow/<str:username>/', views.follow_user, name='follow'),
     path('unfollow/<str:username>/', views.unfollow_user, name='unfollow'),
     path('userlist/', views.userlist, name='userlist'),
+    path('wallet/', views.walletLogic, name='wallet'),
+    path('wallet/deposit/', views.deposit_money, name='deposit_money'),
+    path('wallet/withdraw/', views.withdraw_money, name='withdraw_money'),
 ]
 
 if settings.DEBUG:

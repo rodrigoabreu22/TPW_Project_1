@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.username }}'s Profile</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+</head>
+<body>
+
+<div class="container my-4">
+    <!-- Wallet Balance Display -->
+    <div class="row mb-4">
+        <div class="col text-center">
+            <h3>Saldo na Carteira</h3>
+            <p class="display-4">{{ userinfo.wallet }} €</p>
+        </div>
+    </div>
+
+    <!-- Toggle Buttons -->
+    <div class="row mb-4 text-center">
+        <div class="col">
+            <!-- Button to show the withdrawal form (default) -->
+            <button id="showWithdrawal" class="btn btn-primary">Levantar Dinheiro</button>
+        </div>
+        <div class="col">
+            <!-- Button to show the deposit form -->
+            <button id="showDeposit" class="btn btn-primary">Depositar Dinheiro</button>
+        </div>
+    </div>
+
+    <!-- Withdrawal Form (Visible by default) -->
+    <div id="withdrawalContainer" class="container">
+        <h5>Levantar Dinheiro</h5>
+        <form method="post" action="{% url 'withdraw_money' %}">
+            {% csrf_token %}
+            {{ levantamentoform.as_p }}
+            <button type="submit" class="btn btn-primary">Levantar</button>
+        </form>
+    </div>
+
+    <!-- Deposit Form (Hidden by default) -->
+    <div id="depositContainer" class="container" style="display: none;">
+        <h5>Depositar Dinheiro</h5>
+        <form method="post" action="{% url 'deposit_money' %}">
+            {% csrf_token %}
+            {{ depositoform.as_p }}
+            <button type="submit" class="btn btn-primary">Depositar</button>
+        </form>
+    </div>
+</div>
+
+{% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- JavaScript to toggle between forms -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const showDepositBtn = document.getElementById("showDeposit");
+        const showWithdrawalBtn = document.getElementById("showWithdrawal");
+        const depositContainer = document.getElementById("depositContainer");
+        const withdrawalContainer = document.getElementById("withdrawalContainer");
+
+        // Show deposit form and hide withdrawal form
+        showDepositBtn.addEventListener("click", function() {
+            depositContainer.style.display = "block";
+            withdrawalContainer.style.display = "none";
+        });
+
+        // Show withdrawal form and hide deposit form
+        showWithdrawalBtn.addEventListener("click", function() {
+            depositContainer.style.display = "none";
+            withdrawalContainer.style.display = "block";
+        });
+    });
+</script>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+
+{% endblock %}
