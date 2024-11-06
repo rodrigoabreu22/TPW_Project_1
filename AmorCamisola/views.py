@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import render, redirect, get_object_or_404
 
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
 
 
 # Create your views here.
@@ -202,3 +203,29 @@ def unfollow_user(request, username):
     user_to_unfollow = get_object_or_404(User, username=username)
     Following.objects.filter(following=request.user, followed=user_to_unfollow).delete()
     return redirect('profile', username=username)
+
+def userlist(request):
+    # Inicializar o formulário de pesquisa
+    form = SearchUserForm(request.POST or None)
+    query = None
+    all_users = None
+
+    # Se não houver busca, mostrar os 10 usuários mais populares
+    popular_users = (
+        User.objects.annotate(num_followers=Count('followers_set'))
+        .order_by('-num_followers')[:10]
+    )
+
+    # Verificar se uma busca foi realizada
+    if request.method == 'POST' and form.is_valid():
+        query = form.cleaned_data['query']
+        # Filtrar os usuários pelo nome
+        all_users = User.objects.filter(username__icontains=query)
+
+    # Renderizar o template com os resultados
+    return render(request, 'userList.html', {
+        'form': form,
+        'popular_users': popular_users,
+        'all_users': all_users,
+        'query': query,
+    })
