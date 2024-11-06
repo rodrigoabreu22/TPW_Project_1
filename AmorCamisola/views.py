@@ -267,7 +267,10 @@ def offers(request):
     user = User.objects.get(id=request.user.id)
     userProfile = UserProfile.objects.get(user__id=request.user.id)
     madeOffers = Offer.objects.filter(sent_by__user_id=request.user.id)
-    receivedOffers = Offer.objects.filter(product__seller_id=request.user.id).exclude(sent_by__user_id=request.user.id)
+    receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer_id=request.user.id)
+    receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id)
+    tparams = {"userProfile": userProfile, "user": user, 'offers_received': receivedOffersFiltered, 'offers_made': madeOffers}
+    return render(request, 'offersTemplate.html', tparams)
 
 
 #Funções auxiliares

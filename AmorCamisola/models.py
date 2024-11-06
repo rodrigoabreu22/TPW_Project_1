@@ -134,13 +134,13 @@ class Boots(models.Model):
         return self.product.__str__()
 
 class Offer(models.Model):
-    buyer = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    buyer = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='buyer')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     value = models.DecimalField(max_digits=50, decimal_places=2, default=0)
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES)
     delivery_method = models.CharField(max_length=50, choices=DELIVERY_METHOD_CHOICES)
     address = models.CharField(max_length=50)
-    sent_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    sent_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='sent_by')
 
 
 """Deixar para o fim!!!
