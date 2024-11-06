@@ -1,0 +1,49 @@
+{% include 'layout.html' %}
+
+{% block content %}
+    
+{% load static %}
+    
+<div class="container-fluid my-5">
+    <!-- Product Header Row -->
+    <div class="row g-4">
+        <!-- Product Image -->
+        <div class="col-lg-7">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid w-100 rounded">
+        </div>
+        
+        <!-- Product Info -->
+        <div class="col-lg-5 d-flex flex-column justify-content-between">
+            <div>
+                <h1 class="display-5 text-dark">{{ product.name }}</h1>
+                <p class="text-muted mb-3">by {{ product.seller.username }}</p>
+            </div>
+            <div>
+                <p class="h3 text-danger fw-bold mb-4">{{ product.price }}€</p>
+                {% if product.sold %}
+                    <p class="text-danger fw-bold">Sold Out</p>
+                {% else %}
+                    <button class="btn btn-primary btn-lg">Contact Seller</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Description Row -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="p-4 bg-white rounded shadow">
+                <h2 class="h4 mb-3">Product Description</h2>
+                <p class="text-secondary">{{ product.description }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+{% endblock %}

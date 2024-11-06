@@ -149,3 +149,21 @@ def pubProduct(request):
     else:
         form = ProductForm()
     return render(request, 'publishProduct.html', {'form': form, 'error': False})
+
+
+def detailedProduct(request, id):
+    product = Product.objects.get(id=id)
+    return render(request, 'productDetailed.html', {'product': product})
+
+#Funções auxiliares
+def valid_purchase(user : UserProfile, product : Product):
+    return user.wallet < product.price and not product.sold
+
+def perform_sale(buyer : UserProfile, seller : UserProfile, product : Product):
+    if valid_purchase(buyer, product):
+        buyer.wallet -= product.price
+        seller.wallet += product.price
+        buyer.save()
+        seller.save()
+        return True
+    return False

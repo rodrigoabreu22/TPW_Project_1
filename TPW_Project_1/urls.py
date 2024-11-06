@@ -13,6 +13,7 @@ urlpatterns = [
     path('publishproduct/', views.pubProduct, name='publishproduct'),
     path('login/',auth_views.LoginView.as_view(template_name="login.html", next_page="viewProfile"), name='login'),
     path('logout', auth_views.LogoutView.as_view(next_page='publishproduct'), name='logout'),
+    path('detailedproduct/<int:id>/', views.detailedProduct, name='detailedproduct'),
     path('',views.home, name='home'),
 ]
 
