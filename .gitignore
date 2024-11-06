@@ -5,6 +5,7 @@
 __pycache__
 db.sqlite3
 AmorCamisola/media
+AmorCamisola/migrations
 
 # Backup files #
 *.bak

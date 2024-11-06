@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from pkg_resources import require
+
 from AmorCamisola.models import *
 from phonenumber_field.formfields import PhoneNumberField
 
@@ -84,12 +86,12 @@ class ListingOffer(forms.Form):
     address_choice = forms.ChoiceField(
         choices=ADDRESS_CHOICES,
         label="Localização da Entrega",
+        required=False,
         widget=forms.Select(attrs={'class': 'form-control'}),
     )
 
     custom_address = forms.CharField(
         label="",
-        required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter custom address'}),
     )
 
@@ -100,9 +102,13 @@ class ListingOffer(forms.Form):
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
     )
 
-    def __init__(self, product, *args, **kwargs):
+    def __init__(self, userProfile, product, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['value'].initial = product.price
+        self.fields['payment_method'].initial = 'store_credit'
+        self.fields['delivery_method'].initial = 'transfer'
+        self.fields['address_choice'].initial = 'profile_address'
+        self.fields['custom_address'].value = userProfile.address
 
 
 
