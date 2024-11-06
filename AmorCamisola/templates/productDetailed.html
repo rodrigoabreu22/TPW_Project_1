@@ -47,15 +47,11 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="contactSellerModalLabel">Fazer Oferta</h5>
-                    <!-- Close button fixed with Font Awesome icon -->
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    <h5 class="modal-title" id="contactSellerModalLabel">Fazer Proposta</h5>
                 </div>
                 <div class="modal-body">
                     <!-- You can add a form or message here -->
-                    <p>Oferta a {{ product.seller.username }} para a compra do produto "{{ product.name }}".</p>
+                    <p>Proposta a {{ product.seller.username }} para a compra do produto "{{ product.name }}".</p>
                     Dicas: <br/>
                     <li>A oferta deve ter um valor próximo do listado ({{ product.price }}€)<br/>
                     <li>Deve contactar o vendedor antes de colocar uma proposta

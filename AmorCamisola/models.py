@@ -140,6 +140,7 @@ class Offer(models.Model):
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES)
     delivery_method = models.CharField(max_length=50, choices=DELIVERY_METHOD_CHOICES)
     address = models.CharField(max_length=50)
+    sent_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
 
 
 """Deixar para o fim!!!

@@ -263,6 +263,13 @@ def detailedProduct(request, id):
     tparams = {"product": product, 'form': form, 'userProfile': userProfile, 'user' : user}
     return render(request, 'productDetailed.html', tparams)
 
+def offers(request):
+    user = User.objects.get(id=request.user.id)
+    userProfile = UserProfile.objects.get(user__id=request.user.id)
+    madeOffers = Offer.objects.filter(sent_by__user_id=request.user.id)
+    receivedOffers = Offer.objects.filter(product__seller_id=request.user.id).exclude(sent_by__user_id=request.user.id)
+
+
 #Funções auxiliares
 def valid_purchase(user : UserProfile, product : Product):
     return user.wallet < product.price and not product.sold

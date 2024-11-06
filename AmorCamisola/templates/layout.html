@@ -13,12 +13,13 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}" />
     <!-- Custom styles for this template -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/site.css' %}" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
   </head>
 
   <body>
 
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="#">Application Name</a>
+      <a class="navbar-brand" href="{% url "home" %}">Amor à Camisola</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarDefault" aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -26,7 +27,11 @@
       <div class="collapse navbar-collapse" id="navbarDefault">
        
       </div>
+      <!-- Add a bell icon next to the login -->
+      <div class="d-flex align-items-center">
+        <i class="fas fa-bell text-white mx-3" style="cursor: pointer;" data-toggle="tooltip" title="Offers"></i>
         {% include 'loginpartial.html' %}
+      </div>
     </nav>
 
     <main role="main">
@@ -47,6 +52,13 @@
     <script src="{% static 'scripts/jquery-3.4.1.min.js' %}"></script>
     <script src="{% static 'scripts/popper.min.js' %}"></script>
     <script src="{% static 'scripts/bootstrap.min.js' %}"></script>
+
+    <!-- Optional: Bootstrap tooltip (if you want to show a tooltip on hover) -->
+    <script>
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+      });
+    </script>
 
   </body>
 </html>
