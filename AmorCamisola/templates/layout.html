@@ -14,6 +14,7 @@
     <!-- Custom styles for this template -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/site.css' %}" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link rel="stylesheet" href={% static 'css/layout.css' %}>
   </head>
 
   <body>
@@ -28,10 +29,17 @@
        
       </div>
       <!-- Add a bell icon next to the login -->
-      <div class="d-flex align-items-center">
-        <i class="fas fa-bell text-white mx-3" style="cursor: pointer;" data-toggle="tooltip" title="Offers"></i>
-        {% include 'loginpartial.html' %}
-      </div>
+        <div class="d-flex align-items-center">
+          <a href="{% url 'offers' %}" class="notification-icon" style="position: relative;">
+              {% if request.user.is_authenticated %}
+                <i class="fa-regular fa-comments mx-3" style="color: #ffffff; cursor: pointer;" data-toggle="tooltip" title="Offers"></i>
+                  {% if offer_count > 0 %}
+                    <span class="notification-bubble">{{ offer_count }}</span> <!-- Example notification count -->
+                  {% endif %}
+              {% endif %}
+          </a>
+          {% include 'loginpartial.html' %}
+        </div>
     </nav>
 
     <main role="main">

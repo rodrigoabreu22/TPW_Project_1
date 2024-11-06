@@ -65,7 +65,7 @@ def home(request):
         elif sort_by == 'seller_desc':
             products = products.order_by('-seller__username')
 
-    return render(request, 'home.html', {'form': form, 'products': products, 'selected_teams': teams, 'selected_types':product_types})
+    return render(request, 'home.html', {'form': form, 'products': products, 'selected_teams': teams, 'selected_types':product_types, "offer_count": getOffersCount(request)})
 
 
 
@@ -87,14 +87,14 @@ def createAccount(request):
                 auth_login(request, user)
                 return redirect('/')  # Redirect to home or another page
             else:
-                return render(request, 'createAccount.html', {'form': form, 'error': 'Authentication failed'})
+                return render(request, 'createAccount.html', {'form': form, 'error': 'Authentication failed', "offer_count": getOffersCount(request)})
 
         else:
-            return render(request, 'createAccount.html', {'form': form, 'error': 'Form is not valid'})
+            return render(request, 'createAccount.html', {'form': form, 'error': 'Form is not valid', "offer_count": getOffersCount(request)})
 
     else:
         form = CreateAccountForm()  # GET request, instantiate a blank form
-    return render(request, 'createAccount.html', {'form': form, 'error': False})
+    return render(request, 'createAccount.html', {'form': form, 'error': False, "offer_count": getOffersCount(request)})
 
 @login_required(login_url='/login/')  # Redirects to login if not authenticated
 def myProfile(request):
@@ -111,7 +111,7 @@ def myProfile(request):
     # Check if the profile user is followed by the logged-in user
     follows = Following.objects.filter(following=request.user, followed=user).exists()
 
-    tparams = {"user" : user, "following" : following, "followers" : followers, "selling" : selling, "profile" : profile}
+    tparams = {"user" : user, "following" : following, "followers" : followers, "selling" : selling, "profile" : profile, "offer_count": getOffersCount(request)}
 
     return render(request, 'myProfile.html', tparams)
 
@@ -136,9 +136,9 @@ def viewProfile(request, username):
                 follows = True
                 print("follows true")
         tparams = {"user": user, "profile_user": profile_user, "following": following, "followers": followers,
-                       "selling": selling, "profile": profile, "follows":follows}
+                       "selling": selling, "profile": profile, "follows":follows, "offer_count": getOffersCount(request)}
     else:
-        tparams = {"profile_user": profile_user, "following": following, "followers": followers,"selling": selling, "profile": profile}
+        tparams = {"profile_user": profile_user, "following": following, "followers": followers,"selling": selling, "profile": profile, "offer_count": getOffersCount(request)}
 
     return render(request, 'profile.html', tparams)
 
@@ -186,10 +186,10 @@ def pubProduct(request):
 
                 return redirect('/')
         else:
-            return render(request, 'publishProduct.html', {'form': form, 'error': True})
+            return render(request, 'publishProduct.html', {'form': form, 'error': True, "offer_count": getOffersCount(request)})
     else:
         form = ProductForm()
-    return render(request, 'publishProduct.html', {'form': form, 'error': False})
+    return render(request, 'publishProduct.html', {'form': form, 'error': False, "offer_count" : getOffersCount(request)})
 
 @login_required
 def follow_user(request, username):
@@ -228,6 +228,7 @@ def userlist(request):
         'popular_users': popular_users,
         'all_users': all_users,
         'query': query,
+        'offer_count' : getOffersCount(request)
     })
 
 
@@ -260,7 +261,7 @@ def detailedProduct(request, id):
             print("saved")
             redirect('/')
     form = ListingOffer(userProfile, product)
-    tparams = {"product": product, 'form': form, 'userProfile': userProfile, 'user' : user}
+    tparams = {"product": product, 'form': form, 'userProfile': userProfile, 'user' : user, 'offer_count' : getOffersCount(request)}
     return render(request, 'productDetailed.html', tparams)
 
 def offers(request):
@@ -269,7 +270,7 @@ def offers(request):
     madeOffers = Offer.objects.filter(sent_by__user_id=request.user.id)
     receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer_id=request.user.id)
     receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id)
-    tparams = {"userProfile": userProfile, "user": user, 'offers_received': receivedOffersFiltered, 'offers_made': madeOffers}
+    tparams = {"userProfile": userProfile, "user": user, 'offers_received': receivedOffersFiltered, 'offers_made': madeOffers, 'offer_count' : getOffersCount(request)}
     return render(request, 'offersTemplate.html', tparams)
 
 
@@ -285,3 +286,11 @@ def perform_sale(buyer : UserProfile, seller : UserProfile, product : Product):
         seller.save()
         return True
     return False
+
+
+def getOffersCount(request):
+    if request.user.is_authenticated:
+        receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer_id=request.user.id)
+        receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id)
+        return receivedOffersFiltered.count()
+    return 0
