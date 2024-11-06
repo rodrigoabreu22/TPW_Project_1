@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.username }}'s Profile</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+</head>
+<body>
+    
+<div class="container mt-5">
+    <!-- Profile Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-4 text-center">
+            <img src="{% static 'fonts/imgs/defaultUser.png' %}" alt="Profile Picture" class="rounded-circle img-fluid profile-picture">
+        </div>
+        <div class="col-md-8">
+            <div class="d-flex align-items-center mb-3">
+                 <h2 class="mr-3">{{ profile_user.username }}</h2>
+                {% if follows %}
+                    <a href="{% url 'unfollow' profile_user.username %}" class="btn btn-outline-primary btn-sm">Não seguir</a>
+                {% else %}
+                    <a href="{% url 'follow' profile_user.username %}" class="btn btn-outline-primary btn-sm">Seguir</a>
+                {% endif %}
+                </div>
+            <div class="d-flex mb-3">
+                <div class="mr-4">
+                    <strong>{{ selling.count }}</strong> produtos
+                </div>
+                <div class="mr-4">
+                    <a class="text-dark">
+                        <strong>{{ followers.count }}</strong> seguidores
+                    </a>
+                </div>
+                <div>
+                    <strong>{{ following.count }}</strong> seguindo
+                </div>
+            </div>
+                <p>Nome: {{ profile_user.first_name }} {{ profile_user.last_name }}</p>
+                <p>Avaliações: </p>
+        </div>
+    </div>
+
+    <!-- Photo Grid Section for Products/Posts -->
+    <div class="row">
+        {% for product in products %}
+            <div class="col-6 col-md-4 mb-4">
+                <a href="{% url 'product_detail' product.id %}">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }} de {{ profile_user.username }}" class="img-fluid rounded">
+                </a>
+            </div>
+        {% empty %}
+            <p class="col-12 text-center">Sem produtos à venda.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+
+{% endblock %}
