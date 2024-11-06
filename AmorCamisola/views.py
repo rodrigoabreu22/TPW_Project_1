@@ -3,7 +3,10 @@ from AmorCamisola.forms import *
 from AmorCamisola.models import *
 
 from django.contrib.auth import authenticate, login as auth_login
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+
+from django.contrib.auth.decorators import login_required
+
 
 # Create your views here.
 
@@ -92,16 +95,53 @@ def createAccount(request):
         form = CreateAccountForm()  # GET request, instantiate a blank form
     return render(request, 'createAccount.html', {'form': form, 'error': False})
 
-def viewProfile(request):
+@login_required(login_url='/login/')  # Redirects to login if not authenticated
+def myProfile(request):
     user = User.objects.get(id=request.user.id)
-    following = Following.objects.filter(following_id=request.user.id)
+    # Get the list of users the current user is following
+    following = Following.objects.filter(following=user)
+
+    # Get the list of users who follow the current user
+    followers = Following.objects.filter(followed_id=user.id)
+
     selling = Product.objects.filter(seller_id=request.user.id)
     profile = UserProfile.objects.get(user=request.user)
 
-    tparams = {"user" : user, "followList" : following, "selling" : selling, "profile" : profile}
+    # Check if the profile user is followed by the logged-in user
+    follows = Following.objects.filter(following=request.user, followed=user).exists()
 
-    return render(request, 'profilePage.html', tparams)
+    tparams = {"user" : user, "following" : following, "followers" : followers, "selling" : selling, "profile" : profile}
 
+    return render(request, 'myProfile.html', tparams)
+
+def viewProfile(request, username):
+    profile_user = User.objects.get(username=username)
+    print("profile user: ",profile_user)
+
+    following = Following.objects.filter(following_id=profile_user.id)
+    followers = Following.objects.filter(followed_id=profile_user.id)
+    print(followers)
+    selling = Product.objects.filter(seller_id=profile_user.id)
+    profile = UserProfile.objects.get(user=profile_user)
+
+    if request.user.is_authenticated:
+        user = User.objects.get(id=request.user.id)
+        if user == profile_user:
+            return myProfile(request)
+        follows=False;
+        for f in followers:
+            print(user.username, " == ", f.following.username)
+            if user.username == f.following.username:
+                follows = True
+                print("follows true")
+        tparams = {"user": user, "profile_user": profile_user, "following": following, "followers": followers,
+                       "selling": selling, "profile": profile, "follows":follows}
+    else:
+        tparams = {"profile_user": profile_user, "following": following, "followers": followers,"selling": selling, "profile": profile}
+
+    return render(request, 'profile.html', tparams)
+
+@login_required(login_url='/login/')  # Redirects to login if not authenticated
 def pubProduct(request):
     if request.method == 'POST':
         form = ProductForm(request.POST,request.FILES)
@@ -149,3 +189,16 @@ def pubProduct(request):
     else:
         form = ProductForm()
     return render(request, 'publishProduct.html', {'form': form, 'error': False})
+
+@login_required
+def follow_user(request, username):
+    user_to_follow = get_object_or_404(User, username=username)
+    if not Following.objects.filter(following=request.user, followed=user_to_follow).exists():
+        Following.objects.create(following=request.user, followed=user_to_follow)
+    return redirect('profile', username=username)
+
+@login_required
+def unfollow_user(request, username):
+    user_to_unfollow = get_object_or_404(User, username=username)
+    Following.objects.filter(following=request.user, followed=user_to_unfollow).delete()
+    return redirect('profile', username=username)

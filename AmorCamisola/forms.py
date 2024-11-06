@@ -1,8 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
 from AmorCamisola.models import *
-from AmorCamisola.models import User as DBUser
 from phonenumber_field.formfields import PhoneNumberField
 
 
