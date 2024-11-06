@@ -1,8 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
 from AmorCamisola.models import *
-from AmorCamisola.models import User as DBUser
 from phonenumber_field.formfields import PhoneNumberField
 
 
@@ -169,5 +167,8 @@ class ProductQuery(forms.Form):
         self.fields['teams'].choices = [
             (team, team) for team in Product.objects.values_list("team", flat=True).distinct() if team
         ]
+
+class SearchUserForm(forms.Form):
+    query = forms.CharField(label='Procurar utilizador', max_length=50, required=False)
 
 

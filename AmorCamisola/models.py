@@ -55,12 +55,12 @@ DELIVERY_METHOD_CHOICES = (
     ('in_person', 'Em pessoa'),
 )
 
-
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     cc = models.CharField(max_length=50)
     address = models.CharField(max_length=50)
     phone = PhoneNumberField(unique=True, null=False, blank=False)
+    image = models.ImageField(upload_to='media/produtos')
     wallet = models.DecimalField(max_digits=50, decimal_places=2, default=0)
 
     def __str__(self):
@@ -68,8 +68,8 @@ class UserProfile(models.Model):
 
 
 class Following(models.Model):
-    following = models.OneToOneField(User, on_delete=models.CASCADE, related_name='follower_id')
-    followed = models.OneToOneField(User, on_delete=models.CASCADE, related_name='followed_id')
+    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following_set')
+    followed = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers_set')
 
     def __str__(self):
         return self.following.username + " follows " + self.followed.username

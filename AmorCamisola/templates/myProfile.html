@@ -1,0 +1,111 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.username }}'s Profile</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+</head>
+<body>
+
+<div class="container mt-5">
+    <!-- Profile Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-4 text-center">
+            <img src="{% static 'fonts/imgs/defaultUser.png' %}" alt="Profile Picture" class="rounded-circle img-fluid profile-picture">
+        </div>
+        <div class="col-md-8">
+            <div class="d-flex align-items-center mb-3">
+                <h2 class="mr-3">{{ user.username }}</h2>
+                    <a class="btn btn-outline-secondary btn-sm">Editar perfil</a>
+            </div>
+            <div class="d-flex mb-3">
+                <div class="mr-4">
+                    <strong>{{ selling.count }}</strong> produtos
+                </div>
+                <div class="mr-4">
+                    <a href="#" class="text-dark" data-toggle="modal" data-target="#followersModal">
+                        <strong>{{ followers.count }}</strong> seguidores
+                    </a>
+                </div>
+                <div>
+                    <a href="#" class="text-dark" data-toggle="modal" data-target="#followingModal">
+                        <strong>{{ following.count }}</strong> seguindo
+                    </a>
+                </div>
+            </div>
+                <p>Nome: {{ user.first_name }} {{ user.last_name }}</p>
+                <p>Avaliações: </p>
+                    <a class="btn btn-outline-secondary btn-sm">Histórico de Compras</a>
+                    <a class="btn btn-outline-secondary btn-sm">Histórico de Vendas</a>
+        </div>
+    </div>
+
+    <!-- Photo Grid Section for Products/Posts -->
+    <div class="row">
+        {% for product in products %}
+            <div class="col-6 col-md-4 mb-4">
+                <a href="{% url 'product_detail' product.id %}">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }} de {{ user.username }}" class="img-fluid rounded">
+                </a>
+            </div>
+        {% empty %}
+            <p class="col-12 text-center">Sem produtos à venda.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="modal fade" id="followersModal" tabindex="-1" aria-labelledby="followersModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="followersModalLabel">Followers</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                    {% for follower in followers %}
+                        <a href="{% url 'profile' follower.following.username %}">
+                        <p>{{ follower.following.username }}</p>
+                    {% empty %}
+                        <p>No followers yet.</p>p>
+                    {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="followingModal" tabindex="-1" aria-labelledby="followingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="followingModalLabel">Following</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% for follow in following %}
+                    <a href="{% url 'profile' follow.followed.username %}">
+                    <p>{{ follow.followed.username }}</p>
+                {% empty %}
+                    <p>You are not following anyone yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+
+{% endblock %}
