@@ -152,12 +152,26 @@ def pubProduct(request):
 
 
 def detailedProduct(request, id):
+    print(request)
     product = Product.objects.get(id=id)
     user = User.objects.get(id=request.user.id)
     try:
         userProfile = UserProfile.objects.get(user__id=request.user.id)
     except UserProfile.DoesNotExist:
         userProfile = None
+    if request.method == 'POST':
+        form = ListingOffer(product, request.POST, request.FILES)
+        print(form.errors)
+        if form.is_valid():
+            if request.user.is_authenticated:
+                payment_method = form.cleaned_data['payment_method']
+                delivery_method = form.cleaned_data['delivery_method']
+                address = form.cleaned_data['custom_address']
+                value = form.cleaned_data['value']
+                buyer = userProfile
+                offer = Offer(buyer=buyer, product=product, value=value, address=address, payment_method=payment_method, delivery_method=delivery_method)
+                offer.save()
+                redirect('/')
     form = ListingOffer(product)
     tparams = {"product": product, 'form': form, 'userProfile': userProfile, 'user' : user}
     return render(request, 'productDetailed.html', tparams)

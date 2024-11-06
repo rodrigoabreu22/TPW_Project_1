@@ -44,7 +44,16 @@ BOOTS_CHOICES = (
     (47, 47)
 )
 
+PAYMENT_METHOD_CHOICES = (
+    ('store_credit', 'Saldo da loja'),
+    ('transfer', 'Transferência bancária'),
+    ('in_person', 'Em pessoa'),
+)
 
+DELIVERY_METHOD_CHOICES = (
+    ('shipment', 'Envio remoto'),
+    ('in_person', 'Em pessoa'),
+)
 
 
 class UserProfile(models.Model):
@@ -123,6 +132,14 @@ class Boots(models.Model):
 
     def __str__(self):
         return self.product.__str__()
+
+class Offer(models.Model):
+    buyer = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE)
+    value = models.DecimalField(max_digits=50, decimal_places=2, default=0)
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES)
+    delivery_method = models.CharField(max_length=50, choices=DELIVERY_METHOD_CHOICES)
+    address = models.CharField(max_length=50)
 
 
 """Deixar para o fim!!!

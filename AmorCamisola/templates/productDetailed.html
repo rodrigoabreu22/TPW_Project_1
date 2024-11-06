@@ -24,7 +24,7 @@
                     {% else %}
                         <!-- Add an id to the button for JavaScript targeting -->
                         <button id="contactSellerButton" class="btn btn-outline-dark btn-sm mb-3">
-                            Colocar oferta
+                            Colocar proposta
                         </button>
                     {% endif %}
                 </div>
@@ -58,9 +58,9 @@
                     <p>Oferta a {{ product.seller.username }} para a compra do produto "{{ product.name }}".</p>
                     Dicas: <br/>
                     <li>A oferta deve ter um valor próximo do listado ({{ product.price }}€)<br/>
-                    <li>Deve contactar o vendedor antes de colocar uma oferta
+                    <li>Deve contactar o vendedor antes de colocar uma proposta
                     <hr>
-                    <form method="post" action="{% url 'detailedproduct' id=product.id %}">
+                    <form id="contactSellerForm" method="post" action="{% url 'detailedproduct' id=product.id %}">
                         {% csrf_token %}
                         {{ form }}
                     </form>
@@ -68,7 +68,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="closer">Cancelar</button>
                     <!-- Submit button triggers form submission -->
-                    <button type="submit" form="contactSellerForm" class="btn btn-primary">Enviar Oferta</button>
+                    <button type="submit" form="contactSellerForm" class="btn btn-primary">Enviar Proposta</button>
                 </div>
             </div>
         </div>
