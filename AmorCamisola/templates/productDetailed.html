@@ -4,46 +4,119 @@
     
 {% load static %}
     
-<div class="container-fluid my-5">
-    <!-- Product Header Row -->
-    <div class="row g-4">
-        <!-- Product Image -->
-        <div class="col-lg-7">
-            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid w-100 rounded">
+<!-- Gray Header -->
+<div>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <!-- Main Product Image on the Left -->
+            <div class="col-lg-7 mb-4">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid w-100 rounded">
+            </div>
+    
+            <!-- Product Details on the Right -->
+            <div class="col-lg-5 d-flex flex-column justify-content-between">
+                <div>
+                    <h1 class="h3 text-dark mb-2">{{ product.name }}</h1>
+                    <p class="text-muted">by {{ product.seller.username }}</p>
+                </div>
+                <div>
+                    <p class="h4 text-danger fw-bold mb-3">{{ product.price }}€</p>
+                    {% if product.sold %}
+                        <p class="text-danger fw-bold">Already sold</p>
+                    {% else %}
+                        <!-- Add an id to the button for JavaScript targeting -->
+                        <button id="contactSellerButton" class="btn btn-outline-dark btn-sm mb-3">
+                            Contact Seller
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
         </div>
+    
+        <!-- Description Section at the Bottom -->
+        <div class="row mt-5">
+            <div class="col-lg-12">
+                <div class="border p-4 rounded bg-white">
+                    <h2 class="h5">Product Description</h2>
+                    <p class="text-secondary">{{ product.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Structure -->
+    <div class="modal fade" id="contactSellerModal" tabindex="-1" aria-labelledby="contactSellerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contactSellerModalLabel">Fazer Oferta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- You can add a form or message here -->
+                    <p>Oferta a {{ product.seller.username }} para a compra do produto "{{ product.name }}".</p>
+                    Dicas: <br/>
+                    <li>A oferta deve ter um valor próximo do listado ({{ product.price }}€)<br/>
+                    <li>Deve contactar o vendedor antes de colocar uma oferta
+                    <hr>
+                    {{ form }}
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Send Message</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    
+
+<!-- JavaScript to Open Modal on Button Click -->
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Target the button
+        var contactSellerButton = document.getElementById('contactSellerButton');
         
-        <!-- Product Info -->
-        <div class="col-lg-5 d-flex flex-column justify-content-between">
-            <div>
-                <h1 class="display-5 text-dark">{{ product.name }}</h1>
-                <p class="text-muted mb-3">by {{ product.seller.username }}</p>
-            </div>
-            <div>
-                <p class="h3 text-danger fw-bold mb-4">{{ product.price }}€</p>
-                {% if product.sold %}
-                    <p class="text-danger fw-bold">Sold Out</p>
-                {% else %}
-                    <button class="btn btn-primary btn-lg">Contact Seller</button>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Product Description Row -->
-    <div class="row mt-5">
-        <div class="col-12">
-            <div class="p-4 bg-white rounded shadow">
-                <h2 class="h4 mb-3">Product Description</h2>
-                <p class="text-secondary">{{ product.description }}</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-
-
+        // Add event listener to show modal on click
+        contactSellerButton.addEventListener('click', function () {
+            // Use Bootstrap's Modal API to show the modal directly on click
+            var contactSellerModal = new bootstrap.Modal(document.getElementById('contactSellerModal'));
+            contactSellerModal.show();
+        });
+        
+            var paymentMethodField = document.getElementById('id_payment_method');
+        var deliveryMethodField = document.getElementById('id_delivery_method');
+    
+        function toggleDeliveryMethod() {
+            if (paymentMethodField.value === 'in_person') {
+                deliveryMethodField.value = 'in_person';  // Set to in-person
+                deliveryMethodField.disabled = true;  // Disable the field
+            } else {
+                deliveryMethodField.disabled = false;  // Enable the field
+            }
+        }
+        var deliveryLocationField = document.getElementById('id_address_choice');
+        var deliveryLocation = document.getElementById('id_custom_address');
+        function toggleDeliveryLocation() {
+            if (deliveryLocationField.value === 'profile_address') {
+                deliveryLocation.value = {{ user.address }}
+                deliveryLocation.disabled = true;
+            }
+            else {
+                deliveryLocation.disabled = false;
+            }
+        }
+        
+        deliveryLocationField.addEventListener('click', toggleDeliveryLocation);
+    
+        // Attach event listener
+        paymentMethodField.addEventListener('change', toggleDeliveryMethod);
+    
+        // Initial call to set the state correctly on page load
+        toggleDeliveryMethod();
+        toggleDeliveryLocation();
+    });
+</script>
 
 {% endblock %}

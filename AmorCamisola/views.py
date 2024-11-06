@@ -153,7 +153,13 @@ def pubProduct(request):
 
 def detailedProduct(request, id):
     product = Product.objects.get(id=id)
-    return render(request, 'productDetailed.html', {'product': product})
+    try:
+        userProfile = UserProfile.objects.get(id=request.user.id)
+    except UserProfile.DoesNotExist:
+        userProfile = None
+    form = ListingOffer(product)
+    tparams = {"product": product, 'form': form, 'user': userProfile}
+    return render(request, 'productDetailed.html', tparams)
 
 #Funções auxiliares
 def valid_purchase(user : UserProfile, product : Product):

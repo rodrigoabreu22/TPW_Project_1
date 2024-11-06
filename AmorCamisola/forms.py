@@ -54,6 +54,60 @@ class ProductForm(forms.Form):
     image = forms.ImageField(label='Imagem do Produto', required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}))
     size = forms.CharField(label='Tamanho', widget=forms.TextInput(attrs={'class': 'form-control'}))
 
+class ListingOffer(forms.Form):
+    PAYMENT_METHOD_CHOICES = [
+        ('store_credit', 'Saldo da loja'),
+        ('transfer', 'Transferência bancária'),
+        ('in_person', 'Em pessoa'),
+    ]
+
+    DELIVERY_METHOD_CHOICES = [
+        ('shipment', 'Envio remoto'),
+        ('in_person', 'Em pessoa'),
+    ]
+
+    ADDRESS_CHOICES = [
+        ('profile_address', 'Usar localização do perfil'),
+        ('custom_address', 'Inserir localização'),
+    ]
+
+    payment_method = forms.ChoiceField(
+        choices=PAYMENT_METHOD_CHOICES,
+        label="Método de Pagamento",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    delivery_method = forms.ChoiceField(
+        choices=DELIVERY_METHOD_CHOICES,
+        label="Método de Entrega",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    address_choice = forms.ChoiceField(
+        choices=ADDRESS_CHOICES,
+        label="Localização da Entrega",
+        widget=forms.RadioSelect,
+    )
+
+    custom_address = forms.CharField(
+        label="",
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter custom address'}),
+    )
+
+    value = forms.DecimalField(
+        label="Proposta de valor",
+        max_digits=5,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+    )
+
+    def __init__(self, product, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['value'].initial = product.price
+
+
+
 class ProductQuery(forms.Form):
     name_query = forms.CharField(label='Search product name', max_length=50, required=False)
     user_query = forms.CharField(label='Search seller', max_length=50, required=False)
