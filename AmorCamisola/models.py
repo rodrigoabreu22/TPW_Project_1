@@ -46,7 +46,6 @@ BOOTS_CHOICES = (
 
 
 
-
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     cc = models.CharField(max_length=50)
