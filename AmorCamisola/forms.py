@@ -86,7 +86,7 @@ class ListingOffer(forms.Form):
     address_choice = forms.ChoiceField(
         choices=ADDRESS_CHOICES,
         label="Localização da Entrega",
-        widget=forms.RadioSelect,
+        widget=forms.Select(attrs={'class': 'form-control'}),
     )
 
     custom_address = forms.CharField(

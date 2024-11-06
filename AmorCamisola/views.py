@@ -153,12 +153,13 @@ def pubProduct(request):
 
 def detailedProduct(request, id):
     product = Product.objects.get(id=id)
+    user = User.objects.get(id=request.user.id)
     try:
-        userProfile = UserProfile.objects.get(id=request.user.id)
+        userProfile = UserProfile.objects.get(user__id=request.user.id)
     except UserProfile.DoesNotExist:
         userProfile = None
     form = ListingOffer(product)
-    tparams = {"product": product, 'form': form, 'user': userProfile}
+    tparams = {"product": product, 'form': form, 'userProfile': userProfile, 'user' : user}
     return render(request, 'productDetailed.html', tparams)
 
 #Funções auxiliares
