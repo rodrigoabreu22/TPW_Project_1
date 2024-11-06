@@ -204,12 +204,6 @@ def unfollow_user(request, username):
     Following.objects.filter(following=request.user, followed=user_to_unfollow).delete()
     return redirect('profile', username=username)
 
-
-from django.db.models import Count
-from django.contrib.auth.models import User
-from django.shortcuts import render
-from .forms import SearchUserForm
-
 def userlist(request):
     # Inicializar o formulário de pesquisa
     form = SearchUserForm(request.POST or None)
@@ -235,5 +229,3 @@ def userlist(request):
         'all_users': all_users,
         'query': query,
     })
-
-
