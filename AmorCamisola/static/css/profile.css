@@ -1,0 +1,20 @@
+/* Profile Picture */
+.profile-picture {
+    width: 150px;
+    height: 150px;
+}
+
+/* Bio Text */
+.bio {
+    color: #555;
+    font-size: 16px;
+}
+
+/* Hover effect on images */
+.photo-item img {
+    transition: transform 0.3s ease;
+}
+
+.photo-item img:hover {
+    transform: scale(1.05);
+}

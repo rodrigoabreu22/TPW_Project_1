@@ -1,23 +1,54 @@
 {% extends 'layout.html' %}
 
-{% block content %}
-<div class="container">
-    <h1>Product Search</h1>
-    <form method="GET" action="{% url 'home' %}">
-        <div class="form-group">
-            <label for="id_name_query">Search Product Name</label>
-            <input type="text" class="form-control" id="id_name_query" name="name_query" value="{{ request.GET.name_query }}">
-        </div>
-        
-        <div class="form-group">
-            <label for="id_user_query">Search Seller</label>
-            <input type="text" class="form-control" id="id_user_query" name="user_query" value="{{ request.GET.user_query }}">
-        </div>
 
-        <div class="form-group">
-            <label>Teams</label>
-            <div>
-                {% if form.teams %}
+{% block content %}
+    {% load static %}
+    <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img src="{% static 'images/static1.jpg' %}" class="d-block w-100" alt="Slide 1">
+        </div>
+        <div class="carousel-item">
+            <img src="{% static 'images/static2.jpg' %}" class="d-block w-100" alt="Slide 2">
+        </div>
+        <div class="carousel-item">
+            <img src="{% static 'images/static3.jpg' %}" class="d-block w-100" alt="Slide 3">
+        </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+    
+<div class="homepage-container">
+    <!-- Filtros na Barra Lateral Esquerda -->
+    <div class="sidebar-filters">
+        <h3>Filters</h3>
+        <form method="GET" action="{% url 'home' %}">
+            <div class="form-group">
+                <label for="id_name_query">Product Name</label>
+                <input type="text" class="form-control" id="id_name_query" name="name_query" value="{{ request.GET.name_query }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="id_user_query">Seller</label>
+                <input type="text" class="form-control" id="id_user_query" name="user_query" value="{{ request.GET.user_query }}">
+            </div>
+
+            <div class="form-group">
+                <label>Teams</label>
+                <div>
                     {% for team in form.teams %}
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="{{ team.choice_label }}" name="teams" value="{{ team.choice_label }}"
@@ -25,72 +56,58 @@
                             <label class="form-check-label" for="{{ team.choice_label }}">{{ team.choice_label }}</label>
                         </div>
                     {% endfor %}
-                {% else %}
-                    <p>No teams available to filter by.</p>
-                {% endif %}
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label>Product Types</label>
-            <div>
-                {% for product_type in form.product_types %}
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" 
-                               id="{{ product_type.choice_label }}" 
-                               name="product_types" 
-                               value="{{ product_type.choice_label }}"
-                               {% if product_type.choice_label in selected_types %}checked{% endif %}>
-                        <label class="form-check-label" for="{{ product_type.choice_label }}">{{ product_type.choice_label }}</label>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="id_min_price">Minimum Price</label>
-            <input type="number" class="form-control" id="id_min_price" name="min_price" step="0.01" value="{{ request.GET.min_price }}">
-        </div>
-
-        <div class="form-group">
-            <label for="id_max_price">Maximum Price</label>
-            <input type="number" class="form-control" id="id_max_price" name="max_price" step="0.01" value="{{ request.GET.max_price }}">
-        </div>
-
-        <div class="form-group">
-            <label for="id_sort_by">Sort By</label>
-            <select class="form-control" id="id_sort_by" name="sort_by">
-                <option value="">Select...</option>
-                {% for value, label in form.sort_by.field.choices %}
-                    <option value="{{ value }}"{% if value == request.GET.sort_by %} selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Search</button>
-    </form>
-
-    <h2 class="mt-4">Results</h2>
-    {% if products %}
-        <div class="row">
-            {% for product in products %}
-                <div class="col-md-4 mb-3">
-                    <div class="card">
-                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text">Seller: {{ product.seller.username }}</p>
-                            <p class="card-text">Price: ${{ product.price }}</p>
-                            <p class="card-text">{{ product.description }}</p>
-                            <p class="card-text"><strong>Team:</strong> {{ product.team }}</p>
-                            <a>View Details</a>
+            <div class="form-group">
+                <label>Product Types</label>
+                <div>
+                    {% for product_type in form.product_types %}
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="{{ product_type.choice_label }}" name="product_types" value="{{ product_type.choice_label }}"
+                                   {% if product_type.choice_label in selected_types %}checked{% endif %}>
+                            <label class="form-check-label" for="{{ product_type.choice_label }}">{{ product_type.choice_label }}</label>
                         </div>
-                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Price Range</label>
+                <div class="price-range">
+                    <input type="number" class="form-control" id="id_min_price" name="min_price" step="0.01" placeholder="Min" value="{{ request.GET.min_price }}">
+                    <input type="number" class="form-control" id="id_max_price" name="max_price" step="0.01" placeholder="Max" value="{{ request.GET.max_price }}">
+                </div>
+            </div>
+        
+            <div class="form-group">
+                <label for="id_sort_by">Sort By</label>
+                <select id="id_sort_by" name="sort_by">
+                    <option value="">Select...</option>
+                    {% for value, label in form.sort_by.field.choices %}
+                        <option value="{{ value }}"{% if value == request.GET.sort_by %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+        </form>
+    </div>
+
+    <!-- Exibição de Produtos -->
+    <div class="products-display">
+        <h2>Products</h2>
+        <div class="product-list">
+            {% for product in products %}
+                <div class="product-card">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                    <h5 class="product-name">{{ product.name }}</h5>
+                    <p class="product-seller">Seller: {{ product.seller.username }}</p>
+                    <p class="product-price">${{ product.price }}</p>
+                    <a class="favorite-link"><i class="fas fa-heart"></i></a>
                 </div>
             {% endfor %}
         </div>
-    {% else %}
-        <p>No products found.</p>
-    {% endif %}
+    </div>
 </div>
 {% endblock %}

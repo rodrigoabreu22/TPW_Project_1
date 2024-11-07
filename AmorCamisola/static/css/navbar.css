@@ -1,0 +1,82 @@
+.navbar {
+    background-color: #006400; /* Dark green */
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+}
+
+.navbar a, .navbar button {
+    color: white;
+    text-decoration: none;
+    margin-right: 15px;
+    font-weight: bold;
+}
+
+.navbar a:hover {
+    color: #d4ffd4; /* Light green on hover */
+}
+
+.navbar-left, .navbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo-image {
+    height: 30px;
+    margin-right: 10px;
+}
+
+.company-name {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.navbar a i {
+    font-size: 1.2em; /* Icon size */
+    color: white;
+    margin-right: 15px;
+}
+
+.navbar a i:hover {
+    color: #d4ffd4; /* Light green on hover */
+}
+
+/* Dropdown Button Styling */
+.navbar-right .dropdown .btn-secondary {
+    background-color: #4CAF50; /* Medium green */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.navbar-right .dropdown .btn-secondary:hover,
+.navbar-right .dropdown .btn-secondary:focus {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+/* Dropdown Menu Styling */
+.dropdown-menu {
+    background-color: #ffffff; /* White background for contrast */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 150px;
+    padding: 0;
+}
+
+.dropdown-menu .dropdown-item {
+    color: #333; /* Darker text for readability */
+    padding: 10px 20px;
+    font-weight: bold; /* Bold text for visibility */
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: #f1f1f1; /* Light gray on hover */
+    color: #000; /* Darker text on hover */
+}
