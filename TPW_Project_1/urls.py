@@ -22,6 +22,7 @@ urlpatterns = [
     path('wallet/', views.walletLogic, name='wallet'),
     path('wallet/deposit/', views.deposit_money, name='deposit_money'),
     path('wallet/withdraw/', views.withdraw_money, name='withdraw_money'),
+    path('myprofile/settings', views.accountSettings, name='profile_settings'),  # Profile page
 ]
 
 if settings.DEBUG:

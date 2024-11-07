@@ -1,12 +1,23 @@
 {% extends "layout.html" %}
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.username }}'s Profile</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
 {% block content %}
-<h1>a</h1>
 <h1>Iniciar Sessão </h1>
+    <div>
+        <p>Se não tem uma conta clique <a href="{% url 'createaccount'%}">aqui</a> para criar uma.</p>
+    </div>
 <form action="." method="POST" class="form-horizontal">
     {% csrf_token %}
     <div class="form-group">
-        {{ form.username.label_tag }}
+        Nome de Utilizador
         <div class="col-md-10">
             {{ form.username }}
         </div>
@@ -17,7 +28,12 @@
             {{ form.password }}
         </div>
     </div>
-    
     <div><button type="submit">Iniciar Sessão</button></div>
+    
 </form>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
 {% endblock %}
