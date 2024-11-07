@@ -48,14 +48,17 @@ BOOTS_CHOICES = (
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    cc = models.CharField(max_length=50)
     address = models.CharField(max_length=50)
     phone = PhoneNumberField(unique=True, null=False, blank=False)
-    image = models.ImageField(upload_to='media/produtos')
+    image = models.FileField()
     wallet = models.DecimalField(max_digits=50, decimal_places=2, default=0)
 
     def __str__(self):
         return self.user.username
+
+    def update_image(self, file):
+        self.image.storage.delete(self.image.name)
+        self.image = file
 
 
 class Following(models.Model):

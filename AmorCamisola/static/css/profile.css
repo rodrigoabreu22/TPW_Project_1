@@ -2,19 +2,43 @@
 .profile-picture {
     width: 150px;
     height: 150px;
+    object-fit: cover;
+    border: 2px solid #ddd;
 }
 
-/* Bio Text */
-.bio {
-    color: #555;
-    font-size: 16px;
-}
-
-/* Hover effect on images */
+/* Photo Grid */
 .photo-item img {
     transition: transform 0.3s ease;
+    object-fit: cover;
 }
 
 .photo-item img:hover {
     transform: scale(1.05);
 }
+
+/* Modal List Styling */
+.modal-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.follower-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    transition: background-color 0.2s ease;
+}
+
+.follower-item:hover {
+    background-color: #f8f9fa;
+}
+
+.follower-img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
