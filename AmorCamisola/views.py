@@ -95,7 +95,7 @@ def createAccount(request):
             return render(request, 'createAccount.html', {'form': form, 'error': 'Form is not valid'})
 
     else:
-        form = CreateAccountForm()  # GET request, instantiate a blank form
+        form = CreateAccountForm()
     return render(request, 'createAccount.html', {'form': form, 'error': False})
 
 @login_required(login_url='/login/')  # Redirects to login if not authenticated
@@ -103,15 +103,11 @@ def myProfile(request):
     user = User.objects.get(id=request.user.id)
     # Get the list of users the current user is following
     following = Following.objects.filter(following=user)
-
     # Get the list of users who follow the current user
     followers = Following.objects.filter(followed_id=user.id)
 
     selling = Product.objects.filter(seller_id=request.user.id)
     profile = UserProfile.objects.get(user=request.user)
-
-    # Check if the profile user is followed by the logged-in user
-    follows = Following.objects.filter(following=request.user, followed=user).exists()
 
     tparams = {"user" : user, "following" : following, "followers" : followers, "selling" : selling, "profile" : profile}
 
@@ -207,28 +203,37 @@ def unfollow_user(request, username):
     return redirect('profile', username=username)
 
 def userlist(request):
-    # Inicializar o formulário de pesquisa
+    # Initialize the search form
     form = SearchUserForm(request.POST or None)
     query = None
     all_users = None
+    all_user_profiles = None
 
-    # Se não houver busca, mostrar os 10 usuários mais populares
+    # Fetch the 10 most popular users based on follower count
     popular_users = (
         User.objects.annotate(num_followers=Count('followers_set'))
         .order_by('-num_followers')[:10]
     )
+    # Fetch the UserProfile objects for popular users
+    popular_users_profiles = UserProfile.objects.filter(user__in=popular_users)
 
-    # Verificar se uma busca foi realizada
+    # Check if a search query is submitted
     if request.method == 'POST' and form.is_valid():
         query = form.cleaned_data['query']
-        # Filtrar os usuários pelo nome
+        # Filter users by username matching the query
         all_users = User.objects.filter(username__icontains=query)
+        # Fetch UserProfile objects for the search results
+        print(all_users)
+        all_user_profiles = UserProfile.objects.filter(user__in=all_users)
+        print(all_user_profiles)
 
-    # Renderizar o template com os resultados
+    # Render the template with the user data and profiles
     return render(request, 'userList.html', {
         'form': form,
         'popular_users': popular_users,
+        'popular_users_profiles': popular_users_profiles,
         'all_users': all_users,
+        'all_user_profiles': all_user_profiles,
         'query': query,
     })
 
@@ -287,6 +292,97 @@ def withdraw_money(request):
         'userinfo': userinfo,
     })
 
+@login_required
+def account(request):
+    image_form = UploadProfilePicture(request.POST)
+    user = request.user
+    account = UserProfile.objects.get(user=user)
 
+    return render(request, 'account.html', {'user':user, 'account': account})
+
+@login_required
+def accountSettings(request):
+    if request.method == 'GET':
+        user = request.user
+        account = UserProfile.objects.get(user=user)
+        image_form = UploadProfilePicture()
+        user_form = UpdateUser(initial={'email': user.email, 'username': user.username, 'first_name': user.first_name, 'last_name': user.last_name})
+        profile_form = UpdateProfile(initial={'address':account.address, 'phone':account.phone})
+        password_form = UpdatePassword()
+        return render(request, 'account.html', {'user': user, 'account':account,'image_form': image_form, 'user_form': user_form,
+                                                         'profile_form': profile_form, 'password_form': password_form})
+    elif request.method == 'POST':
+        if 'image' in request.FILES:
+            user=request.user
+            account = UserProfile.objects.get(user=user)
+            image_form=UploadProfilePicture(request.POST, request.FILES)
+            if image_form.is_valid():
+                file = request.FILES['image']
+
+                if file:
+                    account.image = file
+                    account.update_image(file)
+                    account.save()
+                    return redirect('/myprofile/settings')
+                else:
+                    image_form = UploadProfilePicture()
+                    print(image_form.errors)
+                    return render(request, 'account.html', {'user': user, 'account':account, 'image_form': image_form})
+
+        elif  'profile_change' in request.POST:
+            # get the form info
+            user=request.user
+            user_profile = UserProfile.objects.get(user=user)
+            user_form = UpdateUser(request.POST)
+            profile_form = UpdateProfile(request.POST)
+            if profile_form.is_valid() and user_form.is_valid():
+                if user.username != user_form.cleaned_data['username']:
+                    user.username = user_form.cleaned_data['username']
+                if user.email != user_form.cleaned_data['email']:
+                    user.email = user_form.cleaned_data['email']
+                if user.first_name != user_form.cleaned_data['first_name']:
+                    user.first_name = user_form.cleaned_data['first_name']
+                if user.last_name != user_form.cleaned_data['last_name']:
+                    user.last_name = user_form.cleaned_data['last_name']
+                user.save()
+                if user_profile.phone != profile_form.cleaned_data['phone']:
+                    user_profile.phone = profile_form.cleaned_data['phone']
+                if user_profile.address != profile_form.cleaned_data['address']:
+                    user_profile.address = profile_form.cleaned_data['address']
+                user_profile.save()
+
+                return redirect('/myprofile/settings')
+
+        elif 'password_change' in request.POST:
+            user = request.user
+            account = UserProfile.objects.get(user=user)
+            password_form = UpdatePassword(request.POST)
+            image_form = UploadProfilePicture()
+            user_form = UpdateUser(initial={'email': user.email, 'username': user.username, 'first_name': user.first_name, 'last_name': user.last_name})
+            profile_form = UpdateProfile(initial={'address': account.address, 'phone': account.phone})
+            if password_form.is_valid():
+                if password_form.cleaned_data['new'] == password_form.cleaned_data['confirm']:
+                    request.user.set_password(password_form.cleaned_data['new'])
+                    user.save()
+                    print('Password changed successfully!')
+                    return render(request, 'account.html', {'user': user, 'account':account, 'password_form': password_form,
+                                                                     'image_form': image_form,
+                                                                     'profile_form': profile_form,
+                                                                     'user_form': user_form,
+                                                                     'success': 'Password changed successfully!'})
+                else:
+                    print('Passwords do not match!')
+                    return render(request, 'account.html', {'user': user, 'account':account, 'password_form': password_form,
+                                                                     'image_form': image_form,
+                                                                     'profile_form': profile_form,
+                                                                     'user_form': user_form,
+                                                                     'error': 'Passwords do not match!'})
+
+            else:
+                return render(request, 'account.html', {'user': user, 'account':account, 'password_form': password_form,
+                                                                 'image_form': image_form,
+                                                                 'profile_form': profile_form,
+                                                                 'user_form': user_form,
+                                                                 'error': 'Invalid form!'})
 
 

@@ -19,7 +19,9 @@
     <!-- Profile Header Section -->
     <div class="row mb-4">
         <div class="col-md-4 text-center">
-            <img src="{% static 'fonts/imgs/defaultUser.png' %}" alt="Profile Picture" class="rounded-circle img-fluid profile-picture">
+            <img src="{% if profile.image %}/media/{{ profile.image.name }}{% else %}{% static 'fonts/imgs/defaultUser.png' %}{% endif %}"
+             style="width: 10vw; height: 9vw; object-fit: cover"
+             class="rounded-circle" alt="">
         </div>
         <div class="col-md-8">
             <div class="d-flex align-items-center mb-3">
