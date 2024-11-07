@@ -23,7 +23,7 @@
                     <tbody>
                         {% for offer in offers_made %}
                         <tr>
-                            <td>{{ offer.product.name }}</td>
+                            <td><a href="{% url 'detailedproduct' id=product.id %}">{{ offer.product.name }}</a></td>
                             <td>{{ offer.value }}</td>
                             <td>{{ offer.get_payment_method_display }}</td>
                             <td>{{ offer.get_delivery_method_display }}</td>
@@ -67,7 +67,7 @@
                     <tbody>
                         {% for offer in offers_received %}
                         <tr>
-                            <td>{{ offer.product.name }}</td>
+                            <td><a href="{% url 'detailedproduct' id=offer.product.id %}">{{ offer.product.name }}</a></td>
                             <td>{{ offer.buyer.user.username }}</td>
                             <td>{{ offer.value }}</td>
                             <td>{{ offer.get_payment_method_display }}</td>
@@ -76,13 +76,13 @@
                             <td>
                                 <!-- Accept, Reject, Counter Offer Actions -->
                                 <div class="btn-group" role="group">
-                                    <form action="" method="post">
+                                    <form action="{% url 'acceptOffer' id=offer.id %}" method="post">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-sm btn-success">
                                             <i class="fas fa-check"></i> Accept
                                         </button>
                                     </form>
-                                    <form action="" method="post" class="ms-2">
+                                    <form action="{% url 'rejectOffer' id=offer.id %}" method="post" class="ms-2">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-sm btn-danger">
                                             <i class="fas fa-times"></i> Reject

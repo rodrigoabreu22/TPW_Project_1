@@ -19,6 +19,10 @@ urlpatterns = [
     path('',views.home, name='home'),
     path('follow/<str:username>/', views.follow_user, name='follow'),
     path('unfollow/<str:username>/', views.unfollow_user, name='unfollow'),
+
+    path('acceptOffer/<int:id>/', views.acceptOffer, name='acceptOffer'),
+
+    path('rejectOffer/<int:id>/', views.rejectOffer, name='rejectOffer'),
     path('offers/', views.offers, name='offers'),
     path('userlist/', views.userlist, name='userlist'),
 ]

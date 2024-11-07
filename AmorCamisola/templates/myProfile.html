@@ -52,14 +52,21 @@
     <div class="row">
         {% for product in products %}
             <div class="col-6 col-md-4 mb-4">
-                <a href="{% url 'product_detail' product.id %}">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }} de {{ user.username }}" class="img-fluid rounded">
-                </a>
+                <div class="card h-100">
+                    <a href="{% url 'detailedproduct' id=product.id %}">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }} de {{ user.username }}" class="card-img-top img-fluid rounded">
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted">{{ product.price }} €</p>
+                    </div>
+                </div>
             </div>
         {% empty %}
             <p class="col-12 text-center">Sem produtos à venda.</p>
         {% endfor %}
     </div>
+
 </div>
 
 <div class="modal fade" id="followersModal" tabindex="-1" aria-labelledby="followersModalLabel" aria-hidden="true">
@@ -71,7 +78,7 @@
             </div>
             <div class="modal-body">
                     {% for follower in followers %}
-                        <a href="{% url 'profile' follower.following.username %}">
+                        <a href="{% url 'profile' follower.following.username %}"></a>
                         <p>{{ follower.following.username }}</p>
                     {% empty %}
                         <p>No followers yet.</p>p>
@@ -90,7 +97,7 @@
             </div>
             <div class="modal-body">
                 {% for follow in following %}
-                    <a href="{% url 'profile' follow.followed.username %}">
+                    <a href="{% url 'profile' follow.followed.username %}"></a>
                     <p>{{ follow.followed.username }}</p>
                 {% empty %}
                     <p>You are not following anyone yet.</p>

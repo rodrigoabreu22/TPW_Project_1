@@ -52,9 +52,15 @@
     <div class="row">
         {% for product in products %}
             <div class="col-6 col-md-4 mb-4">
-                <a href="{% url 'product_detail' product.id %}">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }} de {{ profile_user.username }}" class="img-fluid rounded">
-                </a>
+                <div class="card h-100">
+                    <a href="{% url 'detailedproduct' id=product.id %}">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }} de {{ user.username }}" class="card-img-top img-fluid rounded">
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted">{{ product.price }} €</p>
+                    </div>
+                </div>
             </div>
         {% empty %}
             <p class="col-12 text-center">Sem produtos à venda.</p>

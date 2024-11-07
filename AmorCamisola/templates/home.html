@@ -80,7 +80,7 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ product.name }}</h5>
                             <p class="card-text">Seller: {{ product.seller.username }}</p>
-                            <p class="card-text">Price: ${{ product.price }}</p>
+                            <p class="card-text">Price: {{ product.price }}€</p>
                             <p class="card-text">{{ product.description }}</p>
                             <p class="card-text"><strong>Team:</strong> {{ product.team }}</p>
                             <a href={% url 'detailedproduct' id=product.id %}>View Details</a>

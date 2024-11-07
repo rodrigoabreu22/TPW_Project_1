@@ -1,4 +1,6 @@
 from datetime import datetime
+from itertools import product, count
+
 from AmorCamisola.forms import *
 from AmorCamisola.models import *
 
@@ -110,8 +112,9 @@ def myProfile(request):
 
     # Check if the profile user is followed by the logged-in user
     follows = Following.objects.filter(following=request.user, followed=user).exists()
+    products = Product.objects.filter(seller_id=request.user.id)
 
-    tparams = {"user" : user, "following" : following, "followers" : followers, "selling" : selling, "profile" : profile, "offer_count": getOffersCount(request)}
+    tparams = {"user" : user, "following" : following, "followers" : followers, "selling" : selling, "profile" : profile, "products": products, "offer_count": getOffersCount(request)}
 
     return render(request, 'myProfile.html', tparams)
 
@@ -264,15 +267,31 @@ def detailedProduct(request, id):
     tparams = {"product": product, 'form': form, 'userProfile': userProfile, 'user' : user, 'offer_count' : getOffersCount(request)}
     return render(request, 'productDetailed.html', tparams)
 
-def offers(request):
+def offers(request, action=None, id=None):
     user = User.objects.get(id=request.user.id)
     userProfile = UserProfile.objects.get(user__id=request.user.id)
+    if not action is None:
+        if action == 'accept':
+            notifySuccess(id)
+        elif action == 'reject':
+            notifyFailed(id)
     madeOffers = Offer.objects.filter(sent_by__user_id=request.user.id)
     receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer_id=request.user.id)
     receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id)
     tparams = {"userProfile": userProfile, "user": user, 'offers_received': receivedOffersFiltered, 'offers_made': madeOffers, 'offer_count' : getOffersCount(request)}
     return render(request, 'offersTemplate.html', tparams)
 
+def acceptOffer(request, id):
+    return offers(request, 'accept', id)
+
+def rejectOffer(request, id):
+    return offers(request, 'reject', id)
+
+def notifySuccess(offer_id):
+    print("success!")
+
+def notifyFailed(offer_id):
+    print("fail!")
 
 #Funções auxiliares
 def valid_purchase(user : UserProfile, product : Product):
