@@ -186,6 +186,25 @@ def viewProfile(request, username):
     profile = UserProfile.objects.get(user=profile_user)
 
     if request.user.is_authenticated:
+        print("Aconteceu")
+        # Report form handling
+        if request.method == 'POST' and 'report_user' in request.POST:
+            print("Report user")
+            report_form = ReportForm(request.POST)
+
+            report_form.instance.sent_by = request.user
+            report_form.instance.reporting = profile_user
+            if report_form.is_valid():
+                print("Valid Report form")
+                report = report_form.save(commit=False)
+                report.save()
+                messages.success(request, 'Usuário reportado com sucesso.')
+                return redirect('profile', username=username)
+            else:
+                print("Form errors:", report_form.errors)
+        else:
+            report_form = ReportForm()
+
         user = User.objects.get(id=request.user.id)
         if user == profile_user:
             return myProfile(request)
@@ -195,8 +214,7 @@ def viewProfile(request, username):
             if user.username == f.following.username:
                 follows = True
                 print("follows true")
-        tparams = {"user": user, "profile_user": profile_user, "following": following, "followers": followers,
-                       "selling": selling, "profile": profile, "follows":follows, "offer_count": getOffersCount(request)}
+        tparams = {"user": user, "profile_user": profile_user, "following": following, "followers": followers, "selling": selling, "profile": profile, "follows":follows, "offer_count": getOffersCount(request), "report_form": report_form}
     else:
         tparams = {"profile_user": profile_user, "following": following, "followers": followers,"selling": selling, "profile": profile, "offer_count": getOffersCount(request)}
 
