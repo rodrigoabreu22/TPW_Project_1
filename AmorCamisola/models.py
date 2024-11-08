@@ -55,6 +55,12 @@ DELIVERY_METHOD_CHOICES = (
     ('in_person', 'Em pessoa'),
 )
 
+OFFER_STATUS = (
+    ('in_progress', 'Em progresso'),
+    ('accepted', 'Aceite'),
+    ('rejected', 'Rejeitado')
+)
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     cc = models.CharField(max_length=50)
@@ -141,6 +147,10 @@ class Offer(models.Model):
     delivery_method = models.CharField(max_length=50, choices=DELIVERY_METHOD_CHOICES)
     address = models.CharField(max_length=50)
     sent_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='sent_by')
+    offer_status = models.CharField(max_length=50, choices=OFFER_STATUS, default='in_progress')
+    delivered = models.BooleanField(default=False)
+    paid = models.BooleanField(default=False)
+
 
 
 """Deixar para o fim!!!

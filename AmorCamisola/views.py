@@ -259,7 +259,8 @@ def detailedProduct(request, id):
             address = form.cleaned_data['custom_address']
             value = form.cleaned_data['value']
             buyer = userProfile
-            offer = Offer(buyer=buyer, product=product, value=value, address=address, payment_method=payment_method, delivery_method=delivery_method)
+            sent_by = userProfile
+            offer = Offer(buyer=buyer, product=product, value=value, address=address, payment_method=payment_method, delivery_method=delivery_method, sent_by=sent_by)
             offer.save()
             print("saved")
             redirect('/')
@@ -275,10 +276,37 @@ def offers(request, action=None, id=None):
             notifySuccess(id)
         elif action == 'reject':
             notifyFailed(id)
-    madeOffers = Offer.objects.filter(sent_by__user_id=request.user.id)
+        elif action == 'counter':
+            if request.method == 'POST':
+                form = ListingOffer(userProfile, None, request.POST, request.FILES)
+                print(form.errors)
+                print(form.cleaned_data['address_choice'])
+                print(form.cleaned_data['value'])
+                print(form.cleaned_data['delivery_method'])
+                print(form.cleaned_data['payment_method'])
+                print(form.cleaned_data['custom_address'])
+                if form.is_valid():
+                    print("valid")
+                    payment_method = form.cleaned_data['payment_method']
+                    delivery_method = form.cleaned_data['delivery_method']
+                    address = form.cleaned_data['custom_address']
+                    value = form.cleaned_data['value']
+                    offer = Offer.objects.get(id=id)
+                    offer.payment_method = payment_method
+                    offer.delivery_method = delivery_method
+                    offer.address = address
+                    offer.value = value
+                    offer.sent_by = userProfile
+                    offer.save()
+                    print("saved")
+        redirect("/offers")
+    form = ListingOffer(userProfile, None)
+    madeOffers = Offer.objects.filter(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
     receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer_id=request.user.id)
-    receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id)
-    tparams = {"userProfile": userProfile, "user": user, 'offers_received': receivedOffersFiltered, 'offers_made': madeOffers, 'offer_count' : getOffersCount(request)}
+    receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
+    acceptedOffers = receivedOffers.filter(offer_status__exact='accepted') | madeOffers.filter(offer_status__exact='accepted')
+    rejectedOffers = receivedOffers.filter(offer_status__exact='rejected') | madeOffers.filter(offer_status__exact='rejected')
+    tparams = {"userProfile": userProfile, "user": user, 'offers_received': receivedOffersFiltered, 'offers_made': madeOffers, 'offers_accepted': acceptedOffers, 'offers_rejected': rejectedOffers, 'form': form, 'offer_count' : getOffersCount(request)}
     return render(request, 'offersTemplate.html', tparams)
 
 def acceptOffer(request, id):
@@ -287,11 +315,13 @@ def acceptOffer(request, id):
 def rejectOffer(request, id):
     return offers(request, 'reject', id)
 
-def notifySuccess(offer_id):
-    print("success!")
+def counterOffer(request, id):
+    return offers(request, 'counter', id)
 
-def notifyFailed(offer_id):
-    print("fail!")
+def retractOffer(request, id):
+    offer = Offer.objects.get(id=id)
+    offer.delete()
+    return redirect("/offers/")
 
 #Funções auxiliares
 def valid_purchase(user : UserProfile, product : Product):
@@ -310,6 +340,16 @@ def perform_sale(buyer : UserProfile, seller : UserProfile, product : Product):
 def getOffersCount(request):
     if request.user.is_authenticated:
         receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer_id=request.user.id)
-        receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id)
+        receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
         return receivedOffersFiltered.count()
     return 0
+
+def notifySuccess(offer_id):
+    offer = Offer.objects.get(id=offer_id)
+    offer.offer_status = 'accepted'
+    offer.save()
+
+def notifyFailed(offer_id):
+    offer = Offer.objects.get(id=offer_id)
+    offer.offer_status = 'rejected'
+    offer.save()

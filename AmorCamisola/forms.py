@@ -97,14 +97,17 @@ class ListingOffer(forms.Form):
 
     value = forms.DecimalField(
         label="Proposta de valor",
-        max_digits=5,
+        max_digits=50,
         decimal_places=2,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
     )
 
     def __init__(self, userProfile, product, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['value'].initial = product.price
+        if not product is None:
+            self.fields['value'].initial = product.price
+        else:
+            self.fields['value'].initial = 0
         self.fields['payment_method'].initial = 'store_credit'
         self.fields['delivery_method'].initial = 'transfer'
         self.fields['address_choice'].initial = 'profile_address'

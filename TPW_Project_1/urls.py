@@ -22,6 +22,10 @@ urlpatterns = [
 
     path('acceptOffer/<int:id>/', views.acceptOffer, name='acceptOffer'),
 
+    path('counterOffer/<int:id>/', views.counterOffer, name='counterOffer'),
+
+    path('retractOffer/<int:id>/', views.retractOffer, name='retractOffer'),
+
     path('rejectOffer/<int:id>/', views.rejectOffer, name='rejectOffer'),
     path('offers/', views.offers, name='offers'),
     path('userlist/', views.userlist, name='userlist'),
