@@ -1,39 +1,44 @@
-{% extends "layout.html" %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ user.username }}'s Profile</title>
-    <!-- Bootstrap CSS -->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Django WebProject</title>
+
+    {% load static %}
+    <!-- Bootstrap core CSS -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
+      <link rel="stylesheet" href="{% static 'css/login.css' %}">
+      <link rel="stylesheet" href="{% static 'css/home.css' %}">
+      <link rel="stylesheet" href="{% static 'css/pubProduct.css' %}">
+  </head>
 <body>
-{% block content %}
-<h1>Iniciar Sessão </h1>
-    <div>
-        <p>Se não tem uma conta clique <a href="{% url 'createaccount'%}">aqui</a> para criar uma.</p>
-    </div>
-<form action="." method="POST" class="form-horizontal">
-    {% csrf_token %}
-    <div class="form-group">
-        Nome de Utilizador
-        <div class="col-md-10">
-            {{ form.username }}
+<div class="login-container">
+    <div class="card login-card">
+        <div class="card-body">
+            <h2 class="card-title text-center">Iniciar Sessão</h2>
+            <p class="text-center">Se não tem uma conta, clique <a href="{% url 'createaccount'%}">aqui</a> para criar uma.</p>
+            <form action="." method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username">Nome de Utilizador</label>
+                    {{ form.username }}
+                </div>
+                <div class="form-group">
+                    <label for="password">{{ form.password.label }}</label>
+                    {{ form.password }}
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Iniciar Sessão</button>
+            </form>
         </div>
     </div>
-    <div class="form-group">
-        {{ form.password.label_tag }}
-        <div class="col-md-10">
-            {{ form.password }}
-        </div>
-    </div>
-    <div><button type="submit">Iniciar Sessão</button></div>
-    
-</form>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</div>
+
+<script src="{% static 'scripts/jquery-3.4.1.min.js' %}"></script>
+<script src="{% static 'scripts/popper.min.js' %}"></script>
+<script src="{% static 'scripts/bootstrap.min.js' %}"></script>
 </body>
-</html>
-{% endblock %}

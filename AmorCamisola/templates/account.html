@@ -27,19 +27,17 @@
     <!-- Formulário de Upload de Imagem -->
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        <h4>Foto de Perfil</h4>
-        <div class="d-flex">
+        <h4 class="text-center">Foto de Perfil</h4>
+        <div class="d-flex justify-content-center mb-3">
             <img src="{% if account.image %}/media/{{ account.image.name }}{% else %}{% static 'fonts/imgs/defaultUser.png' %}{% endif %}"
-             style="width: 10vw; height: 9vw; object-fit: cover"
-             class="rounded-circle" alt="">
+                 style="width: 10vw; height: 9vw; object-fit: cover"
+                 class="rounded-circle" alt="">
         </div>
-        <div class="row">
-            <div class="form-group">
-                <label for="image">Atualizar Foto de Perfil:</label>
-                {{ image_form.image }}
-            </div>
-            <button type="submit" class="btn btn-primary" name="image_upload">Guardar</button>
+        <div class="form-group text-center">
+            <label for="image">Atualizar Foto de Perfil:</label>
+            {{ image_form.image }}
         </div>
+        <button type="submit" class="btn btn-primary d-block mx-auto" name="image_upload">Guardar</button>
     </form>
     <hr>
 
