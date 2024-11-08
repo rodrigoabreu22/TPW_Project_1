@@ -52,7 +52,22 @@ BOOTS_CHOICES = (
     (47, 47)
 )
 
+PAYMENT_METHOD_CHOICES = (
+    ('store_credit', 'Saldo da loja'),
+    ('transfer', 'Transferência bancária'),
+    ('in_person', 'Em pessoa'),
+)
 
+DELIVERY_METHOD_CHOICES = (
+    ('shipment', 'Envio remoto'),
+    ('in_person', 'Em pessoa'),
+)
+
+OFFER_STATUS = (
+    ('in_progress', 'Em progresso'),
+    ('accepted', 'Aceite'),
+    ('rejected', 'Rejeitado')
+)
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -159,6 +174,19 @@ class Boots(models.Model):
 
     def __str__(self):
         return self.product.__str__()
+
+class Offer(models.Model):
+    buyer = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='buyer')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    value = models.DecimalField(max_digits=50, decimal_places=2, default=0)
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES)
+    delivery_method = models.CharField(max_length=50, choices=DELIVERY_METHOD_CHOICES)
+    address = models.CharField(max_length=50)
+    sent_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='sent_by')
+    offer_status = models.CharField(max_length=50, choices=OFFER_STATUS, default='in_progress')
+    delivered = models.BooleanField(default=False)
+    paid = models.BooleanField(default=False)
+
 
 
 """Deixar para o fim!!!

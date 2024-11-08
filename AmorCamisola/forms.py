@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from pkg_resources import require
+
 from AmorCamisola.models import *
 from phonenumber_field.formfields import PhoneNumberField
 
@@ -71,6 +73,67 @@ class ProductForm(forms.Form):
     category = forms.ChoiceField(label='Categoria', choices=CATEGORIES, required=True, widget=forms.Select(attrs={'class': 'form-control'}))
     image = forms.ImageField(label='Imagem do Produto', required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}))
     size = forms.CharField(label='Tamanho', widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+class ListingOffer(forms.Form):
+    PAYMENT_METHOD_CHOICES = [
+        ('store_credit', 'Saldo da loja'),
+        ('transfer', 'Transferência bancária'),
+        ('in_person', 'Em pessoa'),
+    ]
+
+    DELIVERY_METHOD_CHOICES = [
+        ('shipment', 'Envio remoto'),
+        ('in_person', 'Em pessoa'),
+    ]
+
+    ADDRESS_CHOICES = [
+        ('profile_address', 'Usar localização do perfil'),
+        ('custom_address', 'Inserir localização'),
+    ]
+
+    payment_method = forms.ChoiceField(
+        choices=PAYMENT_METHOD_CHOICES,
+        label="Método de Pagamento",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    delivery_method = forms.ChoiceField(
+        choices=DELIVERY_METHOD_CHOICES,
+        label="Método de Entrega",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    address_choice = forms.ChoiceField(
+        choices=ADDRESS_CHOICES,
+        label="Localização da Entrega",
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
+
+    custom_address = forms.CharField(
+        label="",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter custom address'}),
+    )
+
+    value = forms.DecimalField(
+        label="Proposta de valor",
+        max_digits=50,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+    )
+
+    def __init__(self, userProfile, product, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not product is None:
+            self.fields['value'].initial = product.price
+        else:
+            self.fields['value'].initial = 0
+        self.fields['payment_method'].initial = 'store_credit'
+        self.fields['delivery_method'].initial = 'transfer'
+        self.fields['address_choice'].initial = 'profile_address'
+        self.fields['custom_address'].value = userProfile.address
+
+
 
 class ProductQuery(forms.Form):
     name_query = forms.CharField(label='Search product name', max_length=50, required=False)
