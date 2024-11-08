@@ -330,9 +330,17 @@ def detailedProduct(request, id):
             offer = Offer(buyer=buyer, product=product, value=value, address=address, payment_method=payment_method, delivery_method=delivery_method, sent_by=sent_by)
             offer.save()
             print("saved")
-            redirect('/')
+        redirect('/')
     form = ListingOffer(userProfile, product)
-    tparams = {"product": product, 'form': form, 'userProfile': userProfile, 'user' : user, 'offer_count' : getOffersCount(request)}
+    error = ""
+    if product.seller == request.user:
+        error = "Próprio produto"
+    print(request.user)
+    allOffers = Offer.objects.filter(buyer_id=userProfile.id, product=product, offer_status="in_progress")
+    print(allOffers)
+    if allOffers.__len__() != 0:
+        error = "Já apresentou uma oferta por este produto"
+    tparams = {"product": product, 'form': form, 'userProfile': userProfile, 'user' : user, 'error': error, 'offer_count' : getOffersCount(request)}
     return render(request, 'productDetailed.html', tparams)
 
 def offers(request, action=None, id=None):
@@ -363,17 +371,21 @@ def offers(request, action=None, id=None):
                     offer.delivery_method = delivery_method
                     offer.address = address
                     offer.value = value
-                    offer.sent_by = userProfile
+                    offer.sent_by = user
                     offer.save()
                     print("saved")
         redirect("/offers")
     form = ListingOffer(userProfile, None)
-    madeOffers = Offer.objects.filter(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
+    madeOffers = Offer.objects.filter(sent_by__user_id=request.user.id)
+    activeOffers = madeOffers.filter(offer_status__exact="in_progress")
     receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer_id=request.user.id)
     receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
     acceptedOffers = receivedOffers.filter(offer_status__exact='accepted') | madeOffers.filter(offer_status__exact='accepted')
+    acceptedNotProcessed = acceptedOffers.exclude(delivered=True, paid=True)
+    acceptedAndProcessed = acceptedOffers.filter(delivered=True, paid=True)
     rejectedOffers = receivedOffers.filter(offer_status__exact='rejected') | madeOffers.filter(offer_status__exact='rejected')
-    tparams = {"userProfile": userProfile, "user": user, 'offers_received': receivedOffersFiltered, 'offers_made': madeOffers, 'offers_accepted': acceptedOffers, 'offers_rejected': rejectedOffers, 'form': form, 'offer_count' : getOffersCount(request)}
+    processedOffers = acceptedAndProcessed | rejectedOffers
+    tparams = {"userProfile": userProfile, "user": user, 'offers_received': receivedOffersFiltered, 'offers_made': activeOffers, 'offers_accepted': acceptedNotProcessed, 'offers_rejected': processedOffers, 'form': form, 'offer_count' : getOffersCount(request)}
     return render(request, 'offersTemplate.html', tparams)
 
 def acceptOffer(request, id):
@@ -391,8 +403,8 @@ def retractOffer(request, id):
     return redirect("/offers/")
 
 #Funções auxiliares
-def valid_purchase(user : UserProfile, product : Product):
-    return user.wallet < product.price and not product.sold
+def valid_purchase(user : UserProfile, offer : Offer):
+    return user.wallet < offer.value and not offer.product.sold
 
 def perform_sale(buyer : UserProfile, seller : UserProfile, product : Product):
     if valid_purchase(buyer, product):
@@ -414,6 +426,10 @@ def getOffersCount(request):
 def notifySuccess(offer_id):
     offer = Offer.objects.get(id=offer_id)
     offer.offer_status = 'accepted'
+    #testing
+    #offer.paid = True
+    #offer.delivered = True
+    #end testing
     offer.save()
 
 def notifyFailed(offer_id):

@@ -20,9 +20,13 @@
                 <div>
                     <p class="h4 text-danger fw-bold mb-3">{{ product.price }}€</p>
                     {% if product.sold %}
-                        <p class="text-danger fw-bold">Indisponível</p>
-                    {% else %}
+                        <button disabled class="btn btn-outline-danger btn-sm mb-3">
+                            Indisponível
+                        </button>
+                    {% elif error != "" %}
+                        <button disabled class="btn btn-outline-danger btn-sm mb-3">{{ error }}</button>
                         <!-- Add an id to the button for JavaScript targeting -->
+                    {% else %}
                         <button id="contactSellerButton" class="btn btn-outline-dark btn-sm mb-3">
                             Colocar proposta
                         </button>
