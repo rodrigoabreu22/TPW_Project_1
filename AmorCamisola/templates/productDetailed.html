@@ -1,46 +1,46 @@
 {% extends 'layout.html' %}
 {% load static %}
 {% block content %}
-    
+
 <!-- Gray Header -->
-<div>
-    <div class="container my-5">
-        <div class="row justify-content-center">
-            <!-- Main Product Image on the Left -->
-            <div class="col-lg-7 mb-4">
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid w-100 rounded">
-            </div>
-    
-            <!-- Product Details on the Right -->
-            <div class="col-lg-5 d-flex flex-column justify-content-between">
-                <div>
-                    <h1 class="h3 text-dark mb-2">{{ product.name }} ({{ product.team }})</h1>
-                    <p class="text-muted">de {{ product.seller.username }}</p>
-                </div>
-                <div>
-                    <p class="h4 text-danger fw-bold mb-3">{{ product.price }}€</p>
-                    {% if product.sold %}
-                        <p class="text-danger fw-bold">Indisponível</p>
-                    {% else %}
-                        <!-- Add an id to the button for JavaScript targeting -->
-                        <button id="contactSellerButton" class="btn btn-outline-dark btn-sm mb-3">
-                            Colocar proposta
-                        </button>
-                    {% endif %}
-                </div>
-            </div>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <!-- Main Product Image on the Left -->
+        <div class="col-lg-7 mb-4 d-flex flex-column">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid w-100 rounded shadow mb-3">
+        
+            {% if product.sold %}
+                <span class="badge bg-danger text-center mt-2">Indisponível</span>
+            {% else %}
+                <button id="contactSellerButton" class="btn btn-dark btn-lg w-100 mt-2">
+                    Fazer proposta
+                </button>
+            {% endif %}
         </div>
     
-        <!-- Description Section at the Bottom -->
-        <div class="row mt-5">
-            <div class="col-lg-12">
-                <div class="border p-4 rounded bg-white">
+        <div class="col-lg-5 d-flex flex-column justify-content-between">
+            <div>
+                <h1 class="h3 text-dark mb-2">{{ product.name }} ({{ product.team }})</h1>
+                <p>Vendedor: <a href="{% url 'profile' username=product.seller.username %}">{{ product.seller.username }}</a></p>
+                <p>Contactar: </p>
+                <ul>
+                    <li class="text-muted">Telefone: <span class="text-muted">{{ sellerProfile.phone }}</span></li>
+                    <li class="text-muted">Email: <span class="text-muted">{{ product.seller.email }}</span></li>
+                </ul>
+                <p class="h4 text-danger fw-bold mb-3">{{ product.price }}€</p>
+                
+                <div class="mt-2 p-3 border rounded bg-light shadow-sm">
                     <h2 class="h5">Descrição</h2>
                     <p class="text-secondary">{{ product.description }}</p>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+
+
+
     
     <!-- Modal Structure -->
     <div class="modal fade" id="contactSellerModal" tabindex="-1" aria-labelledby="contactSellerModalLabel" aria-hidden="true">
@@ -118,7 +118,7 @@
         
         function toggleDeliveryLocation() {
             if (deliveryLocationField.value === 'profile_address') {
-                deliveryLocation.value = "{{ userProfile.address }}";
+                deliveryLocation.value = "{{ profile.address }}";
                 deliveryLocation.disabled = true;
             } else {
                 deliveryLocation.disabled = false;

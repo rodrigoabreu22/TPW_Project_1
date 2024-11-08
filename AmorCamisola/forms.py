@@ -149,10 +149,10 @@ class ProductQuery(forms.Form):
     )
 
     PRODUCT_TYPE_CHOICES = [
-        ('Jersey', 'Jersey'),
-        ('Boots', 'Boots'),
-        ('Socks', 'Socks'),
-        ('Shorts', 'Shorts'),
+        ('Jersey', 'Camisola'),
+        ('Boots', 'Chuteiras'),
+        ('Socks', 'Meias'),
+        ('Shorts', 'Calções'),
     ]
     product_types = forms.MultipleChoiceField(
         label='Product Types',
@@ -177,12 +177,12 @@ class ProductQuery(forms.Form):
 
     # Sorting options
     SORT_CHOICES = [
-        ('price_asc', 'Price (Low to High)'),
-        ('price_desc', 'Price (High to Low)'),
-        ('name_asc', 'Product Name (A to Z)'),
-        ('name_desc', 'Product Name (Z to A)'),
-        ('seller_asc', 'Seller Name (A to Z)'),
-        ('seller_desc', 'Seller Name (Z to A)'),
+        ('price_asc', 'Preço (Menor a Maior)'),
+        ('price_desc', 'Preço (Maior a Menor)'),
+        ('name_asc', 'Name (A a Z)'),
+        ('name_desc', 'Nome (Z a A)'),
+        ('seller_asc', 'Vendedor (A a Z)'),
+        ('seller_desc', 'Vendedor (Z a A)'),
     ]
     sort_by = forms.ChoiceField(
         choices=SORT_CHOICES,
