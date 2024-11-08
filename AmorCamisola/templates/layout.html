@@ -10,13 +10,13 @@
 
     {% load static %}
     <!-- Bootstrap core CSS -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
-        <link rel="stylesheet" href="{% static 'css/home.css' %}">
-        <link rel="stylesheet" href="{% static 'css/pubProduct.css' %}">
-        <link rel="stylesheet" href="{% static 'css/user_list.css' %}">
-        <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pubProduct.css' %}">
+    <link rel="stylesheet" href="{% static 'css/user_list.css' %}">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
   </head>
 
   <body>
@@ -29,12 +29,19 @@
         <a href="{% url 'publishproduct' %}">Vender Produto</a>
     </div>
     <div class="navbar-right">
+          <a href="{% url 'offers' %}" class="notification-icon" style="position: relative;">
+            {% if request.user.is_authenticated %}
+              <i class="fa-regular fa-comments mx-3" style="color: #ffffff; cursor: pointer;" data-toggle="tooltip" title="Offers"></i>
+                {% if offer_count > 0 %}
+                  <span class="notification-bubble">{{ offer_count }}</span> <!-- Example notification count -->
+                {% endif %}
+            {% endif %}
+          </a>
         <a href="{%  url 'wallet' %}"><i class="fas fa-wallet"></i></a>
         <a href="{%  url 'favorite_list' %}"><i class="fas fa-heart"></i></a>
         {% include 'loginpartial.html' %}
     </div>
 </nav>
-
     <main role="main">
         <div class="container-md">
             <p></p>
@@ -53,6 +60,13 @@
     <script src="{% static 'scripts/jquery-3.4.1.min.js' %}"></script>
     <script src="{% static 'scripts/popper.min.js' %}"></script>
     <script src="{% static 'scripts/bootstrap.min.js' %}"></script>
+
+    <!-- Optional: Bootstrap tooltip (if you want to show a tooltip on hover) -->
+    <script>
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+      });
+    </script>
 
   </body>
 </html>

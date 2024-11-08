@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from itertools import product, count
 from django.http import JsonResponse
 
 from AmorCamisola.forms import *
@@ -148,10 +148,10 @@ def createAccount(request):
                 auth_login(request, user)
                 return redirect('/')  # Redirect to home or another page
             else:
-                return render(request, 'createAccount.html', {'form': form, 'error': 'Authentication failed'})
+                return render(request, 'createAccount.html', {'form': form, 'error': 'Authentication failed', "offer_count": getOffersCount(request)})
 
         else:
-            return render(request, 'createAccount.html', {'form': form, 'error': 'Form is not valid'})
+            return render(request, 'createAccount.html', {'form': form, 'error': 'Form is not valid', "offer_count": getOffersCount(request)})
 
     else:
         form = CreateAccountForm()
@@ -183,6 +183,25 @@ def viewProfile(request, username):
     profile = UserProfile.objects.get(user=profile_user)
 
     if request.user.is_authenticated:
+        print("Aconteceu")
+        # Report form handling
+        if request.method == 'POST' and 'report_user' in request.POST:
+            print("Report user")
+            report_form = ReportForm(request.POST)
+
+            report_form.instance.sent_by = request.user
+            report_form.instance.reporting = profile_user
+            if report_form.is_valid():
+                print("Valid Report form")
+                report = report_form.save(commit=False)
+                report.save()
+                messages.success(request, 'Usuário reportado com sucesso.')
+                return redirect('profile', username=username)
+            else:
+                print("Form errors:", report_form.errors)
+        else:
+            report_form = ReportForm()
+
         user = User.objects.get(id=request.user.id)
         if user == profile_user:
             return myProfile(request)
@@ -192,10 +211,9 @@ def viewProfile(request, username):
             if user.username == f.following.username:
                 follows = True
                 print("follows true")
-        tparams = {"user": user, "profile_user": profile_user, "following": following, "followers": followers,
-                       "selling": selling, "profile": profile, "follows":follows}
+        tparams = {"user": user, "profile_user": profile_user, "following": following, "followers": followers, "selling": selling, "profile": profile, "follows":follows, "offer_count": getOffersCount(request), "report_form": report_form}
     else:
-        tparams = {"profile_user": profile_user, "following": following, "followers": followers,"products": selling, "profile": profile}
+        tparams = {"profile_user": profile_user, "following": following, "followers": followers,"products": selling, "profile": profile, "offer_count": getOffersCount(request)}
 
     return render(request, 'profile.html', tparams)
 
@@ -243,10 +261,10 @@ def pubProduct(request):
 
                 return redirect('/')
         else:
-            return render(request, 'publishProduct.html', {'form': form, 'error': True})
+            return render(request, 'publishProduct.html', {'form': form, 'error': True, "offer_count": getOffersCount(request)})
     else:
         form = ProductForm()
-    return render(request, 'publishProduct.html', {'form': form, 'error': False})
+    return render(request, 'publishProduct.html', {'form': form, 'error': False, "offer_count" : getOffersCount(request)})
 
 @login_required
 def follow_user(request, username):
@@ -294,7 +312,129 @@ def userlist(request):
         'all_users': all_users,
         'all_user_profiles': all_user_profiles,
         'query': query,
+        'offer_count' : getOffersCount(request)
     })
+
+
+
+
+def detailedProduct(request, id):
+    print(request)
+    product = Product.objects.get(id=id)
+    user = User.objects.get(id=request.user.id)
+    try:
+        userProfile = UserProfile.objects.get(user__id=request.user.id)
+    except UserProfile.DoesNotExist:
+        userProfile = None
+    if request.method == 'POST':
+        form = ListingOffer(userProfile, product, request.POST, request.FILES)
+        print(form.errors)
+        print(form.cleaned_data['address_choice'])
+        print(form.cleaned_data['value'])
+        print(form.cleaned_data['delivery_method'])
+        print(form.cleaned_data['payment_method'])
+        print(form.cleaned_data['custom_address'])
+        if form.is_valid():
+            print("valid")
+            payment_method = form.cleaned_data['payment_method']
+            delivery_method = form.cleaned_data['delivery_method']
+            address = form.cleaned_data['custom_address']
+            value = form.cleaned_data['value']
+            buyer = userProfile
+            sent_by = userProfile
+            offer = Offer(buyer=buyer, product=product, value=value, address=address, payment_method=payment_method, delivery_method=delivery_method, sent_by=sent_by)
+            offer.save()
+            print("saved")
+            redirect('/')
+    form = ListingOffer(userProfile, product)
+    tparams = {"product": product, 'form': form, 'userProfile': userProfile, 'user' : user, 'offer_count' : getOffersCount(request)}
+    return render(request, 'productDetailed.html', tparams)
+
+def offers(request, action=None, id=None):
+    user = User.objects.get(id=request.user.id)
+    userProfile = UserProfile.objects.get(user__id=request.user.id)
+    if not action is None:
+        if action == 'accept':
+            notifySuccess(id)
+        elif action == 'reject':
+            notifyFailed(id)
+        elif action == 'counter':
+            if request.method == 'POST':
+                form = ListingOffer(userProfile, None, request.POST, request.FILES)
+                print(form.errors)
+                print(form.cleaned_data['address_choice'])
+                print(form.cleaned_data['value'])
+                print(form.cleaned_data['delivery_method'])
+                print(form.cleaned_data['payment_method'])
+                print(form.cleaned_data['custom_address'])
+                if form.is_valid():
+                    print("valid")
+                    payment_method = form.cleaned_data['payment_method']
+                    delivery_method = form.cleaned_data['delivery_method']
+                    address = form.cleaned_data['custom_address']
+                    value = form.cleaned_data['value']
+                    offer = Offer.objects.get(id=id)
+                    offer.payment_method = payment_method
+                    offer.delivery_method = delivery_method
+                    offer.address = address
+                    offer.value = value
+                    offer.sent_by = userProfile
+                    offer.save()
+                    print("saved")
+        redirect("/offers")
+    form = ListingOffer(userProfile, None)
+    madeOffers = Offer.objects.filter(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
+    receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer_id=request.user.id)
+    receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
+    acceptedOffers = receivedOffers.filter(offer_status__exact='accepted') | madeOffers.filter(offer_status__exact='accepted')
+    rejectedOffers = receivedOffers.filter(offer_status__exact='rejected') | madeOffers.filter(offer_status__exact='rejected')
+    tparams = {"userProfile": userProfile, "user": user, 'offers_received': receivedOffersFiltered, 'offers_made': madeOffers, 'offers_accepted': acceptedOffers, 'offers_rejected': rejectedOffers, 'form': form, 'offer_count' : getOffersCount(request)}
+    return render(request, 'offersTemplate.html', tparams)
+
+def acceptOffer(request, id):
+    return offers(request, 'accept', id)
+
+def rejectOffer(request, id):
+    return offers(request, 'reject', id)
+
+def counterOffer(request, id):
+    return offers(request, 'counter', id)
+
+def retractOffer(request, id):
+    offer = Offer.objects.get(id=id)
+    offer.delete()
+    return redirect("/offers/")
+
+#Funções auxiliares
+def valid_purchase(user : UserProfile, product : Product):
+    return user.wallet < product.price and not product.sold
+
+def perform_sale(buyer : UserProfile, seller : UserProfile, product : Product):
+    if valid_purchase(buyer, product):
+        buyer.wallet -= product.price
+        seller.wallet += product.price
+        buyer.save()
+        seller.save()
+        return True
+    return False
+
+
+def getOffersCount(request):
+    if request.user.is_authenticated:
+        receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer_id=request.user.id)
+        receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
+        return receivedOffersFiltered.count()
+    return 0
+
+def notifySuccess(offer_id):
+    offer = Offer.objects.get(id=offer_id)
+    offer.offer_status = 'accepted'
+    offer.save()
+
+def notifyFailed(offer_id):
+    offer = Offer.objects.get(id=offer_id)
+    offer.offer_status = 'rejected'
+    offer.save()
 
 @login_required
 def walletLogic(request):

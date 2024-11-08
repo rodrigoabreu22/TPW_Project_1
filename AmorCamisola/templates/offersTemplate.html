@@ -1,0 +1,334 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Offers Dashboard</h2>
+
+    <!-- Offers Made Section -->
+    <div class="mb-5">
+        <h3 class="text-primary">Offers You Made</h3>
+        {% if offers_made %}
+            <div class="table-responsive mt-3">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Value (€)</th>
+                            <th>Payment Method</th>
+                            <th>Delivery Method</th>
+                            <th>Address</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for offer in offers_made %}
+                        <tr>
+                            <td><a href="{% url 'detailedproduct' id=offer.product.id %}">{{ offer.product.name }}</a></td>
+                            <td>{{ offer.value }}</td>
+                            <td>{{ offer.get_payment_method_display }}</td>
+                            <td>{{ offer.get_delivery_method_display }}</td>
+                            <td>{{ offer.address }}</td>
+                            <td><span class="badge bg-secondary">{{ offer.status }}</span></td>
+                            <td>
+                                <!-- Retract Offer -->
+                                <a href="{% url "retractOffer" id=offer.id %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-undo-alt"></i> Retract
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info mt-3" role="alert">
+                You haven't made any offers yet.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Offers Received Section -->
+    <div class="mb-5">
+        <h3 class="text-primary">Offers You Received</h3>
+        {% if offers_received %}
+            <div class="table-responsive mt-3">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Buyer</th>
+                            <th>Value (€)</th>
+                            <th>Payment Method</th>
+                            <th>Delivery Method</th>
+                            <th>Address</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for offer in offers_received %}
+                        <tr>
+                            <td><a href="{% url 'detailedproduct' id=offer.product.id %}">{{ offer.product.name }}</a></td>
+                            <td>{{ offer.buyer.user.username }}</td>
+                            <td>{{ offer.value }}</td>
+                            <td>{{ offer.get_payment_method_display }}</td>
+                            <td>{{ offer.get_delivery_method_display }}</td>
+                            <td>{{ offer.address }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <form action="{% url 'acceptOffer' id=offer.id %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i> Accept
+                                        </button>
+                                    </form>
+                                    <form action="{% url 'rejectOffer' id=offer.id %}" method="post" class="ms-2">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-times"></i> Reject
+                                        </button>
+                                    </form>
+                                        <button
+                                            class="btn btn-sm btn-secondary ms-2 counterOfferButton"
+                                            data-offer-id="{{ offer.id }}"
+                                            data-product-name="{{ offer.product.name }}"
+                                            data-payment-method="{{ offer.payment_method }}"
+                                            data-delivery-method="{{ offer.delivery_method }}"
+                                            data-buyer="{{ offer.buyer.user.username }}"
+                                            data-price="{{ offer.product.price }}"
+                                            data-value="{{ offer.value }}"
+                                            data-address="{{ offer.address }}"
+                                        >
+                                            <i class="fas fa-exchange-alt"></i> Counter Offer
+                                        </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info mt-3" role="alert">
+                No offers received yet.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Accepted Offers Section -->
+    <div class="mb-5">
+        <h3 class="text-success">Accepted Offers</h3>
+        {% if offers_accepted %}
+            <div class="table-responsive mt-3">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Value (€)</th>
+                            <th>Address</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for offer in offers_accepted %}
+                        <tr>
+                            <td><a href="{% url 'detailedproduct' id=offer.product.id %}">{{ offer.product.name }}</a></td>
+                            <td>{{ offer.value }}</td>
+                            <td>{{ offer.address }}</td>
+                            <td><span class="badge bg-success">{{ offer.status }}</span></td>
+                            <td>
+                                {% if user.id == offer.buyer.id %}
+                                    <!-- Confirm Receipt (Buyer) -->
+                                    <form action="" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-box-open"></i> Confirm Received
+                                        </button>
+                                    </form>
+                                {% elif user.id == offer.product.seller.id %}
+                                    <!-- Confirm Payment Received (Seller) -->
+                                    <form action="" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-money-check-alt"></i> Confirm Payment Received
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info mt-3" role="alert">
+                No accepted offers to display.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Rejected Offers Section -->
+    <div>
+        <h3 class="text-danger">Rejected Offers</h3>
+        {% if offers_rejected %}
+            <div class="table-responsive mt-3">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Value (€)</th>
+                            <th>Address</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for offer in offers_rejected %}
+                        <tr>
+                            <td><a href="{% url 'detailedproduct' id=offer.product.id %}">{{ offer.product.name }}</a></td>
+                            <td>{{ offer.value }}</td>
+                            <td>{{ offer.address }}</td>
+                            <td><span class="badge bg-danger">{{ offer.status }}</span></td>
+                            <td>
+                                <!-- Dismiss Rejected Offer -->
+                                <form action="" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-trash"></i> Dismiss
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info mt-3" role="alert">
+                No rejected offers to display.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Counter Offer Modal -->
+    <div class="modal fade" id="counterOfferModal" tabindex="-1" aria-labelledby="counterOfferModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="counterOfferModalLabel">Make a Counter Offer</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Counter offer to <span id="modalBuyer"></span> for the product "<span id="modalProductName"></span>".</p>
+                    <ul>
+                        <li>Your counter offer should be close to the listed price (<span id="modalProductPrice"></span>€)</li>
+                    </ul>
+                    <hr>
+                    <form id="counterOfferForm" data-base-url="{% url 'counterOffer' 0 %}" method="post" action="">
+                        {% csrf_token %}
+                        {{ form }}
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="counterOfferForm" class="btn btn-primary">Send Counter Offer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get references to modal elements
+            const counterOfferModal = new bootstrap.Modal(document.getElementById('counterOfferModal'));
+            const modalProductName = document.getElementById('modalProductName');
+            const modalBuyer = document.getElementById('modalBuyer');
+            const modalProductPrice = document.getElementById('modalProductPrice');
+            const counterOfferForm = document.getElementById('counterOfferForm');
+            const paymentMethodField = document.getElementById('id_payment_method');
+            const deliveryMethodField = document.getElementById('id_delivery_method');
+            const addressChoiceField = document.getElementById('id_address_choice');
+            const customAddressField = document.getElementById('id_custom_address');
+            const valueField = document.getElementById('id_value');
+
+            if (!modalProductName || !modalBuyer || !modalProductPrice) {
+                console.error("Modal elements are not found in the document.");
+                return;
+            }
+
+            // Event listener for each counter-offer button
+            document.querySelectorAll('.counterOfferButton').forEach(button => {
+                button.addEventListener('click', function () {
+                    // Extract data from button's data attributes
+                    const offerId = this.getAttribute('data-offer-id');
+                    const productName = this.getAttribute('data-product-name');
+                    const buyer = this.getAttribute('data-buyer');
+                    const price = this.getAttribute('data-price');
+                    const value = this.getAttribute('data-value');
+                    const address = this.getAttribute('data-address');
+                    const delivery_method = this.getAttribute('data-delivery-method')
+                    const payment_method = this.getAttribute('data-payment-method');
+
+                    // Update modal content
+                    modalProductName.textContent = productName;
+                    modalBuyer.textContent = buyer;
+                    modalProductPrice.textContent = price;
+                    paymentMethodField.value = payment_method;
+                    deliveryMethodField.value = delivery_method;
+                    addressChoiceField.value = 'custom_address';
+                    customAddressField.value = address;
+                    valueField.value = value;
+                    
+                    toggleDeliveryMethod();
+                    toggleDeliveryLocation();
+                    
+
+                    // Set the form's action dynamically to include the offer ID
+                    const baseUrl = counterOfferForm.getAttribute('data-base-url').replace('/0', '');
+                    console.log(baseUrl)
+                    const actionUrl = `${baseUrl}${offerId}/`;
+                    console.log(actionUrl)
+                    counterOfferForm.setAttribute('action', actionUrl);
+                    console.log(counterOfferForm.action)
+
+                    // Show the modal
+                    counterOfferModal.show();
+                });
+
+            });
+            function toggleDeliveryMethod() {
+                if (paymentMethodField.value === 'in_person') {
+                    deliveryMethodField.value = 'in_person';  // Set to in-person
+                    deliveryMethodField.disabled = true;  // Disable the field
+                } else {
+                    deliveryMethodField.disabled = false;  // Enable the field
+                }
+            }
+            
+            function toggleDeliveryLocation() {
+                if (addressChoiceField.value === 'profile_address') {
+                    customAddressField.value = "{{ userProfile.address }}";
+                    customAddressField.disabled = true;
+                } else {
+                    customAddressField.disabled = false;
+                }
+            }
+            
+            paymentMethodField.addEventListener('change', toggleDeliveryMethod);
+            addressChoiceField.addEventListener('change', toggleDeliveryLocation);
+            const form = document.getElementById('counterOfferForm');
+            form.addEventListener('submit', function () {
+                // Enable all disabled fields before submission
+                if (deliveryMethodField.disabled) {
+                    deliveryMethodField.disabled = false;
+                }
+                if (customAddressField.disabled) {
+                    customAddressField.disabled = false;
+                }
+            });
+            
+        });
+    </script>
+</div>
+
+
+{% endblock %}
