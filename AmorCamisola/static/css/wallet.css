@@ -1,0 +1,57 @@
+/* Profile page styles */
+body {
+    background-color: #f8f9fa;
+}
+
+h3, h5 {
+    font-weight: 700;
+}
+
+.display-4 {
+    font-size: 2.5rem;
+    color: #28a745; /* green for wallet balance */
+}
+
+.container {
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    border-radius: 10px;
+}
+
+.btn-outline-primary {
+    border-color: #007bff;
+    color: #007bff;
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+    color: white;
+    background-color: #007bff;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #218838;
+}
+
+/* Alerts for messages */
+.alert {
+    border-radius: 5px;
+    font-size: 1.1rem;
+}

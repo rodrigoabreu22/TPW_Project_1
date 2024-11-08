@@ -3,51 +3,24 @@
 
 {% block content %}
     {% load static %}
-    <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-indicators">
-        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
-    </div>
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <img src="{% static 'images/static1.jpg' %}" class="d-block w-100" alt="Slide 1">
-        </div>
-        <div class="carousel-item">
-            <img src="{% static 'images/static2.jpg' %}" class="d-block w-100" alt="Slide 2">
-        </div>
-        <div class="carousel-item">
-            <img src="{% static 'images/static3.jpg' %}" class="d-block w-100" alt="Slide 3">
-        </div>
-    </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-    </button>
-</div>
 
     
 <div class="homepage-container">
-    <!-- Filtros na Barra Lateral Esquerda -->
     <div class="sidebar-filters">
-        <h3>Filters</h3>
+        <h3>Filtros</h3>
         <form method="GET" action="{% url 'home' %}">
             <div class="form-group">
-                <label for="id_name_query">Product Name</label>
+                <label for="id_name_query">Pesquisar produto</label>
                 <input type="text" class="form-control" id="id_name_query" name="name_query" value="{{ request.GET.name_query }}">
             </div>
             
             <div class="form-group">
-                <label for="id_user_query">Seller</label>
+                <label for="id_user_query">Pesquisar vendedor</label>
                 <input type="text" class="form-control" id="id_user_query" name="user_query" value="{{ request.GET.user_query }}">
             </div>
 
             <div class="form-group">
-                <label>Teams</label>
+                <label>Equipa</label>
                 <div>
                     {% for team in form.teams %}
                         <div class="form-check">
@@ -60,7 +33,7 @@
             </div>
 
             <div class="form-group">
-                <label>Product Types</label>
+                <label>Categoria</label>
                 <div>
                     {% for product_type in form.product_types %}
                         <div class="form-check">
@@ -73,7 +46,7 @@
             </div>
 
             <div class="form-group">
-                <label>Price Range</label>
+                <label>Preço</label>
                 <div class="price-range">
                     <input type="number" class="form-control" id="id_min_price" name="min_price" step="0.01" placeholder="Min" value="{{ request.GET.min_price }}">
                     <input type="number" class="form-control" id="id_max_price" name="max_price" step="0.01" placeholder="Max" value="{{ request.GET.max_price }}">
@@ -81,7 +54,7 @@
             </div>
         
             <div class="form-group">
-                <label for="id_sort_by">Sort By</label>
+                <label for="id_sort_by">Ordenar</label>
                 <select id="id_sort_by" name="sort_by">
                     <option value="">Select...</option>
                     {% for value, label in form.sort_by.field.choices %}
@@ -90,24 +63,37 @@
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-primary">Apply Filters</button>
+            <button type="submit" class="btn btn-primary">Aplicar</button>
         </form>
     </div>
 
-    <!-- Exibição de Produtos -->
     <div class="products-display">
-        <h2>Products</h2>
+        <h2>Produtos</h2>
         <div class="product-list">
             {% for product in products %}
                 <div class="product-card">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                    <a href="{% url 'detailedproduct' id=product.id %}">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }} de {{ user.username }}" class="card-img-top img-fluid rounded">
+                    </a>
                     <h5 class="product-name">{{ product.name }}</h5>
-                    <p class="product-seller">Seller: {{ product.seller.username }}</p>
-                    <p class="product-price">${{ product.price }}</p>
-                    <a class="favorite-link"><i class="fas fa-heart"></i></a>
+                    <p class="product-seller">Seller: <a href="{% url 'profile' username=product.seller.username %}">{{ product.seller.username }}</a></p>
+                    <p class="product-price">{{ product.price }}€</p>
+                
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        <input type="hidden" name="favorite_product_id" value="{{ product.id }}">
+                        <button type="submit" class="favorite-link">
+                            {% if product.id in favorites_ids %}
+                                <i class="fas fa-heart red"></i>
+                            {% else %}
+                                <i class="fas fa-heart text-white"></i>
+                            {% endif %}
+                        </button>
+                    </form>
                 </div>
             {% endfor %}
         </div>
     </div>
 </div>
+    
 {% endblock %}

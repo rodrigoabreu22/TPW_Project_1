@@ -1,7 +1,8 @@
 import uuid
 from django.contrib.auth.models import User
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 
 CLOTHES_CHOICES = (
     ("XS", "XS"),
@@ -16,6 +17,13 @@ SOCKS_CHOICES = (
     ("S", "S"),
     ("M", "M"),
     ("L", "L")
+)
+
+ReportOptions = (
+    ("Scam", "Scam"),
+    ("Impersonating", "Impersonating"),
+    ("Toxic", "Toxic"),
+    ("Other", "Other")
 )
 
 BOOTS_CHOICES = (
@@ -44,12 +52,30 @@ BOOTS_CHOICES = (
     (47, 47)
 )
 
+PAYMENT_METHOD_CHOICES = (
+    ('store_credit', 'Saldo da loja'),
+    ('transfer', 'Transferência bancária'),
+    ('in_person', 'Em pessoa'),
+)
 
+DELIVERY_METHOD_CHOICES = (
+    ('shipment', 'Envio remoto'),
+    ('in_person', 'Em pessoa'),
+)
+
+OFFER_STATUS = (
+    ('in_progress', 'Em progresso'),
+    ('accepted', 'Aceite'),
+    ('rejected', 'Rejeitado')
+)
+
+phone_validator = RegexValidator(regex=r'^\d{9}$', message="Phone number must be exactly 9 digits.")
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     address = models.CharField(max_length=50)
-    phone = PhoneNumberField(unique=True, null=False, blank=False)
+
+    phone = models.CharField(max_length=9,unique=True,null=False,blank=False,validators=[phone_validator])
     image = models.FileField()
     wallet = models.DecimalField(max_digits=50, decimal_places=2, default=0)
 
@@ -89,12 +115,36 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+class ReportOptions(models.TextChoices):
+    INAPPROPRIATE = 'IN', 'Inappropriate Content'
+    FRAUD = 'FR', 'Fraud'
+    IMPERSONATE = 'IM', 'Impersonate'
+    OTHER = 'OT', 'Other'
+
+class Report(models.Model):
+    sent_by = models.ForeignKey(User, related_name='reports_sent', on_delete=models.CASCADE)
+    reporting = models.ForeignKey(User, related_name='reports_received', on_delete=models.CASCADE, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    reasons = models.CharField(max_length=2, choices=ReportOptions.choices)
+    description = models.TextField(max_length=500)
+
+    def __str__(self):
+        target = f"Product {self.product.name}" if self.product else f"User {self.reporting.username}"
+        return f"{target} reported by {self.sent_by.username}"
+
+    def clean(self):
+        # Ensure either 'reporting' or 'product' is set, but not both
+        if not self.reporting and not self.product:
+            raise ValidationError("You must report either a user or a product.")
+        if self.reporting and self.product:
+            raise ValidationError("A report cannot target both a user and a product.")
 
 class Favorite(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    product = models.OneToOneField(Product, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product)
+
     def __str__(self):
-        return self.user.username + " favorites " + self.product.name
+        return f"{self.user.username}'s Favorites"
 
 class Jersey(models.Model):
     product = models.OneToOneField(Product, on_delete=models.CASCADE)
@@ -126,6 +176,19 @@ class Boots(models.Model):
 
     def __str__(self):
         return self.product.__str__()
+
+
+class Offer(models.Model):
+    buyer = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='buyer')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    value = models.DecimalField(max_digits=50, decimal_places=2, default=0)
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES)
+    delivery_method = models.CharField(max_length=50, choices=DELIVERY_METHOD_CHOICES)
+    address = models.CharField(max_length=50)
+    sent_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='sent_by')
+    offer_status = models.CharField(max_length=50, choices=OFFER_STATUS, default='in_progress')
+    delivered = models.BooleanField(default=False)
+    paid = models.BooleanField(default=False)
 
 
 """Deixar para o fim!!!

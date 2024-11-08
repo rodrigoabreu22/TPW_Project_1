@@ -2,9 +2,11 @@
 <form id="logoutForm" action="/logout" method="post" class="navbar-right">
     {% csrf_token %}
     <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="accountDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">My Account</button>
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="accountDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Minha conta">{{ user.username }}</button>
         <div class="dropdown-menu" aria-labelledby="accountDropdown">
-                        <a class="dropdown-item" href="{% url 'profile' username=user.username %}">My Profile</a>
+                        <a class="dropdown-item" href="{% url 'profile' username=user.username %}">Perfil</a>
+                        <a class="dropdown-item" href="{% url 'offers' %}">Ofertas</a>
+                        <a class="dropdown-item" href="{% url 'profile_settings' %}">Definições</a>
                         <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
         </div>
     </div>
@@ -14,6 +16,5 @@
 {% else %}
 <ul class="nav navbar-nav navbar-right">
     <li><a href="{% url 'login' %}">Login</a></li>
-    <li><a href="{% url 'createaccount' %}">Criar Conta</a></li>
 </ul>
 {% endif %}

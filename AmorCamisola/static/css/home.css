@@ -1,4 +1,4 @@
-/* Sidebar Filters */
+
 
 .dropdown-content {
     display: none;
@@ -55,36 +55,11 @@
     color: #ff0000;
 }
 
-.carousel-item img {
-    height: 400px; /* Adjust height as needed */
-    object-fit: cover;
-}
-
-/* Carousel Indicators */
-.carousel-indicators button {
-    background-color: #666; /* Subtle gray color */
-    opacity: 0.7; /* Reduce opacity for a more subtle look */
-}
-
-/* Carousel Controls (Previous & Next) */
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-    background-color: rgba(0, 0, 0, 0.3); /* Lighter transparency */
-    border-radius: 50%; /* Round shape */
-    width: 2rem; /* Smaller size */
-    height: 2rem;
-}
-.carousel-control-prev,
-.carousel-control-next {
-    width: 5%; /* Reduces the clickable area */
-}
-
 /* Layout Adjustment to Prevent Overlap with Footer */
 .filter-section {
     padding-bottom: 2rem; /* Adds some bottom space to avoid overlap */
 }
 
-/* Footer Styling */
 .footer {
   background-color: #343a40;
   color: white;

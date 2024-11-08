@@ -1,4 +1,7 @@
 from datetime import datetime
+from itertools import product, count
+from django.http import JsonResponse
+
 from AmorCamisola.forms import *
 from AmorCamisola.models import *
 
@@ -13,11 +16,45 @@ from django.contrib import messages
 
 # Create your views here.
 
+@login_required
+def favorite_list(request):
+    favorite_form = FavoriteForm(request.POST or None)
+    user_profile = None
+    if request.user.is_authenticated:
+        favorite_, _ = Favorite.objects.get_or_create(user=request.user)
+        products = favorite_.products.all()
+        favorites = favorite_.products.values_list('id', flat=True)
+        user_profile = UserProfile.objects.get(user=request.user)
+
+        if favorite_form.is_valid():
+            product_id = favorite_form.cleaned_data['favorite_product_id']
+            product = get_object_or_404(Product, id=product_id)
+            print(f"Product ID: {product.id}")  # Debug
+            if product in favorite_.products.all():
+                favorite_.products.remove(product)
+                print(f"Product {product.id} removed from favorites.")  # Debug
+            else:
+                favorite_.products.add(product)
+                print(f"Product {product.id} added to favorites.")  # Debug
+            return redirect('favorite_list')
+        else:
+            print(f"WOMP WOMP WOMP WOMP WOMP WOMP")
+    return render(request, 'favorites.html', {
+        'favorite_form': favorite_form,
+        'favorites_ids': favorites,
+        'products': products,
+        'profile': user_profile
+    })
+
 def home(request):
+    print("Test")
     form = ProductQuery(request.GET or None)
+    favorite_form = FavoriteForm(request.POST or None)
     products = Product.objects.all()  # Start with all products
     teams=[]
     product_types=[]
+    favorites=[]
+    user_profile=None
 
     if form.is_valid():
         name_query = form.cleaned_data['name_query']
@@ -27,6 +64,7 @@ def home(request):
         min_price = form.cleaned_data['min_price']
         max_price = form.cleaned_data['max_price']
         sort_by = form.cleaned_data['sort_by']
+
 
 
         # Filtering logic
@@ -67,14 +105,41 @@ def home(request):
         elif sort_by == 'seller_desc':
             products = products.order_by('-seller__username')
 
-    return render(request, 'home.html', {'form': form, 'products': products, 'selected_teams': teams, 'selected_types':product_types})
+    if request.user.is_authenticated:
+        favorite_, _ = Favorite.objects.get_or_create(user=request.user)
+        favorites = favorite_.products.values_list('id', flat=True)
+
+        if favorite_form.is_valid():
+            product_id = favorite_form.cleaned_data['favorite_product_id']
+            product = get_object_or_404(Product, id=product_id)
+            print(f"Product ID: {product.id}")  # Debug
+            if product in favorite_.products.all():
+                favorite_.products.remove(product)
+                print(f"Product {product.id} removed from favorites.")  # Debug
+            else:
+                favorite_.products.add(product)
+                print(f"Product {product.id} added to favorites.")  # Debug
+            return redirect('home')
+        else:
+            user_profile = UserProfile.objects.get(user=request.user)
+
+
+    return render(request, 'home.html', {
+        'form': form,
+        'favorite_form': favorite_form,
+        'products': products,
+        'selected_teams': teams,
+        'selected_types': product_types,
+        'favorites_ids': favorites,
+        'profile': user_profile
+    })
 
 
 
 def createAccount(request):
     if request.method == 'POST':
         form = CreateAccountForm(request.POST)
-        print(form.errors)  # Debugging: See form errors if the form is not valid
+        print(form.errors)
 
         if form.is_valid():
             username = form.cleaned_data['username']
@@ -89,10 +154,10 @@ def createAccount(request):
                 auth_login(request, user)
                 return redirect('/')  # Redirect to home or another page
             else:
-                return render(request, 'createAccount.html', {'form': form, 'error': 'Authentication failed'})
+                return render(request, 'createAccount.html', {'form': form, 'error': 'Authentication failed', "offer_count": getOffersCount(request)})
 
         else:
-            return render(request, 'createAccount.html', {'form': form, 'error': 'Form is not valid'})
+            return render(request, 'createAccount.html', {'form': form, 'error': 'Form is not valid', "offer_count": getOffersCount(request)})
 
     else:
         form = CreateAccountForm()
@@ -109,7 +174,7 @@ def myProfile(request):
     selling = Product.objects.filter(seller_id=request.user.id)
     profile = UserProfile.objects.get(user=request.user)
 
-    tparams = {"user" : user, "following" : following, "followers" : followers, "selling" : selling, "profile" : profile}
+    tparams = {"user" : user, "following" : following, "followers" : followers, "products" : selling, "profile" : profile  }
 
     return render(request, 'myProfile.html', tparams)
 
@@ -124,6 +189,25 @@ def viewProfile(request, username):
     profile = UserProfile.objects.get(user=profile_user)
 
     if request.user.is_authenticated:
+        print("Aconteceu")
+        # Report form handling
+        if request.method == 'POST' and 'report_user' in request.POST:
+            print("Report user")
+            report_form = ReportForm(request.POST)
+
+            report_form.instance.sent_by = request.user
+            report_form.instance.reporting = profile_user
+            if report_form.is_valid():
+                print("Valid Report form")
+                report = report_form.save(commit=False)
+                report.save()
+                messages.success(request, 'Usuário reportado com sucesso.')
+                return redirect('profile', username=username)
+            else:
+                print("Form errors:", report_form.errors)
+        else:
+            report_form = ReportForm()
+
         user = User.objects.get(id=request.user.id)
         if user == profile_user:
             return myProfile(request)
@@ -133,15 +217,15 @@ def viewProfile(request, username):
             if user.username == f.following.username:
                 follows = True
                 print("follows true")
-        tparams = {"user": user, "profile_user": profile_user, "following": following, "followers": followers,
-                       "selling": selling, "profile": profile, "follows":follows}
+        tparams = {"user": user, "profile_user": profile_user, "following": following, "followers": followers, "products": selling, "profile": profile, "follows":follows, "offer_count": getOffersCount(request), "report_form": report_form}
     else:
-        tparams = {"profile_user": profile_user, "following": following, "followers": followers,"selling": selling, "profile": profile}
+        tparams = {"profile_user": profile_user, "following": following, "followers": followers,"products": selling, "profile": profile, "offer_count": getOffersCount(request)}
 
     return render(request, 'profile.html', tparams)
 
 @login_required(login_url='/login/')  # Redirects to login if not authenticated
 def pubProduct(request):
+    user_profile = User.objects.get(id=request.user.id)
     if request.method == 'POST':
         form = ProductForm(request.POST,request.FILES)
         print(form.errors)
@@ -184,10 +268,10 @@ def pubProduct(request):
 
                 return redirect('/')
         else:
-            return render(request, 'publishProduct.html', {'form': form, 'error': True})
+            return render(request, 'publishProduct.html', {'form': form, 'error': True, "offer_count": getOffersCount(request), "profile": user_profile})
     else:
         form = ProductForm()
-    return render(request, 'publishProduct.html', {'form': form, 'error': False})
+    return render(request, 'publishProduct.html', {'form': form, 'error': False, "offer_count" : getOffersCount(request), "profile": user_profile})
 
 @login_required
 def follow_user(request, username):
@@ -208,6 +292,9 @@ def userlist(request):
     query = None
     all_users = None
     all_user_profiles = None
+    myprofile = None
+    if request.user.is_authenticated:
+        myprofile = UserProfile.objects.get(user=request.user)
 
     # Fetch the 10 most popular users based on follower count
     popular_users = (
@@ -235,7 +322,131 @@ def userlist(request):
         'all_users': all_users,
         'all_user_profiles': all_user_profiles,
         'query': query,
+        'offer_count' : getOffersCount(request),
+        'profile' : myprofile
     })
+
+
+
+
+def detailedProduct(request, id):
+    print(request)
+    product = Product.objects.get(id=id)
+    user = User.objects.get(id=request.user.id)
+    sellerProfile = UserProfile.objects.get(user = product.seller)
+    try:
+        userProfile = UserProfile.objects.get(user__id=request.user.id)
+    except UserProfile.DoesNotExist:
+        userProfile = None
+    if request.method == 'POST':
+        form = ListingOffer(userProfile, product, request.POST, request.FILES)
+        print(form.errors)
+        print(form.cleaned_data['address_choice'])
+        print(form.cleaned_data['value'])
+        print(form.cleaned_data['delivery_method'])
+        print(form.cleaned_data['payment_method'])
+        print(form.cleaned_data['custom_address'])
+        if form.is_valid():
+            print("valid")
+            payment_method = form.cleaned_data['payment_method']
+            delivery_method = form.cleaned_data['delivery_method']
+            address = form.cleaned_data['custom_address']
+            value = form.cleaned_data['value']
+            buyer = userProfile
+            sent_by = userProfile
+            offer = Offer(buyer=buyer, product=product, value=value, address=address, payment_method=payment_method, delivery_method=delivery_method, sent_by=sent_by)
+            offer.save()
+            print("saved")
+            redirect('/')
+    form = ListingOffer(userProfile, product)
+    tparams = {"product": product, 'form': form, 'profile': userProfile, 'user' : user, 'offer_count' : getOffersCount(request), 'sellerProfile': sellerProfile}
+    return render(request, 'productDetailed.html', tparams)
+
+def offers(request, action=None, id=None):
+    user = User.objects.get(id=request.user.id)
+    userProfile = UserProfile.objects.get(user__id=request.user.id)
+    if not action is None:
+        if action == 'accept':
+            notifySuccess(id)
+        elif action == 'reject':
+            notifyFailed(id)
+        elif action == 'counter':
+            if request.method == 'POST':
+                form = ListingOffer(userProfile, None, request.POST, request.FILES)
+                print(form.errors)
+                print(form.cleaned_data['address_choice'])
+                print(form.cleaned_data['value'])
+                print(form.cleaned_data['delivery_method'])
+                print(form.cleaned_data['payment_method'])
+                print(form.cleaned_data['custom_address'])
+                if form.is_valid():
+                    print("valid")
+                    payment_method = form.cleaned_data['payment_method']
+                    delivery_method = form.cleaned_data['delivery_method']
+                    address = form.cleaned_data['custom_address']
+                    value = form.cleaned_data['value']
+                    offer = Offer.objects.get(id=id)
+                    offer.payment_method = payment_method
+                    offer.delivery_method = delivery_method
+                    offer.address = address
+                    offer.value = value
+                    offer.sent_by = userProfile
+                    offer.save()
+                    print("saved")
+        redirect("/offers")
+    form = ListingOffer(userProfile, None)
+    madeOffers = Offer.objects.filter(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
+    receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer_id=request.user.id)
+    receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
+    acceptedOffers = receivedOffers.filter(offer_status__exact='accepted') | madeOffers.filter(offer_status__exact='accepted')
+    rejectedOffers = receivedOffers.filter(offer_status__exact='rejected') | madeOffers.filter(offer_status__exact='rejected')
+    tparams = {"profile": userProfile, "user": user, 'offers_received': receivedOffersFiltered, 'offers_made': madeOffers, 'offers_accepted': acceptedOffers, 'offers_rejected': rejectedOffers, 'form': form, 'offer_count' : getOffersCount(request)}
+    return render(request, 'offersTemplate.html', tparams)
+
+def acceptOffer(request, id):
+    return offers(request, 'accept', id)
+
+def rejectOffer(request, id):
+    return offers(request, 'reject', id)
+
+def counterOffer(request, id):
+    return offers(request, 'counter', id)
+
+def retractOffer(request, id):
+    offer = Offer.objects.get(id=id)
+    offer.delete()
+    return redirect("/offers/")
+
+#Funções auxiliares
+def valid_purchase(user : UserProfile, product : Product):
+    return user.wallet < product.price and not product.sold
+
+def perform_sale(buyer : UserProfile, seller : UserProfile, product : Product):
+    if valid_purchase(buyer, product):
+        buyer.wallet -= product.price
+        seller.wallet += product.price
+        buyer.save()
+        seller.save()
+        return True
+    return False
+
+
+def getOffersCount(request):
+    if request.user.is_authenticated:
+        receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer_id=request.user.id)
+        receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
+        return receivedOffersFiltered.count()
+    return 0
+
+def notifySuccess(offer_id):
+    offer = Offer.objects.get(id=offer_id)
+    offer.offer_status = 'accepted'
+    offer.save()
+
+def notifyFailed(offer_id):
+    offer = Offer.objects.get(id=offer_id)
+    offer.offer_status = 'rejected'
+    offer.save()
 
 @login_required
 def walletLogic(request):
@@ -246,7 +457,7 @@ def walletLogic(request):
     return render(request, 'wallet.html', {
         'depositoform': depositoform,
         'levantamentoform': levantamentoform,
-        'userinfo': userinfo,
+        'profile': userinfo,
     })
 
 @login_required
@@ -266,7 +477,7 @@ def deposit_money(request):
     return render(request, 'wallet.html', {
         'depositoform': depositoform,
         'levantamentoform': levantamentoform,
-        'userinfo': userinfo,
+        'profile': userinfo,
     })
 
 @login_required
@@ -289,7 +500,7 @@ def withdraw_money(request):
     return render(request, 'wallet.html', {
         'depositoform': depositoform,
         'levantamentoform': levantamentoform,
-        'userinfo': userinfo,
+        'profile': userinfo,
     })
 
 @login_required
@@ -309,7 +520,7 @@ def accountSettings(request):
         user_form = UpdateUser(initial={'email': user.email, 'username': user.username, 'first_name': user.first_name, 'last_name': user.last_name})
         profile_form = UpdateProfile(initial={'address':account.address, 'phone':account.phone})
         password_form = UpdatePassword()
-        return render(request, 'account.html', {'user': user, 'account':account,'image_form': image_form, 'user_form': user_form,
+        return render(request, 'account.html', {'user': user, 'profile':account,'image_form': image_form, 'user_form': user_form,
                                                          'profile_form': profile_form, 'password_form': password_form})
     elif request.method == 'POST':
         if 'image' in request.FILES:
@@ -327,7 +538,7 @@ def accountSettings(request):
                 else:
                     image_form = UploadProfilePicture()
                     print(image_form.errors)
-                    return render(request, 'account.html', {'user': user, 'account':account, 'image_form': image_form})
+                    return render(request, 'account.html', {'user': user, 'profile':account, 'image_form': image_form})
 
         elif  'profile_change' in request.POST:
             # get the form info
@@ -365,21 +576,21 @@ def accountSettings(request):
                     request.user.set_password(password_form.cleaned_data['new'])
                     user.save()
                     print('Password changed successfully!')
-                    return render(request, 'account.html', {'user': user, 'account':account, 'password_form': password_form,
+                    return render(request, 'account.html', {'user': user, 'profile':account, 'password_form': password_form,
                                                                      'image_form': image_form,
                                                                      'profile_form': profile_form,
                                                                      'user_form': user_form,
                                                                      'success': 'Password changed successfully!'})
                 else:
                     print('Passwords do not match!')
-                    return render(request, 'account.html', {'user': user, 'account':account, 'password_form': password_form,
+                    return render(request, 'account.html', {'user': user, 'profile':account, 'password_form': password_form,
                                                                      'image_form': image_form,
                                                                      'profile_form': profile_form,
                                                                      'user_form': user_form,
                                                                      'error': 'Passwords do not match!'})
 
             else:
-                return render(request, 'account.html', {'user': user, 'account':account, 'password_form': password_form,
+                return render(request, 'account.html', {'user': user, 'profile':account, 'password_form': password_form,
                                                                  'image_form': image_form,
                                                                  'profile_form': profile_form,
                                                                  'user_form': user_form,

@@ -3,17 +3,6 @@
 {% block content %}
 
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ user.username }}'s Profile</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
-</head>
-<body>
 
 <div class="container mt-5">
     <!-- Profile Header Section -->
@@ -30,7 +19,7 @@
             </div>
             <div class="d-flex mb-3">
                 <div class="mr-4">
-                    <strong>{{ selling.count }}</strong> produtos
+                    <strong>{{ products.count }}</strong> produtos
                 </div>
                 <div class="mr-4">
                     <a href="#" class="text-dark" data-toggle="modal" data-target="#followersModal">
@@ -44,10 +33,9 @@
                 </div>
             </div>
                 <p>Nome: {{ user.first_name }} {{ user.last_name }}</p>
-                <p>Avaliações: </p>
                     <a class="btn btn-outline-secondary btn-sm">Histórico de Compras</a>
                     <a class="btn btn-outline-secondary btn-sm">Histórico de Vendas</a>
-                    <a class="btn btn-outline-secondary btn-sm">Ofertas</a>
+                    <a href="{% url 'offers'%}" class="btn btn-outline-secondary btn-sm">Ofertas</a>
         </div>
     </div>
     <hr/>
@@ -56,14 +44,21 @@
     <div class="row">
         {% for product in products %}
             <div class="col-6 col-md-4 mb-4">
-                <a href="{% url 'product_detail' product.id %}">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }} de {{ user.username }}" class="img-fluid rounded">
-                </a>
+                <div class="card h-100">
+                    <a href="{% url 'detailedproduct' id=product.id %}">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }} de {{ user.username }}" class="card-img-top img-fluid rounded">
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted">{{ product.price }} €</p>
+                    </div>
+                </div>
             </div>
         {% empty %}
             <p class="col-12 text-center">Sem produtos à venda.</p>
         {% endfor %}
     </div>
+
 </div>
 
 <div class="modal fade" id="followersModal" tabindex="-1" aria-labelledby="followersModalLabel" aria-hidden="true">
@@ -105,13 +100,6 @@
         </div>
     </div>
 </div>
-
-<!-- Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
 
 
 {% endblock %}

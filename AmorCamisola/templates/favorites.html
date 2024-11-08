@@ -1,0 +1,37 @@
+{% extends 'layout.html' %}
+
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="text-center">Favoritos</h1>
+    <div class="row">
+        {% for product in products %}
+            <div class="col-md-4 col-lg-3 mb-4 d-flex align-items-stretch">
+                <div class="card w-100">
+                    <a href="{% url 'detailedproduct' id=product.id %}">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }} de {{ user.username }}" class="card-img-top img-fluid rounded">
+                    </a>
+                    <div class="card-body d-flex flex-column text-center">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">Seller: {{ product.seller.username }}</p>
+                        <p class="card-text">Preço: ${{ product.price }}</p>
+                        <form method="POST" action="">
+                            {% csrf_token %}
+                            <input type="hidden" name="favorite_product_id" value="{{ product.id }}">
+                            <button type="submit" class="btn btn-outline-danger mt-auto">
+                                {% if product.id in favorites_ids %}
+                                    <i class="fas fa-heart"></i>
+                                {% else %}
+                                    <i class="far fa-heart"></i>
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>No favorite products yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

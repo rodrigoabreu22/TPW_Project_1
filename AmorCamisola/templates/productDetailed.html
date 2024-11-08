@@ -1,0 +1,151 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Gray Header -->
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <!-- Main Product Image on the Left -->
+        <div class="col-lg-7 mb-4 d-flex flex-column">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid w-100 rounded shadow mb-3">
+        
+            {% if product.sold %}
+                <span class="badge bg-danger text-center mt-2">Indisponível</span>
+            {% else %}
+                <button id="contactSellerButton" class="btn btn-dark btn-lg w-100 mt-2">
+                    Fazer proposta
+                </button>
+            {% endif %}
+        </div>
+    
+        <div class="col-lg-5 d-flex flex-column justify-content-between">
+            <div>
+                <h1 class="h3 text-dark mb-2">{{ product.name }} ({{ product.team }})</h1>
+                <p>Vendedor: <a href="{% url 'profile' username=product.seller.username %}">{{ product.seller.username }}</a></p>
+                <p>Contactar: </p>
+                <ul>
+                    <li class="text-muted">Telefone: <span class="text-muted">{{ sellerProfile.phone }}</span></li>
+                    <li class="text-muted">Email: <span class="text-muted">{{ product.seller.email }}</span></li>
+                </ul>
+                <p class="h4 text-danger fw-bold mb-3">{{ product.price }}€</p>
+                
+                <div class="mt-2 p-3 border rounded bg-light shadow-sm">
+                    <h2 class="h5">Descrição</h2>
+                    <p class="text-secondary">{{ product.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+    
+    <!-- Modal Structure -->
+    <div class="modal fade" id="contactSellerModal" tabindex="-1" aria-labelledby="contactSellerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contactSellerModalLabel">Fazer Proposta</h5>
+                </div>
+                <div class="modal-body">
+                    <!-- You can add a form or message here -->
+                    <p>Proposta a {{ product.seller.username }} para a compra do produto "{{ product.name }}".</p>
+                    Dicas: <br/>
+                    <li>A oferta deve ter um valor próximo do listado ({{ product.price }}€)<br/>
+                    <li>Deve contactar o vendedor antes de colocar uma proposta
+                    <hr>
+                    <form id="contactSellerForm" method="post" action="{% url 'detailedproduct' id=product.id %}">
+                        {% csrf_token %}
+                        {{ form }}
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="closer">Cancelar</button>
+                    <!-- Submit button triggers form submission -->
+                    <button type="submit" form="contactSellerForm" class="btn btn-primary">Enviar Proposta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    
+
+
+
+<!-- JavaScript to Open Modal on Button Click -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Target the button
+        var contactSellerButton = document.getElementById('contactSellerButton');
+        var closeButton = document.getElementById('closer');
+        var contactSellerModal =  new bootstrap.Modal(document.getElementById('contactSellerModal'));
+        
+    
+        // Add event listener to show modal on click
+        contactSellerButton.addEventListener('click', function () {
+            // Use Bootstrap's Modal API to show the modal directly on click
+            contactSellerModal = new bootstrap.Modal(document.getElementById('contactSellerModal'));        
+            contactSellerModal.show();
+        });
+        
+        function toggleModal() {
+            if (contactSellerModal.isOpen) {
+                contactSellerModal.show();
+            }
+            else {
+                contactSellerModal.hide();
+            }
+        }
+        
+        closeButton.addEventListener('click', toggleModal);
+        
+    
+        var paymentMethodField = document.getElementById('id_payment_method');
+        var deliveryMethodField = document.getElementById('id_delivery_method');
+    
+        function toggleDeliveryMethod() {
+            if (paymentMethodField.value === 'in_person') {
+                deliveryMethodField.value = 'in_person';  // Set to in-person
+                deliveryMethodField.disabled = true;  // Disable the field
+            } else {
+                deliveryMethodField.disabled = false;  // Enable the field
+            }
+        }
+        
+        var deliveryLocationField = document.getElementById('id_address_choice');
+        var deliveryLocation = document.getElementById('id_custom_address');
+        
+        function toggleDeliveryLocation() {
+            if (deliveryLocationField.value === 'profile_address') {
+                deliveryLocation.value = "{{ profile.address }}";
+                deliveryLocation.disabled = true;
+            } else {
+                deliveryLocation.disabled = false;
+            }
+        }
+        
+        var form = document.getElementById('contactSellerForm');
+        form.addEventListener('submit', function () {
+            // Enable all disabled fields before submission
+            if (deliveryMethodField.disabled) {
+                deliveryMethodField.disabled = false;
+            }
+            if (deliveryLocation.disabled) {
+                deliveryLocation.disabled = false;
+            }
+        });
+    
+        // Attach event listener
+        paymentMethodField.addEventListener('change', toggleDeliveryMethod);
+        deliveryLocationField.addEventListener('change', toggleDeliveryLocation);
+    
+        // Initial call to set the state correctly on page load
+        toggleDeliveryMethod();
+        toggleDeliveryLocation();
+    });
+</script>
+
+{% endblock %}
+
+

@@ -2,57 +2,44 @@
 
 {% block content %}
 
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ user.username }}'s Profile</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
-</head>
-<body>
-
-<div class="container my-4">
+<div class="container my-5">
     <!-- Wallet Balance Display -->
-    <div class="row mb-4">
-        <div class="col text-center">
-            <h3>Saldo na Carteira</h3>
-            <p class="display-4">{{ userinfo.wallet }} €</p>
+    <div class="row mb-4 text-center">
+        <div class="col">
+            <h3 class="font-weight-bold text">Saldo na Carteira</h3>
+            <p class="display-4 text">{{ profile.wallet }} €</p>
         </div>
     </div>
 
     <!-- Toggle Buttons -->
     <div class="row mb-4 text-center">
         <div class="col">
-            <!-- Button to show the withdrawal form (default) -->
-            <button id="showWithdrawal" class="btn btn-primary">Levantar Dinheiro</button>
+            <!-- Button to show the withdrawal form -->
+            <button id="showWithdrawal" class="btn btn-outline-primary btn-lg">Levantar Dinheiro</button>
         </div>
         <div class="col">
             <!-- Button to show the deposit form -->
-            <button id="showDeposit" class="btn btn-primary">Depositar Dinheiro</button>
+            <button id="showDeposit" class="btn btn-outline-primary btn-lg">Depositar Dinheiro</button>
         </div>
     </div>
 
     <!-- Withdrawal Form (Visible by default) -->
-    <div id="withdrawalContainer" class="container">
-        <h5>Levantar Dinheiro</h5>
+    <div id="withdrawalContainer" class="container mb-4">
+        <h5 class="font-weight-bold">Levantar Dinheiro</h5>
         <form method="post" action="{% url 'withdraw_money' %}">
             {% csrf_token %}
             {{ levantamentoform.as_p }}
-            <button type="submit" class="btn btn-primary">Levantar</button>
+            <button type="submit" class="btn btn-primary btn-lg btn-block">Levantar</button>
         </form>
     </div>
 
     <!-- Deposit Form (Hidden by default) -->
-    <div id="depositContainer" class="container" style="display: none;">
-        <h5>Depositar Dinheiro</h5>
+    <div id="depositContainer" class="container mb-4" style="display: none;">
+        <h5 class="font-weight-bold">Depositar Dinheiro</h5>
         <form method="post" action="{% url 'deposit_money' %}">
             {% csrf_token %}
             {{ depositoform.as_p }}
-            <button type="submit" class="btn btn-primary">Depositar</button>
+            <button type="submit" class="btn btn-success btn-lg btn-block">Depositar</button>
         </form>
     </div>
 </div>
@@ -88,13 +75,5 @@
         });
     });
 </script>
-
-<!-- Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
-
 
 {% endblock %}
