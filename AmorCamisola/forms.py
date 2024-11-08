@@ -137,6 +137,19 @@ class ProductQuery(forms.Form):
 class FavoriteForm(forms.Form):
     favorite_product_id = forms.IntegerField()
 
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['reasons', 'description']
+        labels = {
+            'reasons': 'Motivo',
+            'description': 'Descrição'
+        }
+        widgets = {
+            'reasons': forms.Select(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
 class SearchUserForm(forms.Form):
     query = forms.CharField(label='Procurar utilizador', max_length=50, required=False)
 
