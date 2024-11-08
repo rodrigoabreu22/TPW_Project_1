@@ -1,8 +1,8 @@
 import uuid
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 
 CLOTHES_CHOICES = (
     ("XS", "XS"),
@@ -13,17 +13,17 @@ CLOTHES_CHOICES = (
     ("XXL", "XXL")
 )
 
+SOCKS_CHOICES = (
+    ("S", "S"),
+    ("M", "M"),
+    ("L", "L")
+)
+
 ReportOptions = (
     ("Scam", "Scam"),
     ("Impersonating", "Impersonating"),
     ("Toxic", "Toxic"),
     ("Other", "Other")
-)
-
-SOCKS_CHOICES = (
-    ("S", "S"),
-    ("M", "M"),
-    ("L", "L")
 )
 
 BOOTS_CHOICES = (
@@ -112,7 +112,6 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-
 class ReportOptions(models.TextChoices):
     INAPPROPRIATE = 'IN', 'Inappropriate Content'
     FRAUD = 'FR', 'Fraud'
@@ -186,7 +185,6 @@ class Offer(models.Model):
     offer_status = models.CharField(max_length=50, choices=OFFER_STATUS, default='in_progress')
     delivered = models.BooleanField(default=False)
     paid = models.BooleanField(default=False)
-
 
 
 """Deixar para o fim!!!

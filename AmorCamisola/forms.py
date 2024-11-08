@@ -11,7 +11,7 @@ class CreateAccountForm(UserCreationForm):
     first_name = forms.CharField(label='First Name', max_length=30, required=True)
     last_name = forms.CharField(label='Last Name', max_length=30, required=True)
     address = forms.CharField(label='Address', max_length=50)
-    phone = PhoneNumberField(label='Phone', required=True, widget=forms.TextInput(attrs={'placeholder': 'Ex: +351987654321'}))
+    phone = forms.CharField(label='Phone', required=True, widget=forms.TextInput(attrs={'placeholder': 'Ex: 987654321'}))
 
 
     class Meta:
@@ -198,7 +198,7 @@ class ProductQuery(forms.Form):
         ]
 
 class FavoriteForm(forms.Form):
-    favorite_product_id = forms.IntegerField()
+    favorite_product_id = forms.IntegerField(required=True)
 
 class ReportForm(forms.ModelForm):
     class Meta:
