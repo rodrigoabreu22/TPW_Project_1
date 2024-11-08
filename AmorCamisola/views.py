@@ -1,4 +1,7 @@
 from datetime import datetime
+
+from django.http import JsonResponse
+
 from AmorCamisola.forms import *
 from AmorCamisola.models import *
 
@@ -13,11 +16,41 @@ from django.contrib import messages
 
 # Create your views here.
 
+@login_required
+def favorite_list(request):
+    favorite_form = FavoriteForm(request.POST or None)
+    if request.user.is_authenticated:
+        favorite_, _ = Favorite.objects.get_or_create(user=request.user)
+        products = favorite_.products.all()
+        favorites = favorite_.products.values_list('id', flat=True)
+
+        if favorite_form.is_valid():
+            product_id = favorite_form.cleaned_data['favorite_product_id']
+            product = get_object_or_404(Product, id=product_id)
+            print(f"Product ID: {product.id}")  # Debug
+            if product in favorite_.products.all():
+                favorite_.products.remove(product)
+                print(f"Product {product.id} removed from favorites.")  # Debug
+            else:
+                favorite_.products.add(product)
+                print(f"Product {product.id} added to favorites.")  # Debug
+            return redirect('favorite_list')
+        else:
+            print(f"WOMP WOMP WOMP WOMP WOMP WOMP")
+    return render(request, 'favorites.html', {
+        'favorite_form': favorite_form,
+        'favorites_ids': favorites,
+        'products': products
+    })
+
 def home(request):
+    print("Test")
     form = ProductQuery(request.GET or None)
+    favorite_form = FavoriteForm(request.POST or None)
     products = Product.objects.all()  # Start with all products
     teams=[]
     product_types=[]
+    favorites=[]
 
     if form.is_valid():
         name_query = form.cleaned_data['name_query']
@@ -67,7 +100,33 @@ def home(request):
         elif sort_by == 'seller_desc':
             products = products.order_by('-seller__username')
 
-    return render(request, 'home.html', {'form': form, 'products': products, 'selected_teams': teams, 'selected_types':product_types})
+    if request.user.is_authenticated:
+        favorite_, _ = Favorite.objects.get_or_create(user=request.user)
+        favorites = favorite_.products.values_list('id', flat=True)
+
+        if favorite_form.is_valid():
+            product_id = favorite_form.cleaned_data['favorite_product_id']
+            product = get_object_or_404(Product, id=product_id)
+            print(f"Product ID: {product.id}")  # Debug
+            if product in favorite_.products.all():
+                favorite_.products.remove(product)
+                print(f"Product {product.id} removed from favorites.")  # Debug
+            else:
+                favorite_.products.add(product)
+                print(f"Product {product.id} added to favorites.")  # Debug
+            return redirect('home')
+        else:
+            print(f"WOMP WOMP WOMP WOMP WOMP WOMP")
+
+
+    return render(request, 'home.html', {
+        'form': form,
+        'favorite_form': favorite_form,
+        'products': products,
+        'selected_teams': teams,
+        'selected_types': product_types,
+        'favorites_ids': favorites,
+    })
 
 
 

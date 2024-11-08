@@ -134,6 +134,9 @@ class ProductQuery(forms.Form):
             (team, team) for team in Product.objects.values_list("team", flat=True).distinct() if team
         ]
 
+class FavoriteForm(forms.Form):
+    favorite_product_id = forms.IntegerField()
+
 class SearchUserForm(forms.Form):
     query = forms.CharField(label='Procurar utilizador', max_length=50, required=False)
 

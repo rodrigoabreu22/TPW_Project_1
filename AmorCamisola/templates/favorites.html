@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+
+
+{% block content %}
+<!-- favorites.html -->
+<div class="favorites-display">
+    <h2>Your Favorites</h2>
+    <div class="favorite-list">
+        {% for product in products %}
+            <div class="product-card">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                <h5 class="product-name">{{ product.name }}</h5>
+                <p class="product-seller">Seller: {{ product.seller.username }}</p>
+                <p class="product-price">${{ product.price }}</p>
+                
+               <form method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="favorite_product_id" value="{{ product.id }}">
+                    <button type="submit" class="favorite-link">
+                        {% if product.id in favorites_ids %}
+                            <i class="fas fa-heart red"></i>
+                        {% else %}
+                            <i class="fas fa-heart text-white"></i>
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+        {% empty %}
+            <p>No favorite products yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
