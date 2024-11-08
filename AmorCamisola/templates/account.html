@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.username }}'s Profile</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/account.css' %}">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Configurações da Conta</h2>
+
+    <!-- Mensagem de Sucesso ou Erro -->
+    {% if success %}
+        <div class="alert alert-success">{{ success }}</div>
+    {% endif %}
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <!-- Formulário de Upload de Imagem -->
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h4 class="text-center">Foto de Perfil</h4>
+        <div class="d-flex justify-content-center mb-3">
+            <img src="{% if account.image %}/media/{{ account.image.name }}{% else %}{% static 'fonts/imgs/defaultUser.png' %}{% endif %}"
+                 style="width: 10vw; height: 9vw; object-fit: cover"
+                 class="rounded-circle" alt="">
+        </div>
+        <div class="form-group text-center">
+            <label for="image">Atualizar Foto de Perfil:</label>
+            {{ image_form.image }}
+        </div>
+        <button type="submit" class="btn btn-primary d-block mx-auto" name="image_upload">Guardar</button>
+    </form>
+    <hr>
+
+    <!-- Formulário de Dados do Usuário -->
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h4>Informações Pessoais</h4>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="first_name">Primeiro Nome</label>
+                {{ user_form.first_name }}
+            </div>
+            <div class="form-group col-md-6">
+                <label for="last_name">Último Nome</label>
+                {{ user_form.last_name }}
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="username">Nome de Utilizador</label>
+            {{ user_form.username }}
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            {{ user_form.email }}
+        </div>
+        <div class="form-group">
+            <label for="address">Endereço</label>
+            {{ profile_form.address }}
+        </div>
+        <div class="form-group">
+            <label for="phone">Telefone</label>
+            {{ profile_form.phone }}
+        </div>
+        <button type="submit" class="btn btn-primary" name="profile_change">Guardar</button>
+    </form>
+    <hr>
+
+    <!-- Botão para abrir o modal de Alterar Password -->
+<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#changePasswordModal">
+    Alterar Password
+</button>
+
+<!-- Modal de Alteração de Password -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">Alterar Password</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="new_password">Nova Password</label>
+                        {{ password_form.new }}
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirmar Password</label>
+                        {{ password_form.confirm }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" name="password_change">Alterar Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+{% endblock %}

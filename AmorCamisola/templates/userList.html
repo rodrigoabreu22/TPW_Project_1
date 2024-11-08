@@ -3,80 +3,54 @@
 {% block content %}
 
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ user.username }}'s Profile</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
-</head>
-<body>
 
-<div class="container">
-    <div class="row">
-            <form action="." method="post" class="form-horizontal">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label>
-                        {{ form.query.label_tag }}
-                    </label>
-                    <div class="col-md-10">
-                        {{ form.query }}
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-md-offset-2 col-md-10">
-                        <input type="submit" value="Procurar" class="btn btn-primary" />
-                    </div>
-                </div>
-            </form>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Utilizadores</h2>
+
+    <!-- Search Form -->
+    <form action="." method="post" class="form-inline justify-content-center mb-4">
+        {% csrf_token %}
+        <label class="mr-2">{{ form.query.label_tag }}</label>
+        {{ form.query }}
+        <button type="submit" class="btn btn-primary">Procurar</button>
+    </form>
+
+    <!-- Display Popular Users -->
+    <div class="user-list">
+        {% if not query %}
+            <h5>Utilizadores populares:</h5>
+            <ul class="list-group">
+                {% for profile in popular_users_profiles %}
+                    <li class="list-group-item d-flex align-items-center">
+                        <img src="{% if profile.image %}/media/{{ profile.image.name }}{% else %}{% static 'fonts/imgs/defaultUser.png' %}{% endif %}" class="profile-img rounded-circle mr-3">
+                        <div>
+                            <a href="{% url 'profile' profile.user.username %}" class="username">{{ profile.user.username }}</a>
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">No popular users found.</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </div>
 
+    <!-- Display Search Results -->
     {% if query %}
-        <div class="row mt-4">
-            <div class="col">
-                <h6>Resultados da pesquisa por "{{ query }}":</h6>
-                <ul>
-                    {% for user in all_users %}
-                        <li>
-                            <a href="{% url 'profile' user.username %}">{{ user.username }}</a>
-                            <hr />
-                        </li>
-                    {% empty %}
-                        <li>Nenhum usuário encontrado.</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    {% endif %}
-    
-    <div class="row">
-        <div class="col">
-            <h6>Mais populares:</h6>
-            <br/>
-            <ul>
-                {% for user in popular_users %}
-                <li>
-                <a href="{% url 'profile' user.username %}">{{ user.username }}</a>
-                <hr />
-                </li>
+        <div class="user-list mt-4">
+            <h5>Search Results for "{{ query }}":</h5>
+            <ul class="list-group">
+                {% for profile in all_user_profiles %}
+                    <li class="list-group-item d-flex align-items-center">
+                        <img src="{% if profile.image %}/media/{{ profile.image.name }}{% else %}{% static 'fonts/imgs/defaultUser.png' %}{% endif %}" class="profile-img rounded-circle mr-3">
+                        <div>
+                            <a href="{% url 'profile' profile.user.username %}" class="username">{{ profile.user.username }}</a>
+                        </div>
+                    </li>
                 {% empty %}
-                <li>Nenhum usuário encontrado.</li>
+                    <li class="list-group-item">No users found.</li>
                 {% endfor %}
             </ul>
         </div>
-    </div>
+    {% endif %}
 </div>
-
-<!-- Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
-
-
 {% endblock %}

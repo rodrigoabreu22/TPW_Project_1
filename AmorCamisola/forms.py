@@ -10,9 +10,8 @@ class CreateAccountForm(UserCreationForm):
     email = forms.EmailField(label='Email', required=True)
     first_name = forms.CharField(label='First Name', max_length=30, required=True)
     last_name = forms.CharField(label='Last Name', max_length=30, required=True)
-    cc = forms.CharField(label='CC', max_length=50)
     address = forms.CharField(label='Address', max_length=50)
-    phone = PhoneNumberField(label='Phone', required=True)
+    phone = PhoneNumberField(label='Phone', required=True, widget=forms.TextInput(attrs={'placeholder': 'Ex: +351987654321'}))
 
 
     class Meta:
@@ -31,12 +30,33 @@ class CreateAccountForm(UserCreationForm):
             # Save additional fields in UserProfile
             UserProfile.objects.create(
                 user=user,
-                cc=self.cleaned_data['cc'],
                 address=self.cleaned_data['address'],
                 phone=self.cleaned_data['phone']
             )
         return user
 
+class UploadProfilePicture(forms.Form):
+    image = forms.FileField(widget=forms.FileInput(
+        attrs={'class': 'form-control',
+               'id': 'image',
+               'name': 'input_file',
+               'accept': 'image/*'
+               }
+    ))
+
+class UpdatePassword(forms. Form):
+    new = forms.CharField(max_length=20, required=True, widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    confirm = forms.CharField(max_length=20, required=True, widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+class UpdateUser(forms.Form):
+    first_name = forms.CharField(label='Primeiro Nome', max_length=30, required=True)
+    last_name = forms.CharField(label='Último Nome', max_length=30, required=True)
+    username = forms.CharField(label='Nome de Utilizador', max_length=30, required=True)
+    email = forms.EmailField(label='Email', required=True)
+
+class UpdateProfile(forms.Form):
+    address = forms.CharField(label='Address', max_length=50)
+    phone = PhoneNumberField(label='Phone', required=True)
 
 class ProductForm(forms.Form):
     CATEGORIES= [
@@ -177,7 +197,14 @@ class ProductQuery(forms.Form):
             (team, team) for team in Product.objects.values_list("team", flat=True).distinct() if team
         ]
 
+class FavoriteForm(forms.Form):
+    favorite_product_id = forms.IntegerField()
+
 class SearchUserForm(forms.Form):
     query = forms.CharField(label='Procurar utilizador', max_length=50, required=False)
 
+class DepositForm(forms.Form):
+    deposit_amount = forms.DecimalField(label="Quantia a Depositar", max_digits=10, decimal_places=2, min_value=0.01)
 
+class WithdrawalForm(forms.Form):
+    withdrawal_amount = forms.DecimalField(label="Quantia a Levantar", max_digits=10, decimal_places=2, min_value=0.01)

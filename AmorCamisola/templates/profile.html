@@ -3,23 +3,14 @@
 {% block content %}
 
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ user.username }}'s Profile</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
-</head>
-<body>
     
 <div class="container mt-5">
     <!-- Profile Header Section -->
     <div class="row mb-4">
         <div class="col-md-4 text-center">
-            <img src="{% static 'fonts/imgs/defaultUser.png' %}" alt="Profile Picture" class="rounded-circle img-fluid profile-picture">
+            <img src="{% if profile.image %}/media/{{ profile.image.name }}{% else %}{% static 'fonts/imgs/defaultUser.png' %}{% endif %}"
+             style="width: 10vw; height: 9vw; object-fit: cover"
+             class="rounded-circle" alt="">
         </div>
         <div class="col-md-8">
             <div class="d-flex align-items-center mb-3">
@@ -44,9 +35,9 @@
                 </div>
             </div>
                 <p>Nome: {{ profile_user.first_name }} {{ profile_user.last_name }}</p>
-                <p>Avaliações: </p>
         </div>
     </div>
+    <hr>
 
     <!-- Photo Grid Section for Products/Posts -->
     <div class="row">
@@ -67,13 +58,5 @@
         {% endfor %}
     </div>
 </div>
-
-<!-- Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
-
 
 {% endblock %}

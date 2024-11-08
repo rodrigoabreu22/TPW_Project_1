@@ -10,38 +10,38 @@
 
     {% load static %}
     <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}" />
-    <!-- Custom styles for this template -->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/site.css' %}" />
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
-    <link rel="stylesheet" href={% static 'css/layout.css' %}>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pubProduct.css' %}">
+    <link rel="stylesheet" href="{% static 'css/user_list.css' %}">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
   </head>
 
   <body>
-
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="{% url "home" %}">Amor à Camisola</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarDefault" aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarDefault">
-       
-      </div>
-      <!-- Add a bell icon next to the login -->
-        <div class="d-flex align-items-center">
+    <nav class="navbar">
+    <div class="navbar-left">
+        <a href="{% url 'home' %}" class="logo">
+            <img src="{% static 'images/Amor_camisola.png' %}" alt="Logo" class="logo-image">
+            <span class="company-name">AmorCamisola</span>
+        </a>
+        <a href="{% url 'publishproduct' %}">Vender Produto</a>
+    </div>
+    <div class="navbar-right">
           <a href="{% url 'offers' %}" class="notification-icon" style="position: relative;">
-              {% if request.user.is_authenticated %}
-                <i class="fa-regular fa-comments mx-3" style="color: #ffffff; cursor: pointer;" data-toggle="tooltip" title="Offers"></i>
-                  {% if offer_count > 0 %}
-                    <span class="notification-bubble">{{ offer_count }}</span> <!-- Example notification count -->
-                  {% endif %}
-              {% endif %}
+            {% if request.user.is_authenticated %}
+              <i class="fa-regular fa-comments mx-3" style="color: #ffffff; cursor: pointer;" data-toggle="tooltip" title="Offers"></i>
+                {% if offer_count > 0 %}
+                  <span class="notification-bubble">{{ offer_count }}</span> <!-- Example notification count -->
+                {% endif %}
+            {% endif %}
           </a>
-          {% include 'loginpartial.html' %}
-        </div>
-    </nav>
-
+        <a href="{%  url 'wallet' %}"><i class="fas fa-wallet"></i></a>
+        <a href="{%  url 'favorite_list' %}"><i class="fas fa-heart"></i></a>
+        {% include 'loginpartial.html' %}
+    </div>
+</nav>
     <main role="main">
         <div class="container body-content">
             <p></p>

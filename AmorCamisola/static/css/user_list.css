@@ -1,0 +1,40 @@
+.container {
+    max-width: 800px;
+    margin: auto;
+}
+
+h2 {
+    font-size: 2em;
+    color: #333;
+}
+
+.user-list {
+    margin-top: 20px;
+}
+
+.list-group-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    transition: background-color 0.2s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.profile-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+}
+
+.username {
+    font-weight: 500;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.username:hover {
+    text-decoration: underline;
+}
