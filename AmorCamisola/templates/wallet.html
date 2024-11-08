@@ -1,49 +1,57 @@
 {% extends "layout.html" %}
 
 {% block content %}
-
 <div class="container my-5">
     <!-- Wallet Balance Display -->
-    <div class="row mb-4 text-center">
-        <div class="col">
-            <h3 class="font-weight-bold text">Saldo na Carteira</h3>
-            <p class="display-4 text">{{ profile.wallet }} €</p>
+    <div class="row mb-5 justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card shadow border-0">
+                <div class="card-body">
+                    <h3 class="font-weight-bold">Saldo na Carteira</h3>
+                    <p class="display-4 text-success">{{ profile.wallet }} €</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Toggle Buttons -->
-    <div class="row mb-4 text-center">
-        <div class="col">
-            <!-- Button to show the withdrawal form -->
-            <button id="showWithdrawal" class="btn btn-outline-primary btn-lg">Levantar Dinheiro</button>
-        </div>
-        <div class="col">
-            <!-- Button to show the deposit form -->
-            <button id="showDeposit" class="btn btn-outline-primary btn-lg">Depositar Dinheiro</button>
+    <!-- Toggle Button Group for Withdrawal and Deposit Forms -->
+    <div class="row mb-4 justify-content-center">
+        <div class="col-md-6 d-flex justify-content-around">
+            <button id="showWithdrawal" class="btn btn-outline-primary w-100 me-2">Levantar Dinheiro</button>
+            <button id="showDeposit" class="btn btn-outline-success w-100 ms-2">Depositar Dinheiro</button>
         </div>
     </div>
 
-    <!-- Withdrawal Form (Visible by default) -->
-    <div id="withdrawalContainer" class="container mb-4">
-        <h5 class="font-weight-bold">Levantar Dinheiro</h5>
-        <form method="post" action="{% url 'withdraw_money' %}">
-            {% csrf_token %}
-            {{ levantamentoform.as_p }}
-            <button type="submit" class="btn btn-primary btn-lg btn-block">Levantar</button>
-        </form>
+    <!-- Withdrawal Form -->
+    <div id="withdrawalContainer" class="container mb-4" style="display: block;">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="font-weight-bold">Levantar Dinheiro</h5>
+                <form method="post" action="{% url 'withdraw_money' %}">
+                    {% csrf_token %}
+                    {{ levantamentoform.as_p }}
+                    <button type="submit" class="btn btn-primary btn-lg w-100">Levantar</button>
+                </form>
+            </div>
+        </div>
     </div>
 
-    <!-- Deposit Form (Hidden by default) -->
+    <!-- Deposit Form -->
     <div id="depositContainer" class="container mb-4" style="display: none;">
-        <h5 class="font-weight-bold">Depositar Dinheiro</h5>
-        <form method="post" action="{% url 'deposit_money' %}">
-            {% csrf_token %}
-            {{ depositoform.as_p }}
-            <button type="submit" class="btn btn-success btn-lg btn-block">Depositar</button>
-        </form>
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="font-weight-bold">Depositar Dinheiro</h5>
+                <form method="post" action="{% url 'deposit_money' %}">
+                    {% csrf_token %}
+                    {{ depositoform.as_p }}
+                    <button type="submit" class="btn btn-success btn-lg w-100">Depositar</button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
+<!-- Messages Display -->
 {% if messages %}
     <div class="container mt-3">
         {% for message in messages %}
@@ -54,7 +62,7 @@
     </div>
 {% endif %}
 
-<!-- JavaScript to toggle between forms -->
+<!-- JavaScript to Toggle Forms -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const showDepositBtn = document.getElementById("showDeposit");
@@ -62,13 +70,11 @@
         const depositContainer = document.getElementById("depositContainer");
         const withdrawalContainer = document.getElementById("withdrawalContainer");
 
-        // Show deposit form and hide withdrawal form
         showDepositBtn.addEventListener("click", function() {
             depositContainer.style.display = "block";
             withdrawalContainer.style.display = "none";
         });
 
-        // Show withdrawal form and hide deposit form
         showWithdrawalBtn.addEventListener("click", function() {
             depositContainer.style.display = "none";
             withdrawalContainer.style.display = "block";
@@ -77,3 +83,4 @@
 </script>
 
 {% endblock %}
+

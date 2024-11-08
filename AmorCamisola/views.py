@@ -260,7 +260,7 @@ def pubProduct(request):
                     try:
                         size = int(size)
                     except ValueError:
-                        return render(request, 'publishProduct.html', {'form': form, 'error': True})
+                        return render(request, 'publishProduct.html', {'form': form, 'error': True, "offer_count": getOffersCount(request), "profile": user_profile})
 
                     if size in [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]:
                         boots = Boots(product=product, size=size)
@@ -332,6 +332,19 @@ def userlist(request):
 def detailedProduct(request, id):
     print(request)
     product = Product.objects.get(id=id)
+    if Jersey.objects.filter(product=product).exists():
+        category="camisola"
+        p=Jersey.objects.get(id=id)
+    elif Shorts.objects.filter(product=product).exists():
+        category="calções"
+        p=Shorts.objects.get(id=id)
+    elif Socks.objects.filter(product=product).exists():
+        category="meias"
+        p=Socks.objects.get(id=id)
+    elif Boots.objects.filter(product=product).exists():
+        category="chuteiras"
+
+
     user = User.objects.get(id=request.user.id)
     sellerProfile = UserProfile.objects.get(user = product.seller)
     try:
@@ -359,7 +372,7 @@ def detailedProduct(request, id):
             print("saved")
             redirect('/')
     form = ListingOffer(userProfile, product)
-    tparams = {"product": product, 'form': form, 'profile': userProfile, 'user' : user, 'offer_count' : getOffersCount(request), 'sellerProfile': sellerProfile}
+    tparams = {"product": p, 'form': form, 'profile': userProfile, 'user' : user, 'offer_count' : getOffersCount(request), 'sellerProfile': sellerProfile, 'category': category}
     return render(request, 'productDetailed.html', tparams)
 
 def offers(request, action=None, id=None):
