@@ -133,7 +133,7 @@ def home(request):
 def createAccount(request):
     if request.method == 'POST':
         form = CreateAccountForm(request.POST)
-        print(form.errors)  # Debugging: See form errors if the form is not valid
+        print(form.errors)
 
         if form.is_valid():
             username = form.cleaned_data['username']
@@ -168,7 +168,7 @@ def myProfile(request):
     selling = Product.objects.filter(seller_id=request.user.id)
     profile = UserProfile.objects.get(user=request.user)
 
-    tparams = {"user" : user, "following" : following, "followers" : followers, "selling" : selling, "profile" : profile}
+    tparams = {"user" : user, "following" : following, "followers" : followers, "products" : selling, "profile" : profile  }
 
     return render(request, 'myProfile.html', tparams)
 
@@ -195,7 +195,7 @@ def viewProfile(request, username):
         tparams = {"user": user, "profile_user": profile_user, "following": following, "followers": followers,
                        "selling": selling, "profile": profile, "follows":follows}
     else:
-        tparams = {"profile_user": profile_user, "following": following, "followers": followers,"selling": selling, "profile": profile}
+        tparams = {"profile_user": profile_user, "following": following, "followers": followers,"products": selling, "profile": profile}
 
     return render(request, 'profile.html', tparams)
 

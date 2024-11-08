@@ -1,7 +1,7 @@
 import uuid
 from django.contrib.auth.models import User
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
+from django.core.validators import RegexValidator
 
 CLOTHES_CHOICES = (
     ("XS", "XS"),
@@ -44,12 +44,12 @@ BOOTS_CHOICES = (
     (47, 47)
 )
 
-
+phone_validator = RegexValidator(regex=r'^\d{9}$', message="Número de telefone tem de ter exatamente 9 digitos.")
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     address = models.CharField(max_length=50)
-    phone = PhoneNumberField(unique=True, null=False, blank=False)
+    phone = models.CharField(max_length=9,unique=True,null=False,blank=False,validators=[phone_validator])
     image = models.FileField()
     wallet = models.DecimalField(max_digits=50, decimal_places=2, default=0)
 
