@@ -92,9 +92,10 @@ class Product(models.Model):
 
 class Favorite(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    product = models.OneToOneField(Product, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product)
+
     def __str__(self):
-        return self.user.username + " favorites " + self.product.name
+        return f"{self.user.username}'s Favorites"
 
 class Jersey(models.Model):
     product = models.OneToOneField(Product, on_delete=models.CASCADE)

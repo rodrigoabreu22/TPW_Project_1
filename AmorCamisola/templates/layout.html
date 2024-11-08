@@ -26,8 +26,8 @@
         <a href="{% url 'publishproduct' %}">Vender Produto</a>
     </div>
     <div class="navbar-right">
-        <a><i class="fas fa-shopping-cart"></i></a>
-        <a><i class="fas fa-heart"></i></a>
+        <a href="{%  url 'wallet' %}"><i class="fas fa-wallet"></i></a>
+        <a href="{%  url 'favorite_list' %}"><i class="fas fa-heart"></i></a>
         {% include 'loginpartial.html' %}
     </div>
 </nav>

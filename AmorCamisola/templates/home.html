@@ -104,10 +104,22 @@
                     <h5 class="product-name">{{ product.name }}</h5>
                     <p class="product-seller">Seller: {{ product.seller.username }}</p>
                     <p class="product-price">${{ product.price }}</p>
-                    <a class="favorite-link"><i class="fas fa-heart"></i></a>
+                
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        <input type="hidden" name="favorite_product_id" value="{{ product.id }}">
+                        <button type="submit" class="favorite-link">
+                            {% if product.id in favorites_ids %}
+                                <i class="fas fa-heart red"></i>
+                            {% else %}
+                                <i class="fas fa-heart text-white"></i>
+                            {% endif %}
+                        </button>
+                    </form>
                 </div>
             {% endfor %}
         </div>
     </div>
 </div>
+    
 {% endblock %}
