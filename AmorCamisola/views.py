@@ -543,6 +543,9 @@ def detailedProduct(request, id):
             buyer = userProfile
             sent_by = userProfile
             offer = Offer(buyer=buyer, product=product, value=value, address=address, payment_method=payment_method, delivery_method=delivery_method, sent_by=sent_by)
+            if (payment_method == "store_credit"):
+                buyer.wallet -= offer.value
+                buyer.save()
             offer.save()
             print("saved")
             redirect('/')
@@ -625,6 +628,12 @@ def rejectOffer(request, id):
     return offers(request, 'reject', id)
 
 def counterOffer(request, id):
+    offer = Offer.objects.get(id=id)
+    if offer.sent_by.id == offer.buyer.id:
+        offer.buyer.wallet -= offer.value
+    else:
+        offer.buyer.wallet += offer.value
+    offer.buyer.save()
     return offers(request, 'counter', id)
 
 def retractOffer(request, id):
@@ -684,11 +693,26 @@ def getOffersCount(request):
 
 def notifySuccess(offer_id):
     offer = Offer.objects.get(id=offer_id)
+    if (offer.payment_method == "store_credit"):
+        seller = UserProfile.objects.get(user__id=offer.product.seller.id)
+        seller.wallet += offer.value
+        seller.save()
+    offer.product.sold = True
     offer.offer_status = 'accepted'
     offer.save()
 
 def notifyFailed(offer_id):
     offer = Offer.objects.get(id=offer_id)
+    if (offer.payment_method == "store_credit"):
+        offer.buyer.wallet += offer.value
+        offer.buyer.save()
+    newOffer = Offer(buyer=offer.buyer, product=offer.product, value=offer.value,
+                     payment_method=offer.payment_method, delivery_method=offer.delivery_method,
+                     address=offer.address, sent_by=offer.buyer, offer_status=offer.offer_status,
+                     delivered=offer.delivered, paid=offer.paid)
+    if offer.buyer == offer.sent_by:
+        newOffer = Offer(buyer=offer.buyer, product=offer.product, value=offer.value, payment_method=offer.payment_method, delivery_method=offer.delivery_method, address=offer.address, sent_by=offer.product.seller, offer_status=offer.offer_status, delivered=offer.delivered, paid=offer.paid)
+    newOffer.save()
     offer.offer_status = 'rejected'
     offer.save()
 

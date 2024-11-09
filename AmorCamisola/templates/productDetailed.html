@@ -147,7 +147,7 @@
         }
         
         function checkIfWalletHasMoney() {
-            if (paymentMethodField.value === 'store_credit' && Number("{{ userProfile.wallet }}") < valueField.value) {
+            if (paymentMethodField.value === 'store_credit' && Number("{{ profile.wallet }}") < valueField.value) {
                 submitButton.disabled = true;
                 submitButton.innerText = 'Fundos insuficientes';
                 submitButton.className = 'btn btn-warning';
