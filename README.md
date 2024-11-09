@@ -64,6 +64,9 @@ The project consists of a Django web application with the marketplace concept, d
 | martim | cr7goat7 |
 
 ### Features that we would like to implement:
+- Expand the variaty of products.
+- Implement a more profesional deposit/withdrwal method.
+- Improve overall aesthetics
 
 ### Deployment
 Insere aqui o link para a app no pythonanywhere
