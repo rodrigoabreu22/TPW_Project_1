@@ -36,10 +36,36 @@
                     <h2 class="h5">Descrição</h2>
                     <p class="text-secondary">{{ product.product.description }}</p>
                 </div>
+                <button type="button" class="btn btn-outline-danger btn-sm ml-2" data-toggle="modal" data-target="#reportModal">
+                    Reportar Publicação
+                </button>
             </div>
         </div>
     </div>
 </div>
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportModalLabel">Reportar {{ profile_user.username }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        {{ report_form.as_p }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" name="report_product" class="btn btn-danger">Enviar Reporte</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -67,7 +93,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="closer">Cancelar</button>
                     <!-- Submit button triggers form submission -->
-                    <button type="submit" form="contactSellerForm" class="btn btn-primary">Enviar Proposta</button>
+                    <button type="submit" name="proposta" form="contactSellerForm" class="btn btn-primary">Enviar Proposta</button>
                 </div>
             </div>
         </div>

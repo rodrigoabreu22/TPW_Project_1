@@ -13,6 +13,30 @@ from django.db.models import Count
 
 from django.contrib import messages
 
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
+
+# Define the test function for checking if the user is a moderator
+def is_moderator(user):
+    return user.groups.filter(name='Moderator').exists()
+
+# Custom decorator for requiring moderator status
+def moderator_required(view_func):
+    @login_required(login_url='/login/')
+    @user_passes_test(is_moderator, login_url='/login/')
+    def wrapped_view(request, *args, **kwargs):
+        return view_func(request, *args, **kwargs)
+    return wrapped_view
+
+# Example moderator dashboard view
+@moderator_required
+def moderator_dashboard(request):
+    # Logic for displaying moderator-specific dashboard
+    return render(request, 'moderator_dashboard.html')
+
 
 # Create your views here.
 
@@ -60,8 +84,6 @@ def home(request):
         user_query = form.cleaned_data['user_query']
         teams = form.cleaned_data['teams']
         product_types = form.cleaned_data['product_types']
-        print("Olá")
-        print(product_types)
         min_price = form.cleaned_data['min_price']
         max_price = form.cleaned_data['max_price']
         sort_by = form.cleaned_data['sort_by']
@@ -106,7 +128,7 @@ def home(request):
         elif sort_by == 'seller_desc':
             products = products.order_by('-seller__username')
 
-    print("form nao valido")
+
     if request.user.is_authenticated:
         favorite_, _ = Favorite.objects.get_or_create(user=request.user)
         favorites = favorite_.products.values_list('id', flat=True)
@@ -353,7 +375,7 @@ def detailedProduct(request, id):
         userProfile = UserProfile.objects.get(user__id=request.user.id)
     except UserProfile.DoesNotExist:
         userProfile = None
-    if request.method == 'POST':
+    if request.method == 'POST' and 'proposta' in request.POST:
         form = ListingOffer(userProfile, product, request.POST, request.FILES)
         print(form.errors)
         print(form.cleaned_data['address_choice'])
@@ -374,7 +396,28 @@ def detailedProduct(request, id):
             print("saved")
             redirect('/')
     form = ListingOffer(userProfile, product)
-    tparams = {"product": p, 'form': form, 'profile': userProfile, 'user' : user, 'offer_count' : getOffersCount(request), 'sellerProfile': sellerProfile, 'category': category}
+
+    if request.user.is_authenticated:
+        print("Aconteceu")
+        # Report form handling
+        if request.method == 'POST' and 'report_product' in request.POST:
+            print("Report product")
+            report_form = ReportForm(request.POST)
+
+            report_form.instance.sent_by = request.user
+            report_form.instance.product = product
+            if report_form.is_valid():
+                print("Valid Report form")
+                report = report_form.save(commit=False)
+                report.save()
+                messages.success(request, 'Produto reportado com sucesso.')
+                return redirect('detailedproduct',id=id)
+            else:
+                print("Form errors:", report_form.errors)
+        else:
+            report_form = ReportForm()
+
+    tparams = {"product": p, 'form': form, 'profile': userProfile, 'user' : user, 'offer_count' : getOffersCount(request), 'sellerProfile': sellerProfile, 'category': category, "report_form": report_form}
     return render(request, 'productDetailed.html', tparams)
 
 def offers(request, action=None, id=None):
