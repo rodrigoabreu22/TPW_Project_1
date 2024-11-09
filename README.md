@@ -28,10 +28,10 @@ The project consists of a Django web application with the marketplace concept, d
 ### Authenticated user:
 - All unauthenticaded user functionalities
 - List a product for sale
-- View offers on my products ❌
-- Accept, reject or counter an offer for a product ❌
-- Make an offer on a product ❌
-- Confirm an offer ❌
+- View offers on my products
+- Accept, reject or counter an offer for a product
+- Make an offer on a product
+- Confirm an offer
 - View my sales/purchase history ❌
 - Add a product to the favourites list
 - Remove a product from the favourites list
