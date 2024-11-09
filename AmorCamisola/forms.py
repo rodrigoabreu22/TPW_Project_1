@@ -149,10 +149,10 @@ class ProductQuery(forms.Form):
     )
 
     PRODUCT_TYPE_CHOICES = [
-        ('Jersey', 'Camisola'),
-        ('Boots', 'Chuteiras'),
-        ('Socks', 'Meias'),
-        ('Shorts', 'Calções'),
+        ('Camisola', 'Camisola'),
+        ('Chuteiras', 'Chuteiras'),
+        ('Meias', 'Meias'),
+        ('Calções', 'Calções'),
     ]
     product_types = forms.MultipleChoiceField(
         label='Product Types',

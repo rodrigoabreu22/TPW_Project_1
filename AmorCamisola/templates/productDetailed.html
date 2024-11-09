@@ -7,9 +7,9 @@
     <div class="row justify-content-center">
         <!-- Main Product Image on the Left -->
         <div class="col-lg-7 mb-4 d-flex flex-column">
-            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid w-100 rounded shadow mb-3">
+            <img src="{{ product.product.image.url }}" alt="{{ product.product.name }}" class="img-fluid w-100 rounded shadow mb-3">
         
-            {% if product.sold %}
+            {% if product.product.sold %}
                 <span class="badge bg-danger text-center mt-2">Indisponível</span>
             {% else %}
                 <button id="contactSellerButton" class="btn btn-dark btn-lg w-100 mt-2">
@@ -20,23 +20,52 @@
     
         <div class="col-lg-5 d-flex flex-column justify-content-between">
             <div>
-                <h1 class="h3 text-dark mb-2">{{ product.name }} ({{ product.team }})</h1>
-                <p>Vendedor: <a href="{% url 'profile' username=product.seller.username %}">{{ product.seller.username }}</a></p>
+                <h1 class="h3 text-dark mb-2">{{ product.product.name }} </h1>
+                <p>Categoria: {{ category }}</p>
+                <p>Tamanho: {{ product.size }}</p>
+                <p>Equipa: {{ product.product.team }}</p>
+                <p>Vendedor: <a href="{% url 'profile' username=product.product.seller.username %}">{{ product.product.seller.username }}</a></p>
                 <p>Contactar: </p>
                 <ul>
                     <li class="text-muted">Telefone: <span class="text-muted">{{ sellerProfile.phone }}</span></li>
-                    <li class="text-muted">Email: <span class="text-muted">{{ product.seller.email }}</span></li>
+                    <li class="text-muted">Email: <span class="text-muted">{{ product.product.seller.email }}</span></li>
                 </ul>
-                <p class="h4 text-danger fw-bold mb-3">{{ product.price }}€</p>
+                <p class="h4 text-danger fw-bold mb-3">{{ product.product.price }}€</p>
                 
                 <div class="mt-2 p-3 border rounded bg-light shadow-sm">
                     <h2 class="h5">Descrição</h2>
-                    <p class="text-secondary">{{ product.description }}</p>
+                    <p class="text-secondary">{{ product.product.description }}</p>
                 </div>
+                <button type="button" class="btn btn-outline-danger btn-sm ml-2" data-toggle="modal" data-target="#reportModal">
+                    Reportar Publicação
+                </button>
             </div>
         </div>
     </div>
 </div>
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportModalLabel">Reportar {{ profile_user.username }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        {{ report_form.as_p }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" name="report_product" class="btn btn-danger">Enviar Reporte</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -64,7 +93,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="closer">Cancelar</button>
                     <!-- Submit button triggers form submission -->
-                    <button type="submit" form="contactSellerForm" class="btn btn-primary">Enviar Proposta</button>
+                    <button type="submit" name="proposta" form="contactSellerForm" class="btn btn-primary">Enviar Proposta</button>
                 </div>
             </div>
         </div>

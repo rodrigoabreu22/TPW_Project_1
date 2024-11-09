@@ -4,6 +4,7 @@ from django.http import JsonResponse
 
 from AmorCamisola.forms import *
 from AmorCamisola.models import *
+from django.contrib.auth.models import Group
 
 from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import render, redirect, get_object_or_404
@@ -12,6 +13,141 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 
 from django.contrib import messages
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
+
+# Define the test function for checking if the user is a moderator
+def is_moderator(user):
+    print("Cucu")
+    print(user.groups.filter(name='Moderators').exists())
+    return user.groups.filter(name='Moderators').exists()
+
+# Custom decorator for requiring moderator status
+def moderator_required(view_func):
+    @login_required(login_url='/login/')
+    @user_passes_test(is_moderator, login_url='/login/')
+    def wrapped_view(request, *args, **kwargs):
+        return view_func(request, *args, **kwargs)
+    return wrapped_view
+
+# Example moderator dashboard view
+@moderator_required
+def moderator_dashboard(request):
+    # Get all reports
+    all_reports = Report.objects.all()
+
+    # Initialize lists for storing unique reports
+    user_reports = []
+    product_reports = []
+
+    # Track counts of reports for each user
+    seen_users = {}
+    for report in all_reports.filter(reporting__isnull=False):
+        reporting_id = report.reporting.id
+        if reporting_id not in seen_users:
+            # Initialize count for new user
+            seen_users[reporting_id] = {'report': report, 'count': 1}
+        else:
+            # Increment count for existing user
+            seen_users[reporting_id]['count'] += 1
+
+    # Track counts of reports for each product
+    seen_products = {}
+    for report in all_reports.filter(product__isnull=False):
+        product_id = report.product.id
+        if product_id not in seen_products:
+            # Initialize count for new product
+            seen_products[product_id] = {'report': report, 'count': 1}
+        else:
+            # Increment count for existing product
+            seen_products[product_id]['count'] += 1
+
+    # Convert dictionaries to lists for the context
+    user_reports = list(seen_users.values())
+    product_reports = list(seen_products.values())
+
+    context = {
+        'user_reports': user_reports,
+        'product_reports': product_reports,
+    }
+
+    return render(request, 'moderator_dashboard.html', context)
+
+@moderator_required
+def close_report(request, report_id):
+    # Get the report instance
+    report = get_object_or_404(Report, id=report_id)
+    if report:
+        report.delete()
+        # Display a success message
+        messages.success(request, 'Report has been deleted successfully.')
+    else:
+        print("Algo de errado não está certo")
+    # Redirect to the moderator dashboard or another appropriate page
+    return redirect('moderator_dashboard')
+
+
+@moderator_required
+def ban_user(request, user_id):
+    # Retrieve the user and their products
+    user = get_object_or_404(User, id=user_id)
+    user_products = Product.objects.filter(seller=user)
+
+    # Deactivate the user's account
+    user.is_active = False
+    user.save()
+
+    for product in user_products:
+        product.is_active = False
+        product.save()
+
+    # Process offers related to the user as a buyer or seller
+    related_offers = Offer.objects.filter(
+        models.Q(buyer=user.userprofile) | models.Q(product__seller=user)
+    )
+
+    for offer in related_offers:
+        if offer.product.seller == user:
+            # Credit the buyer’s wallet for canceled offers where the user is the seller
+            buyer_profile = offer.buyer
+            buyer_profile.wallet += offer.value  # Assuming wallet is a field in UserProfile
+            buyer_profile.save()
+
+        # Delete the offer after processing
+        offer.delete()
+
+    messages.success(request, f"User {user.username} has been banned and associated data processed.")
+    return redirect('moderator_dashboard')
+
+
+@moderator_required
+def unban_user(request, user_id):
+    # Retrieve the user and their products
+    user = get_object_or_404(User, id=user_id)
+    user_products = Product.objects.filter(seller=user)
+
+    # Reactivate the user's account
+    user.is_active = True
+    user.save()
+
+    # Make the user's products accessible again
+    for product in user_products:
+        product.is_active = True
+        product.save()
+
+    messages.success(request, f"User {user.username} has been unbanned and their products are now accessible.")
+    return redirect('moderator_dashboard')
+
+@moderator_required
+def delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    product.delete()
+    messages.success(request, f"Product '{product.name}' has been deleted.")
+    return redirect('moderator_dashboard')
 
 
 # Create your views here.
@@ -55,12 +191,13 @@ def home(request):
     product_types=[]
     favorites=[]
     user_profile=None
-
     if form.is_valid():
         name_query = form.cleaned_data['name_query']
         user_query = form.cleaned_data['user_query']
         teams = form.cleaned_data['teams']
         product_types = form.cleaned_data['product_types']
+        print("OLA")
+        print(product_types)
         min_price = form.cleaned_data['min_price']
         max_price = form.cleaned_data['max_price']
         sort_by = form.cleaned_data['sort_by']
@@ -76,15 +213,15 @@ def home(request):
             products = products.filter(team__in=teams)
         if product_types:
             product_ids = []
-            if 'Jersey' in product_types:
+            if 'Camisola' in product_types:
                 product_ids += Jersey.objects.values_list('product_id', flat=True)
-            if 'Shorts' in product_types:
+            if 'Calções' in product_types:
                 product_ids += Shorts.objects.values_list('product_id', flat=True)
-            if 'Socks' in product_types:
+            if 'Meias' in product_types:
                 product_ids += Socks.objects.values_list('product_id', flat=True)
-            if 'Boots' in product_types:
+            if 'Chuteiras' in product_types:
                 product_ids += Boots.objects.values_list('product_id', flat=True)
-            if not product_ids:
+            if product_ids:
                 products = products.filter(id__in=product_ids)
         if min_price is not None:
             products = products.filter(price__gte=min_price)
@@ -105,6 +242,7 @@ def home(request):
         elif sort_by == 'seller_desc':
             products = products.order_by('-seller__username')
 
+
     if request.user.is_authenticated:
         favorite_, _ = Favorite.objects.get_or_create(user=request.user)
         favorites = favorite_.products.values_list('id', flat=True)
@@ -123,11 +261,15 @@ def home(request):
         else:
             user_profile = UserProfile.objects.get(user=request.user)
 
+    final_products = []
+    for product in products:
+        if product.seller.is_active:
+            final_products.append(product)
 
     return render(request, 'home.html', {
         'form': form,
         'favorite_form': favorite_form,
-        'products': products,
+        'products': final_products,
         'selected_teams': teams,
         'selected_types': product_types,
         'favorites_ids': favorites,
@@ -147,6 +289,10 @@ def createAccount(request):
 
             # Save the user (this automatically hashes the password)
             user = form.save(commit=True)
+
+            # Add the user to the 'Users' group
+            group = Group.objects.get(name='Users')
+            user.groups.add(group)
 
             # Authenticate and log the user in
             user = authenticate(username=username, password=password)
@@ -181,6 +327,11 @@ def myProfile(request):
 def viewProfile(request, username):
     profile_user = User.objects.get(username=username)
     print("profile user: ",profile_user)
+    # Check if the user is banned
+    is_banned = not profile_user.is_active
+    print(is_banned)
+
+    favorite_form = FavoriteForm(request.POST or None)
 
     following = Following.objects.filter(following_id=profile_user.id)
     followers = Following.objects.filter(followed_id=profile_user.id)
@@ -189,6 +340,24 @@ def viewProfile(request, username):
     profile = UserProfile.objects.get(user=profile_user)
 
     if request.user.is_authenticated:
+        #favoritos codigo
+        favorite_, _ = Favorite.objects.get_or_create(user=request.user)
+        favorites = favorite_.products.values_list('id', flat=True)
+
+        if favorite_form.is_valid():
+            product_id = favorite_form.cleaned_data['favorite_product_id']
+            product = get_object_or_404(Product, id=product_id)
+            print(f"Product ID: {product.id}")  # Debug
+            if product in favorite_.products.all():
+                favorite_.products.remove(product)
+                print(f"Product {product.id} removed from favorites.")  # Debug
+            else:
+                favorite_.products.add(product)
+                print(f"Product {product.id} added to favorites.")  # Debug
+            return redirect('profile', username=username)
+
+
+
         print("Aconteceu")
         # Report form handling
         if request.method == 'POST' and 'report_user' in request.POST:
@@ -217,9 +386,9 @@ def viewProfile(request, username):
             if user.username == f.following.username:
                 follows = True
                 print("follows true")
-        tparams = {"user": user, "profile_user": profile_user, "following": following, "followers": followers, "products": selling, "profile": profile, "follows":follows, "offer_count": getOffersCount(request), "report_form": report_form}
+        tparams = {"is_banned": is_banned,"user": user,'favorite_form': favorite_form,'favorites_ids': favorites, "profile_user": profile_user, "following": following, "followers": followers, "products": selling, "profile": profile, "follows":follows, "offer_count": getOffersCount(request), "report_form": report_form}
     else:
-        tparams = {"profile_user": profile_user, "following": following, "followers": followers,"products": selling, "profile": profile, "offer_count": getOffersCount(request)}
+        tparams = {"is_banned": is_banned,"profile_user": profile_user, "following": following, "followers": followers,"products": selling, "profile": profile, "offer_count": getOffersCount(request)}
 
     return render(request, 'profile.html', tparams)
 
@@ -260,7 +429,7 @@ def pubProduct(request):
                     try:
                         size = int(size)
                     except ValueError:
-                        return render(request, 'publishProduct.html', {'form': form, 'error': True})
+                        return render(request, 'publishProduct.html', {'form': form, 'error': True, "offer_count": getOffersCount(request), "profile": user_profile})
 
                     if size in [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]:
                         boots = Boots(product=product, size=size)
@@ -331,14 +500,30 @@ def userlist(request):
 
 def detailedProduct(request, id):
     print(request)
+    print("OLA")
+    print(id)
     product = Product.objects.get(id=id)
+    if Jersey.objects.filter(product=product).exists():
+        category = "camisola"
+        p = Jersey.objects.get(product=product)
+    elif Shorts.objects.filter(product=product).exists():
+        category = "calções"
+        p = Shorts.objects.get(product=product)
+    elif Socks.objects.filter(product=product).exists():
+        category = "meias"
+        p = Socks.objects.get(product=product)
+    elif Boots.objects.filter(product=product).exists():
+        category = "chuteiras"
+        p = Boots.objects.get(product=product)
+
+
     user = User.objects.get(id=request.user.id)
     sellerProfile = UserProfile.objects.get(user = product.seller)
     try:
         userProfile = UserProfile.objects.get(user__id=request.user.id)
     except UserProfile.DoesNotExist:
         userProfile = None
-    if request.method == 'POST':
+    if request.method == 'POST' and 'proposta' in request.POST:
         form = ListingOffer(userProfile, product, request.POST, request.FILES)
         print(form.errors)
         print(form.cleaned_data['address_choice'])
@@ -359,7 +544,28 @@ def detailedProduct(request, id):
             print("saved")
             redirect('/')
     form = ListingOffer(userProfile, product)
-    tparams = {"product": product, 'form': form, 'profile': userProfile, 'user' : user, 'offer_count' : getOffersCount(request), 'sellerProfile': sellerProfile}
+
+    if request.user.is_authenticated:
+        print("Aconteceu")
+        # Report form handling
+        if request.method == 'POST' and 'report_product' in request.POST:
+            print("Report product")
+            report_form = ReportForm(request.POST)
+
+            report_form.instance.sent_by = request.user
+            report_form.instance.product = product
+            if report_form.is_valid():
+                print("Valid Report form")
+                report = report_form.save(commit=False)
+                report.save()
+                messages.success(request, 'Produto reportado com sucesso.')
+                return redirect('detailedproduct',id=id)
+            else:
+                print("Form errors:", report_form.errors)
+        else:
+            report_form = ReportForm()
+
+    tparams = {"product": p, 'form': form, 'profile': userProfile, 'user' : user, 'offer_count' : getOffersCount(request), 'sellerProfile': sellerProfile, 'category': category, "report_form": report_form}
     return render(request, 'productDetailed.html', tparams)
 
 def offers(request, action=None, id=None):

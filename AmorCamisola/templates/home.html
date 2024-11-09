@@ -71,25 +71,29 @@
         <h2>Produtos</h2>
         <div class="product-list">
             {% for product in products %}
-                <div class="product-card">
+                <div class="product-card card shadow-sm h-100 border-0">
                     <a href="{% url 'detailedproduct' id=product.id %}">
-                        <img src="{{ product.image.url }}" alt="{{ product.name }} de {{ user.username }}" class="card-img-top img-fluid rounded">
+                        <!-- Image Container with slightly larger height and center alignment -->
+                        <div class="image-container bg-light rounded-top" style="height: 180px; overflow: hidden;">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid img-thumbnail w-100" style="object-fit: contain;">
+                        </div>
                     </a>
-                    <h5 class="product-name">{{ product.name }}</h5>
-                    <p class="product-seller">Seller: <a href="{% url 'profile' username=product.seller.username %}">{{ product.seller.username }}</a></p>
-                    <p class="product-price">{{ product.price }}€</p>
-                
-                    <form method="POST" action="">
-                        {% csrf_token %}
-                        <input type="hidden" name="favorite_product_id" value="{{ product.id }}">
-                        <button type="submit" class="favorite-link">
-                            {% if product.id in favorites_ids %}
-                                <i class="fas fa-heart red"></i>
-                            {% else %}
-                                <i class="fas fa-heart text-white"></i>
-                            {% endif %}
-                        </button>
-                    </form>
+                    <div class="card-body text-center p-2">
+                        <h6 class="card-title mb-1 text-truncate">{{ product.name }}</h6>
+                        <p class="small text-muted mb-1">
+                            Vendedor: <a href="{% url 'profile' username=product.seller.username %}" class="text-decoration-none">{{ product.seller.username }}</a>
+                        </p>
+                        <p class="text-danger fw-bold h6 mb-2">{{ product.price }}€</p>
+                    </div>
+                    <div class="card-footer text-center bg-white border-0 p-2">
+                        <form method="POST" action="">
+                            {% csrf_token %}
+                            <input type="hidden" name="favorite_product_id" value="{{ product.id }}">
+                            <button type="submit" class="btn btn-light p-1">
+                                <i class="fas fa-heart {% if product.id in favorites_ids %}text-danger{% else %}text-muted{% endif %}"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             {% endfor %}
         </div>

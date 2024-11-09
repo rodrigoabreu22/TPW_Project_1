@@ -34,6 +34,13 @@ urlpatterns = [
     path('wallet/withdraw/', views.withdraw_money, name='withdraw_money'),
     path('myprofile/settings', views.accountSettings, name='profile_settings'),  # Profile page
     path('favorites/', views.favorite_list, name='favorite_list'),
+
+    path('moderator/dashboard/', views.moderator_dashboard, name='moderator_dashboard'),
+    path('moderator/ban_user/<int:user_id>/', views.ban_user, name='ban_user'),
+    path('moderator/unban_user/<int:user_id>/', views.unban_user, name='unban_user'),
+    path('close_report/<int:report_id>/', views.close_report, name='close_report'),
+    path('moderator/delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
+
 ]
 
 if settings.DEBUG:
