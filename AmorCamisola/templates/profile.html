@@ -18,16 +18,12 @@
                 {% if follows %}
                     <a href="{% url 'unfollow' profile_user.username %}" class="btn btn-outline-primary btn-sm">Não seguir</a>
                 {% else %}
-                    {% if not is_banned %}
-                        <a href="{% url 'follow' profile_user.username %}" class="btn btn-outline-primary btn-sm">Seguir</a>
-                    {% endif %}
+                    <a href="{% url 'follow' profile_user.username %}" class="btn btn-outline-primary btn-sm">Seguir</a>
                 {% endif %}
-                {% if not is_banned %}
                     <!-- Report Button -->
                     <button type="button" class="btn btn-outline-danger btn-sm ml-2" data-toggle="modal" data-target="#reportModal">
                         Reportar Usuário
                     </button>
-                {% endif %}
                 </div>
             <div class="d-flex mb-3">
                 <div class="mr-4">
@@ -71,43 +67,36 @@
         </div>
     </div>
 
-    {% if not is_banned %}
-        <div class="row">
-        {% for product in products %}
-            <div class="col-6 col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <a href="{% url 'detailedproduct' id=product.id %}">
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="card-img-top img-fluid rounded" style="object-fit: cover; height: 300px;">
-                    </a>
-                    <div class="card-body d-flex flex-column text-center">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text text-muted">{{ product.price }} €</p>
-                        <p class="text-muted">Vendedor: {{ product.seller.username }}</p>
-                        <form method="POST" action="" class="mt-auto">
+    <div class="row">
+    {% for product in products %}
+        <div class="col-6 col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <a href="{% url 'detailedproduct' id=product.id %}">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="card-img-top img-fluid rounded" style="object-fit: cover; height: 300px;">
+                </a>
+                <div class="card-body d-flex flex-column text-center">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text text-muted">{{ product.price }} €</p>
+                    <p class="text-muted">Vendedor: {{ product.seller.username }}</p>
+                    <form method="POST" action="" class="mt-auto">
                         {% csrf_token %}
-                                <input type="hidden" name="favorite_product_id" value="{{ product.id }}">
-                                <button type="submit" class="btn btn-outline-danger w-100">
-                                {% if product.id in favorites_ids %}
-                                    <i class="fas fa-heart"></i>
-                                {% else %}
-                                     <i class="far fa-heart"></i>
-                                {% endif %}
-                                </button>
-                        </form>
-                    </div>
+                        <input type="hidden" name="favorite_product_id" value="{{ product.id }}">
+                        <button type="submit" class="btn btn-outline-danger w-100">
+                            {% if product.id in favorites_ids %}
+                                <i class="fas fa-heart"></i> Favorito
+                            {% else %}
+                                <i class="far fa-heart"></i> Adicionar
+                            {% endif %}
+                        </button>
+                    </form>
                 </div>
             </div>
-        {% empty %}
-            <p class="col-12 text-center">Sem produtos à venda.</p>
-        {% endfor %}
-    {% else %}
-        <div class="alert alert-danger" style="border: 2px solid darkred; background-color: #f8d7da; color: darkred; font-size: 2rem; text-align: center; padding: 20px;">
-            <strong>Este usuário foi banido!!!</strong>
         </div>
-    {% endif %}
+    {% empty %}
+        <p class="col-12 text-center">Sem produtos à venda.</p>
+    {% endfor %}
 </div>
 
 </div>
-
 
 {% endblock %}
