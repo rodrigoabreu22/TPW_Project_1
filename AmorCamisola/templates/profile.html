@@ -79,15 +79,15 @@
                     <p class="card-text text-muted">{{ product.price }} €</p>
                     <p class="text-muted">Vendedor: {{ product.seller.username }}</p>
                     <form method="POST" action="" class="mt-auto">
-                        {% csrf_token %}
-                        <input type="hidden" name="favorite_product_id" value="{{ product.id }}">
-                        <button type="submit" class="btn btn-outline-danger w-100">
+                    {% csrf_token %}
+                            <input type="hidden" name="favorite_product_id" value="{{ product.id }}">
+                            <button type="submit" class="btn btn-outline-danger w-100">
                             {% if product.id in favorites_ids %}
-                                <i class="fas fa-heart"></i> Favorito
+                                <i class="fas fa-heart"></i>
                             {% else %}
-                                <i class="far fa-heart"></i> Adicionar
+                                 <i class="far fa-heart"></i>
                             {% endif %}
-                        </button>
+                            </button>
                     </form>
                 </div>
             </div>

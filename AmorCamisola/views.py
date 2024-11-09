@@ -232,6 +232,7 @@ def myProfile(request):
     return render(request, 'myProfile.html', tparams)
 
 def viewProfile(request, username):
+    favorite_form = FavoriteForm(request.POST or None)
     profile_user = User.objects.get(username=username)
     print("profile user: ",profile_user)
 
@@ -242,6 +243,24 @@ def viewProfile(request, username):
     profile = UserProfile.objects.get(user=profile_user)
 
     if request.user.is_authenticated:
+        #favoritos codigo
+        favorite_, _ = Favorite.objects.get_or_create(user=request.user)
+        favorites = favorite_.products.values_list('id', flat=True)
+
+        if favorite_form.is_valid():
+            product_id = favorite_form.cleaned_data['favorite_product_id']
+            product = get_object_or_404(Product, id=product_id)
+            print(f"Product ID: {product.id}")  # Debug
+            if product in favorite_.products.all():
+                favorite_.products.remove(product)
+                print(f"Product {product.id} removed from favorites.")  # Debug
+            else:
+                favorite_.products.add(product)
+                print(f"Product {product.id} added to favorites.")  # Debug
+            return redirect('profile', username=username)
+
+
+
         print("Aconteceu")
         # Report form handling
         if request.method == 'POST' and 'report_user' in request.POST:
@@ -270,7 +289,7 @@ def viewProfile(request, username):
             if user.username == f.following.username:
                 follows = True
                 print("follows true")
-        tparams = {"user": user, "profile_user": profile_user, "following": following, "followers": followers, "products": selling, "profile": profile, "follows":follows, "offer_count": getOffersCount(request), "report_form": report_form}
+        tparams = {"user": user,'favorite_form': favorite_form,'favorites_ids': favorites, "profile_user": profile_user, "following": following, "followers": followers, "products": selling, "profile": profile, "follows":follows, "offer_count": getOffersCount(request), "report_form": report_form}
     else:
         tparams = {"profile_user": profile_user, "following": following, "followers": followers,"products": selling, "profile": profile, "offer_count": getOffersCount(request)}
 
