@@ -1,9 +1,9 @@
 # Amor à Camisola
 
-# Project Description
+## Project Description
 The project consists of a Django web application with the marketplace concept, dedicated to football fans. Users will be able to view, buy football equipment or sell it to other users. 
 
-# Members
+## Members
 
 | Name | NMec |
 |:---|:---:|
@@ -12,7 +12,7 @@ The project consists of a Django web application with the marketplace concept, d
 | Ricardo Antunes | 115243 |
 
 
-# Functionalities
+## Functionalities
 
 ### Unauthenticated user:
 - View products in the feed
@@ -49,7 +49,7 @@ The project consists of a Django web application with the marketplace concept, d
 - Ban users 
 
 
-# User Accounts
+## User Accounts
 
 ### Moderator
 | Usename | Password |
@@ -63,12 +63,12 @@ The project consists of a Django web application with the marketplace concept, d
 | tony   | cr7goat7 |
 | martim | cr7goat7 |
 
-### Features that we would like to implement:
+## Features that we would like to implement:
 - Expand the variaty of products
 - Implement a more profesional deposit/withdrwal method
 - Improve overall aesthetics
 
-### Deployment
+## Deployment
 Insere aqui o link para a app no pythonanywhere
 
-### How to run it locally
+## How to run it locally
