@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+{% load static %}
+    
+<div class="container mt-5">
+    <!-- Profile Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-4 text-center">
+            <img src="{% if profile.image %}/media/{{ profile.image.name }}{% else %}{% static 'fonts/imgs/defaultUser.png' %}{% endif %}"
+             style="width: 10vw; height: 9vw; object-fit: cover"
+             class="rounded-circle" alt="">
+        </div>
+        <div class="col-md-8">
+            <div class="d-flex align-items-center mb-3">
+                 <h2 class="mr-3">{{ profile_user.username }}</h2>
+                    {% if reports.0.reporting.is_active == True %}
+                        <form method="post" action="{% url 'ban_user' reports.0.reporting.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Banir usuário</button>
+                        </form>
+                        {% else %}
+                        <form method="post" action="{% url 'unban_user' reports.0.reporting.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-info">Desbanir usuário</button>
+                        </form>
+                    {% endif %}
+                </div>
+            <div class="d-flex mb-3">
+                <div class="mr-4">
+                    <strong>{{ products.count }}</strong> produtos
+                </div>
+                <div class="mr-4">
+                    <a class="text-dark">
+                        <strong>{{ followers.count }}</strong> seguidores
+                    </a>
+                </div>
+                <div>
+                    <strong>{{ following.count }}</strong> seguindo
+                </div>
+            </div>
+                <p>Nome: {{ profile_user.first_name }} {{ profile_user.last_name }}</p>
+        </div>
+    </div>
+    <hr>
+        <div class="col-lg-12 mb-4 d-flex flex-column">
+            <img src="{{ product.product.image.url }}" alt="{{ product.product.name }}" class="img-fluid w-100 rounded shadow mb-3">
+            <h1>Denúncias:</h1>
+            {% if reports %}
+                {% for report in reports %}
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header d-flex align-items-center">
+                            <img src="{% if report.image %}/media/{{ report.image.name }}{% else %}{% static 'fonts/imgs/defaultUser.png' %}{% endif %}" alt="{{ report.sent_by.username }}" class="rounded-circle" style="width: 40px; height: 40px; margin-right: 10px;">
+                            <strong>{{ report.sent_by.username }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <p class="font-weight-bold">Razão: 
+                                {% if report.reasons == 'IN' %}
+                                    <span class="badge badge-warning">Conteúdo inapropriado</span>
+                                {% elif report.reasons == 'FR' %}
+                                    <span class="badge badge-warning">Fraude</span>
+                                {% elif report.reasons == 'OT' %}
+                                    <span class="badge badge-warning">Other</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Descrição:</strong> {{ report.description }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>Sem denúncias para este usuário.</p>
+            {% endif %}
+</div>
+
+</div>
+
+
+{% endblock %}

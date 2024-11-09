@@ -9,7 +9,6 @@ from django.contrib.auth.models import Group
 from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import render, redirect, get_object_or_404
 
-from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 
 from django.contrib import messages
@@ -17,8 +16,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.shortcuts import render
+from django.contrib.auth import views as auth_views
+from django.urls import reverse
 
 # Define the test function for checking if the user is a moderator
 def is_moderator(user):
@@ -78,6 +77,55 @@ def moderator_dashboard(request):
     return render(request, 'moderator_dashboard.html', context)
 
 @moderator_required
+def user_mod_view(request,username):
+    profile_user = User.objects.get(username=username)
+    print("profile user: ", profile_user)
+
+    following = Following.objects.filter(following_id=profile_user.id)
+    followers = Following.objects.filter(followed_id=profile_user.id)
+    print(followers)
+    selling = Product.objects.filter(seller_id=profile_user.id)
+    profile = UserProfile.objects.get(user=profile_user)
+
+    reports = Report.objects.filter(reporting=profile_user)
+
+    tparams = {"profile_user": profile_user, "following": following, "followers": followers, "products": selling,
+               "profile": profile, "offer_count": getOffersCount(request), "reports": reports}
+
+    return render(request, 'profile_moderatorview.html', tparams)
+
+
+
+@moderator_required
+def product_mod_view(request, product_id):
+    product = Product.objects.get(id=product_id)
+    if Jersey.objects.filter(product=product).exists():
+        category = "camisola"
+        p = Jersey.objects.get(product=product)
+    elif Shorts.objects.filter(product=product).exists():
+        category = "calções"
+        p = Shorts.objects.get(product=product)
+    elif Socks.objects.filter(product=product).exists():
+        category = "meias"
+        p = Socks.objects.get(product=product)
+    elif Boots.objects.filter(product=product).exists():
+        category = "chuteiras"
+        p = Boots.objects.get(product=product)
+
+    user = User.objects.get(id=request.user.id)
+    sellerProfile = UserProfile.objects.get(user=product.seller)
+    try:
+        userProfile = UserProfile.objects.get(user__id=request.user.id)
+    except UserProfile.DoesNotExist:
+        userProfile = None
+
+    reports = Report.objects.filter(product=product)
+
+    tparams = {"product": p,"reports":reports, 'profile': userProfile, 'user': user, 'offer_count': getOffersCount(request),
+               'sellerProfile': sellerProfile, 'category': category}
+    return render(request, 'product_moderatorview.html', tparams)
+
+@moderator_required
 def close_report(request, report_id):
     # Get the report instance
     report = get_object_or_404(Report, id=report_id)
@@ -110,15 +158,21 @@ def ban_user(request, user_id):
         models.Q(buyer=user.userprofile) | models.Q(product__seller=user)
     )
 
+
     for offer in related_offers:
-        if offer.product.seller == user:
+        offer_status_conditions = offer.offer_status in ["in_progress", "accepted","rejected"] and offer.paid and not offer.delivered
+
+        if offer.product.seller == user and offer_status_conditions:
             # Credit the buyer’s wallet for canceled offers where the user is the seller
             buyer_profile = offer.buyer
             buyer_profile.wallet += offer.value  # Assuming wallet is a field in UserProfile
             buyer_profile.save()
+            offer.delete()
 
-        # Delete the offer after processing
-        offer.delete()
+        elif offer.buyer == user and offer_status_conditions:
+            user.userprofile.wallet += offer.value
+            user.save()
+            offer.delete()
 
     messages.success(request, f"User {user.username} has been banned and associated data processed.")
     return redirect('moderator_dashboard')
@@ -181,6 +235,25 @@ def favorite_list(request):
         'products': products,
         'profile': user_profile
     })
+
+
+class CustomLoginView(auth_views.LoginView):
+    template_name = "login.html"
+
+    def form_invalid(self, form):
+        # Get the username from the submitted form data
+        username = form.data.get('username')
+        try:
+            # Check if the user exists and is marked as inactive
+            user = User.objects.get(username=username)
+            if not user.is_active:
+                messages.error(self.request, "This account has been banned.")
+                return redirect(reverse('login') + '?banned=true')
+        except User.DoesNotExist:
+            pass  # Proceed with default behavior if user does not exist
+
+        # Proceed with default invalid form handling
+        return super().form_invalid(form)
 
 def home(request):
     print("Test")
