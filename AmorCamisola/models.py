@@ -1,13 +1,8 @@
 import uuid
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.db import models
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
-
-# Optional function to programmatically make a user a moderator
-def make_moderator(user):
-    moderator_group, created = Group.objects.get_or_create(name="Moderator")
-    user.groups.add(moderator_group)
 
 CLOTHES_CHOICES = (
     ("XS", "XS"),

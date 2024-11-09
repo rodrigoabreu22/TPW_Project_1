@@ -35,7 +35,9 @@ urlpatterns = [
     path('myprofile/settings', views.accountSettings, name='profile_settings'),  # Profile page
     path('favorites/', views.favorite_list, name='favorite_list'),
 
-    path('moderator/', views.moderator_dashboard, name='moderator_dashboard'),
+    path('moderator/dashboard/', views.moderator_dashboard, name='moderator_dashboard'),
+    path('moderator/ban_user/<int:user_id>/', views.ban_user, name='ban_user'),
+    path('moderator/delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
 
 ]
 

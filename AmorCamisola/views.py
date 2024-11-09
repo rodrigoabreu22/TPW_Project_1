@@ -4,6 +4,7 @@ from django.http import JsonResponse
 
 from AmorCamisola.forms import *
 from AmorCamisola.models import *
+from django.contrib.auth.models import Group
 
 from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import render, redirect, get_object_or_404
@@ -21,7 +22,9 @@ from django.shortcuts import render
 
 # Define the test function for checking if the user is a moderator
 def is_moderator(user):
-    return user.groups.filter(name='Moderator').exists()
+    print("Cucu")
+    print(user.groups.filter(name='Moderators').exists())
+    return user.groups.filter(name='Moderators').exists()
 
 # Custom decorator for requiring moderator status
 def moderator_required(view_func):
@@ -34,8 +37,28 @@ def moderator_required(view_func):
 # Example moderator dashboard view
 @moderator_required
 def moderator_dashboard(request):
-    # Logic for displaying moderator-specific dashboard
-    return render(request, 'moderator_dashboard.html')
+    user_reports = Report.objects.filter(reporting__isnull=False)  # Reports for users
+    product_reports = Report.objects.filter(product__isnull=False)  # Reports for products
+    context = {
+        'user_reports': user_reports,
+        'product_reports': product_reports,
+    }
+    return render(request, 'moderator_dashboard.html', context)
+
+@moderator_required
+def ban_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    user.is_active = False  # Disable the user's account
+    user.save()
+    messages.success(request, f"User {user.username} has been banned.")
+    return redirect('moderator_dashboard')
+
+@moderator_required
+def delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    product.delete()
+    messages.success(request, f"Product '{product.name}' has been deleted.")
+    return redirect('moderator_dashboard')
 
 
 # Create your views here.
@@ -171,6 +194,10 @@ def createAccount(request):
 
             # Save the user (this automatically hashes the password)
             user = form.save(commit=True)
+
+            # Add the user to the 'Users' group
+            group = Group.objects.get(name='Users')
+            user.groups.add(group)
 
             # Authenticate and log the user in
             user = authenticate(username=username, password=password)

@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h1>Moderator Dashboard</h1>
+
+    <h2>User Reports</h2>
+    <div class="report-section">
+        {% for report in user_reports %}
+            <div class="report-card">
+                <p><strong>Reported User:</strong> {{ report.reporting.username }}</p>
+                <p><strong>Reason:</strong> {{ report.get_reasons_display }}</p>
+                <p><strong>Description:</strong> {{ report.description }}</p>
+                <!-- Actions like "Ban User" -->
+                <form method="post" action="{% url 'ban_user' report.reporting.id %}">
+                    {% csrf_token %}
+                    <button type="submit">Ban User</button>
+                </form>
+            </div>
+        {% empty %}
+            <p>No user reports.</p>
+        {% endfor %}
+    </div>
+
+    <h2>Product Reports</h2>
+    <div class="report-section">
+        {% for report in product_reports %}
+            <div class="report-card">
+                <p><strong>Reported Product:</strong> {{ report.product.name }}</p>
+                <p><strong>Reason:</strong> {{ report.get_reasons_display }}</p>
+                <p><strong>Description:</strong> {{ report.description }}</p>
+                <!-- Actions like "Delete Product" -->
+                <form method="post" action="{% url 'delete_product' report.product.id %}">
+                    {% csrf_token %}
+                    <button type="submit">Delete Product</button>
+                </form>
+            </div>
+        {% empty %}
+            <p>No product reports.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

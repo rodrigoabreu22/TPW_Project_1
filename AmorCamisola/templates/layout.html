@@ -27,6 +27,11 @@
             <span class="company-name">Amor à Camisola</span>
         </a>
         <a href="{% url 'publishproduct' %}">Vender Produto</a>
+        {% for group in user.groups.all %}
+            {% if group.name == 'Moderators' %}
+                <a href="{% url 'moderator_dashboard' %}">Reports</a>
+            {% endif %}
+        {% endfor %}
     </div>
     <div class="navbar-right">
             <a href="{% url 'userlist' %}" title="Utilizadores"><i class="fa-solid fa-users"></i></a>
