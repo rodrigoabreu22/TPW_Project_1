@@ -1,13 +1,8 @@
 import uuid
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.db import models
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
-
-# Optional function to programmatically make a user a moderator
-def make_moderator(user):
-    moderator_group, created = Group.objects.get_or_create(name="Moderator")
-    user.groups.add(moderator_group)
 
 CLOTHES_CHOICES = (
     ("XS", "XS"),
@@ -74,13 +69,10 @@ OFFER_STATUS = (
     ('rejected', 'Rejeitado')
 )
 
-phone_validator = RegexValidator(regex=r'^\d{9}$', message="Phone number must be exactly 9 digits.")
-
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     address = models.CharField(max_length=50)
-
-    phone = models.CharField(max_length=9,unique=True,null=False,blank=False,validators=[phone_validator])
+    phone = PhoneNumberField(unique=True, null=False, blank=False)
     image = models.FileField()
     wallet = models.DecimalField(max_digits=50, decimal_places=2, default=0)
 
@@ -182,7 +174,6 @@ class Boots(models.Model):
 
     def __str__(self):
         return self.product.__str__()
-
 
 class Offer(models.Model):
     buyer = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='buyer')

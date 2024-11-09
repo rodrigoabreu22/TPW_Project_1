@@ -6,21 +6,22 @@
 
     
 <div class="homepage-container">
+    <!-- Filtros na Barra Lateral Esquerda -->
     <div class="sidebar-filters">
-        <h3>Filtros</h3>
+        <h3>Filters</h3>
         <form method="GET" action="{% url 'home' %}">
             <div class="form-group">
-                <label for="id_name_query">Pesquisar produto</label>
+                <label for="id_name_query">Product Name</label>
                 <input type="text" class="form-control" id="id_name_query" name="name_query" value="{{ request.GET.name_query }}">
             </div>
             
             <div class="form-group">
-                <label for="id_user_query">Pesquisar vendedor</label>
+                <label for="id_user_query">Seller</label>
                 <input type="text" class="form-control" id="id_user_query" name="user_query" value="{{ request.GET.user_query }}">
             </div>
 
             <div class="form-group">
-                <label>Equipa</label>
+                <label>Teams</label>
                 <div>
                     {% for team in form.teams %}
                         <div class="form-check">
@@ -33,7 +34,7 @@
             </div>
 
             <div class="form-group">
-                <label>Categoria</label>
+                <label>Product Types</label>
                 <div>
                     {% for product_type in form.product_types %}
                         <div class="form-check">
@@ -46,7 +47,7 @@
             </div>
 
             <div class="form-group">
-                <label>Preço</label>
+                <label>Price Range</label>
                 <div class="price-range">
                     <input type="number" class="form-control" id="id_min_price" name="min_price" step="0.01" placeholder="Min" value="{{ request.GET.min_price }}">
                     <input type="number" class="form-control" id="id_max_price" name="max_price" step="0.01" placeholder="Max" value="{{ request.GET.max_price }}">
@@ -54,7 +55,7 @@
             </div>
         
             <div class="form-group">
-                <label for="id_sort_by">Ordenar</label>
+                <label for="id_sort_by">Sort By</label>
                 <select id="id_sort_by" name="sort_by">
                     <option value="">Select...</option>
                     {% for value, label in form.sort_by.field.choices %}
@@ -63,37 +64,32 @@
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-primary">Aplicar</button>
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
         </form>
     </div>
 
+    <!-- Exibição de Produtos -->
     <div class="products-display">
-        <h2>Produtos</h2>
+        <h2>Products</h2>
         <div class="product-list">
             {% for product in products %}
-                <div class="product-card card shadow-sm h-100 border-0">
-                    <a href="{% url 'detailedproduct' id=product.id %}">
-                        <!-- Image Container with slightly larger height and center alignment -->
-                        <div class="image-container bg-light rounded-top" style="height: 180px; overflow: hidden;">
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid img-thumbnail w-100" style="object-fit: contain;">
-                        </div>
-                    </a>
-                    <div class="card-body text-center p-2">
-                        <h6 class="card-title mb-1 text-truncate">{{ product.name }}</h6>
-                        <p class="small text-muted mb-1">
-                            Vendedor: <a href="{% url 'profile' username=product.seller.username %}" class="text-decoration-none">{{ product.seller.username }}</a>
-                        </p>
-                        <p class="text-danger fw-bold h6 mb-2">{{ product.price }}€</p>
-                    </div>
-                    <div class="card-footer text-center bg-white border-0 p-2">
-                        <form method="POST" action="">
-                            {% csrf_token %}
-                            <input type="hidden" name="favorite_product_id" value="{{ product.id }}">
-                            <button type="submit" class="btn btn-light p-1">
-                                <i class="fas fa-heart {% if product.id in favorites_ids %}text-danger{% else %}text-muted{% endif %}"></i>
-                            </button>
-                        </form>
-                    </div>
+                <div class="product-card">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                    <h5 class="product-name">{{ product.name }}</h5>
+                    <p class="product-seller">Seller: {{ product.seller.username }}</p>
+                    <p class="product-price">${{ product.price }}</p>
+                
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        <input type="hidden" name="favorite_product_id" value="{{ product.id }}">
+                        <button type="submit" class="favorite-link">
+                            {% if product.id in favorites_ids %}
+                                <i class="fas fa-heart red"></i>
+                            {% else %}
+                                <i class="fas fa-heart text-white"></i>
+                            {% endif %}
+                        </button>
+                    </form>
                 </div>
             {% endfor %}
         </div>

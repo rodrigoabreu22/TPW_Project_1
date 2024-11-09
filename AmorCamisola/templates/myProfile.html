@@ -19,7 +19,7 @@
             </div>
             <div class="d-flex mb-3">
                 <div class="mr-4">
-                    <strong>{{ products.count }}</strong> produtos
+                    <strong>{{ selling.count }}</strong> produtos
                 </div>
                 <div class="mr-4">
                     <a href="#" class="text-dark" data-toggle="modal" data-target="#followersModal">
@@ -35,34 +35,29 @@
                 <p>Nome: {{ user.first_name }} {{ user.last_name }}</p>
                     <a class="btn btn-outline-secondary btn-sm">Histórico de Compras</a>
                     <a class="btn btn-outline-secondary btn-sm">Histórico de Vendas</a>
-                    <a href="{% url 'offers'%}" class="btn btn-outline-secondary btn-sm">Ofertas</a>
+                    <a class="btn btn-outline-secondary btn-sm">Ofertas</a>
         </div>
     </div>
     <hr/>
 
     <!-- Photo Grid Section for Products/Posts -->
     <div class="row">
-    {% for product in products %}
-        <div class="col-6 col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                <a href="{% url 'detailedproduct' id=product.id %}">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="card-img-top img-fluid rounded" style="object-fit: cover; height: 300px;">
-                </a>
-                <div class="card-body d-flex flex-column text-center">
-                    <h5 class="card-title">{{ product.name }}</h5>
-                    <p class="card-text text-muted">{{ product.price }} €</p>
-                    <p class="text-muted">Vendedor: {{ product.seller.username }}</p>
-                    <form method="POST" action="" class="mt-auto">
-                        {% csrf_token %}
-                        <input type="hidden" name="favorite_product_id" value="{{ product.id }}">
-                    </form>
+        {% for product in products %}
+            <div class="col-6 col-md-4 mb-4">
+                <div class="card h-100">
+                    <a href="{% url 'detailedproduct' id=product.id %}">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }} de {{ user.username }}" class="card-img-top img-fluid rounded">
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted">{{ product.price }} €</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    {% empty %}
-        <p class="col-12 text-center">Sem produtos à venda.</p>
-    {% endfor %}
-</div>
+        {% empty %}
+            <p class="col-12 text-center">Sem produtos à venda.</p>
+        {% endfor %}
+    </div>
 
 </div>
 
