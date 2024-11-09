@@ -11,7 +11,7 @@ class CreateAccountForm(UserCreationForm):
     first_name = forms.CharField(label='First Name', max_length=30, required=True)
     last_name = forms.CharField(label='Last Name', max_length=30, required=True)
     address = forms.CharField(label='Address', max_length=50)
-    phone = PhoneNumberField(label='Phone', required=True, widget=forms.TextInput(attrs={'placeholder': 'Ex: +351987654321'}))
+    phone = forms.CharField(label='Phone', required=True, widget=forms.TextInput(attrs={'placeholder': 'Ex: 987654321'}))
 
 
     class Meta:
@@ -149,10 +149,10 @@ class ProductQuery(forms.Form):
     )
 
     PRODUCT_TYPE_CHOICES = [
-        ('Jersey', 'Jersey'),
-        ('Boots', 'Boots'),
-        ('Socks', 'Socks'),
-        ('Shorts', 'Shorts'),
+        ('Camisola', 'Camisola'),
+        ('Chuteiras', 'Chuteiras'),
+        ('Meias', 'Meias'),
+        ('Calções', 'Calções'),
     ]
     product_types = forms.MultipleChoiceField(
         label='Product Types',
@@ -177,12 +177,12 @@ class ProductQuery(forms.Form):
 
     # Sorting options
     SORT_CHOICES = [
-        ('price_asc', 'Price (Low to High)'),
-        ('price_desc', 'Price (High to Low)'),
-        ('name_asc', 'Product Name (A to Z)'),
-        ('name_desc', 'Product Name (Z to A)'),
-        ('seller_asc', 'Seller Name (A to Z)'),
-        ('seller_desc', 'Seller Name (Z to A)'),
+        ('price_asc', 'Preço (Menor a Maior)'),
+        ('price_desc', 'Preço (Maior a Menor)'),
+        ('name_asc', 'Name (A a Z)'),
+        ('name_desc', 'Nome (Z a A)'),
+        ('seller_asc', 'Vendedor (A a Z)'),
+        ('seller_desc', 'Vendedor (Z a A)'),
     ]
     sort_by = forms.ChoiceField(
         choices=SORT_CHOICES,
@@ -198,7 +198,20 @@ class ProductQuery(forms.Form):
         ]
 
 class FavoriteForm(forms.Form):
-    favorite_product_id = forms.IntegerField()
+    favorite_product_id = forms.IntegerField(required=True)
+
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['reasons', 'description']
+        labels = {
+            'reasons': 'Motivo',
+            'description': 'Descrição'
+        }
+        widgets = {
+            'reasons': forms.Select(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
 
 class SearchUserForm(forms.Form):
     query = forms.CharField(label='Procurar utilizador', max_length=50, required=False)
