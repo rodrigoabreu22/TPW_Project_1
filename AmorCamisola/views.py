@@ -9,7 +9,6 @@ from django.contrib.auth.models import Group
 from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import render, redirect, get_object_or_404
 
-from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 
 from django.contrib import messages
@@ -17,8 +16,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.shortcuts import render
+from django.contrib.auth import views as auth_views
+from django.urls import reverse
 
 # Define the test function for checking if the user is a moderator
 def is_moderator(user):
@@ -78,6 +77,55 @@ def moderator_dashboard(request):
     return render(request, 'moderator_dashboard.html', context)
 
 @moderator_required
+def user_mod_view(request,username):
+    profile_user = User.objects.get(username=username)
+    print("profile user: ", profile_user)
+
+    following = Following.objects.filter(following_id=profile_user.id)
+    followers = Following.objects.filter(followed_id=profile_user.id)
+    print(followers)
+    selling = Product.objects.filter(seller_id=profile_user.id)
+    profile = UserProfile.objects.get(user=profile_user)
+
+    reports = Report.objects.filter(reporting=profile_user)
+
+    tparams = {"profile_user": profile_user, "following": following, "followers": followers, "products": selling,
+               "profile": profile, "offer_count": getOffersCount(request), "reports": reports}
+
+    return render(request, 'profile_moderatorview.html', tparams)
+
+
+
+@moderator_required
+def product_mod_view(request, product_id):
+    product = Product.objects.get(id=product_id)
+    if Jersey.objects.filter(product=product).exists():
+        category = "camisola"
+        p = Jersey.objects.get(product=product)
+    elif Shorts.objects.filter(product=product).exists():
+        category = "calções"
+        p = Shorts.objects.get(product=product)
+    elif Socks.objects.filter(product=product).exists():
+        category = "meias"
+        p = Socks.objects.get(product=product)
+    elif Boots.objects.filter(product=product).exists():
+        category = "chuteiras"
+        p = Boots.objects.get(product=product)
+
+    user = User.objects.get(id=request.user.id)
+    sellerProfile = UserProfile.objects.get(user=product.seller)
+    try:
+        userProfile = UserProfile.objects.get(user__id=request.user.id)
+    except UserProfile.DoesNotExist:
+        userProfile = None
+
+    reports = Report.objects.filter(product=product)
+
+    tparams = {"product": p,"reports":reports, 'profile': userProfile, 'user': user, 'offer_count': getOffersCount(request),
+               'sellerProfile': sellerProfile, 'category': category}
+    return render(request, 'product_moderatorview.html', tparams)
+
+@moderator_required
 def close_report(request, report_id):
     # Get the report instance
     report = get_object_or_404(Report, id=report_id)
@@ -110,15 +158,21 @@ def ban_user(request, user_id):
         models.Q(buyer=user.userprofile) | models.Q(product__seller=user)
     )
 
+
     for offer in related_offers:
-        if offer.product.seller == user:
+        offer_status_conditions = offer.offer_status in ["in_progress", "accepted","rejected"] and offer.paid and not offer.delivered
+
+        if offer.product.seller == user and offer_status_conditions:
             # Credit the buyer’s wallet for canceled offers where the user is the seller
             buyer_profile = offer.buyer
             buyer_profile.wallet += offer.value  # Assuming wallet is a field in UserProfile
             buyer_profile.save()
+            offer.delete()
 
-        # Delete the offer after processing
-        offer.delete()
+        elif offer.buyer == user and offer_status_conditions:
+            user.userprofile.wallet += offer.value
+            user.save()
+            offer.delete()
 
     messages.success(request, f"User {user.username} has been banned and associated data processed.")
     return redirect('moderator_dashboard')
@@ -181,6 +235,25 @@ def favorite_list(request):
         'products': products,
         'profile': user_profile
     })
+
+
+class CustomLoginView(auth_views.LoginView):
+    template_name = "login.html"
+
+    def form_invalid(self, form):
+        # Get the username from the submitted form data
+        username = form.data.get('username')
+        try:
+            # Check if the user exists and is marked as inactive
+            user = User.objects.get(username=username)
+            if not user.is_active:
+                messages.error(self.request, "This account has been banned.")
+                return redirect(reverse('login') + '?banned=true')
+        except User.DoesNotExist:
+            pass  # Proceed with default behavior if user does not exist
+
+        # Proceed with default invalid form handling
+        return super().form_invalid(form)
 
 def home(request):
     print("Test")
@@ -502,7 +575,9 @@ def detailedProduct(request, id):
     print(request)
     print("OLA")
     print(id)
+    error = ""
     product = Product.objects.get(id=id)
+    report_form = ReportForm()
     if Jersey.objects.filter(product=product).exists():
         category = "camisola"
         p = Jersey.objects.get(product=product)
@@ -517,11 +592,12 @@ def detailedProduct(request, id):
         p = Boots.objects.get(product=product)
 
 
-    user = User.objects.get(id=request.user.id)
     sellerProfile = UserProfile.objects.get(user = product.seller)
     try:
+        user = User.objects.get(id=request.user.id)
         userProfile = UserProfile.objects.get(user__id=request.user.id)
-    except UserProfile.DoesNotExist:
+    except User.DoesNotExist or UserProfile.DoesNotExist:
+        user = None
         userProfile = None
     if request.method == 'POST' and 'proposta' in request.POST:
         form = ListingOffer(userProfile, product, request.POST, request.FILES)
@@ -540,6 +616,9 @@ def detailedProduct(request, id):
             buyer = userProfile
             sent_by = userProfile
             offer = Offer(buyer=buyer, product=product, value=value, address=address, payment_method=payment_method, delivery_method=delivery_method, sent_by=sent_by)
+            if (payment_method == "store_credit"):
+                buyer.wallet -= offer.value
+                buyer.save()
             offer.save()
             print("saved")
             redirect('/')
@@ -564,10 +643,16 @@ def detailedProduct(request, id):
                 print("Form errors:", report_form.errors)
         else:
             report_form = ReportForm()
+    else:
+        error = "Login necessário"
+    if user and user.id == p.product.seller.id:
+        error = "Próprio produto"
 
-    tparams = {"product": p, 'form': form, 'profile': userProfile, 'user' : user, 'offer_count' : getOffersCount(request), 'sellerProfile': sellerProfile, 'category': category, "report_form": report_form}
+
+    tparams = {"product": p, 'form': form, 'profile': userProfile, 'user' : user, 'offer_count' : getOffersCount(request), 'sellerProfile': sellerProfile, 'category': category, "report_form": report_form, "error": error}
     return render(request, 'productDetailed.html', tparams)
 
+@login_required
 def offers(request, action=None, id=None):
     user = User.objects.get(id=request.user.id)
     userProfile = UserProfile.objects.get(user__id=request.user.id)
@@ -604,9 +689,9 @@ def offers(request, action=None, id=None):
     madeOffers = Offer.objects.filter(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
     receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer_id=request.user.id)
     receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
-    acceptedOffers = receivedOffers.filter(offer_status__exact='accepted') | madeOffers.filter(offer_status__exact='accepted')
-    rejectedOffers = receivedOffers.filter(offer_status__exact='rejected') | madeOffers.filter(offer_status__exact='rejected')
-    tparams = {"profile": userProfile, "user": user, 'offers_received': receivedOffersFiltered, 'offers_made': madeOffers, 'offers_accepted': acceptedOffers, 'offers_rejected': rejectedOffers, 'form': form, 'offer_count' : getOffersCount(request)}
+    acceptedOffers = receivedOffers.filter(offer_status__exact='accepted').exclude(paid=True, delivered=True) | madeOffers.filter(offer_status__exact='accepted').exclude(paid=True, delivered=True)
+    processedOffers = receivedOffers.filter(offer_status__exact='rejected') | madeOffers.filter(offer_status__exact='rejected') | Offer.objects.filter(paid=True, delivered=True, sent_by__user_id=request.user.id)
+    tparams = {"profile": userProfile, "user": user, 'offers_received': receivedOffersFiltered, 'offers_made': madeOffers, 'offers_accepted': acceptedOffers, 'offers_processed': processedOffers, 'form': form, 'offer_count' : getOffersCount(request)}
     return render(request, 'offersTemplate.html', tparams)
 
 def acceptOffer(request, id):
@@ -616,6 +701,12 @@ def rejectOffer(request, id):
     return offers(request, 'reject', id)
 
 def counterOffer(request, id):
+    offer = Offer.objects.get(id=id)
+    if offer.sent_by.id == offer.buyer.id:
+        offer.buyer.wallet -= offer.value
+    else:
+        offer.buyer.wallet += offer.value
+    offer.buyer.save()
     return offers(request, 'counter', id)
 
 def retractOffer(request, id):
@@ -623,14 +714,43 @@ def retractOffer(request, id):
     offer.delete()
     return redirect("/offers/")
 
-#Funções auxiliares
-def valid_purchase(user : UserProfile, product : Product):
-    return user.wallet < product.price and not product.sold
+def confirmPayment(request, id):
+    offer = Offer.objects.get(id=id)
+    offer.paid = not offer.paid
+    offer.save()
+    if offer.paid and offer.delivered:
+        newOffer = Offer(buyer=offer.buyer, product=offer.product, value=offer.value,
+                         payment_method=offer.payment_method, delivery_method=offer.delivery_method,
+                         address=offer.address, sent_by=offer.buyer, offer_status=offer.offer_status,
+                         delivered=offer.delivered, paid=offer.paid)
+        if offer.buyer == offer.sent_by:
+            newOffer = Offer(buyer=offer.buyer, product=offer.product, value=offer.value, payment_method=offer.payment_method, delivery_method=offer.delivery_method, address=offer.address, sent_by=offer.product.seller, offer_status=offer.offer_status, delivered=offer.delivered, paid=offer.paid)
+        newOffer.save()
+    return redirect("/offers/")
 
-def perform_sale(buyer : UserProfile, seller : UserProfile, product : Product):
-    if valid_purchase(buyer, product):
-        buyer.wallet -= product.price
-        seller.wallet += product.price
+def confirmDelivery(request, id):
+    offer = Offer.objects.get(id=id)
+    offer.delivered = not offer.delivered
+    if offer.paid and offer.delivered:
+        newOffer = Offer(buyer=offer.buyer, product=offer.product, value=offer.value,
+                         payment_method=offer.payment_method, delivery_method=offer.delivery_method,
+                         address=offer.address, sent_by=offer.buyer, offer_status=offer.offer_status,
+                         delivered=offer.delivered, paid=offer.paid)
+        if offer.buyer == offer.sent_by:
+            userProfile = UserProfile.objects.get(user__id=offer.product.seller.id)
+            newOffer = Offer(buyer=offer.buyer, product=offer.product, value=offer.value, payment_method=offer.payment_method, delivery_method=offer.delivery_method, address=offer.address, sent_by=userProfile, offer_status=offer.offer_status, delivered=offer.delivered, paid=offer.paid)
+        newOffer.save()
+    offer.save()
+    return redirect("/offers/")
+
+#Funções auxiliares
+def valid_purchase(user : UserProfile, offer : Offer):
+    return user.wallet < offer.value and not offer.product.sold
+
+def perform_sale(buyer : UserProfile, seller : UserProfile, offer : Offer):
+    if valid_purchase(buyer, offer):
+        buyer.wallet -= offer.product.price
+        seller.wallet += offer.product.price
         buyer.save()
         seller.save()
         return True
@@ -646,11 +766,26 @@ def getOffersCount(request):
 
 def notifySuccess(offer_id):
     offer = Offer.objects.get(id=offer_id)
+    if (offer.payment_method == "store_credit"):
+        seller = UserProfile.objects.get(user__id=offer.product.seller.id)
+        seller.wallet += offer.value
+        seller.save()
+    offer.product.sold = True
     offer.offer_status = 'accepted'
     offer.save()
 
 def notifyFailed(offer_id):
     offer = Offer.objects.get(id=offer_id)
+    if (offer.payment_method == "store_credit"):
+        offer.buyer.wallet += offer.value
+        offer.buyer.save()
+    newOffer = Offer(buyer=offer.buyer, product=offer.product, value=offer.value,
+                     payment_method=offer.payment_method, delivery_method=offer.delivery_method,
+                     address=offer.address, sent_by=offer.buyer, offer_status=offer.offer_status,
+                     delivered=offer.delivered, paid=offer.paid)
+    if offer.buyer == offer.sent_by:
+        newOffer = Offer(buyer=offer.buyer, product=offer.product, value=offer.value, payment_method=offer.payment_method, delivery_method=offer.delivery_method, address=offer.address, sent_by=offer.product.seller, offer_status=offer.offer_status, delivered=offer.delivered, paid=offer.paid)
+    newOffer.save()
     offer.offer_status = 'rejected'
     offer.save()
 
