@@ -107,6 +107,8 @@ def home(request):
         user_query = form.cleaned_data['user_query']
         teams = form.cleaned_data['teams']
         product_types = form.cleaned_data['product_types']
+        print("OLA")
+        print(product_types)
         min_price = form.cleaned_data['min_price']
         max_price = form.cleaned_data['max_price']
         sort_by = form.cleaned_data['sort_by']
@@ -130,7 +132,7 @@ def home(request):
                 product_ids += Socks.objects.values_list('product_id', flat=True)
             if 'Chuteiras' in product_types:
                 product_ids += Boots.objects.values_list('product_id', flat=True)
-            if not product_ids:
+            if product_ids:
                 products = products.filter(id__in=product_ids)
         if min_price is not None:
             products = products.filter(price__gte=min_price)
@@ -382,6 +384,8 @@ def userlist(request):
 
 def detailedProduct(request, id):
     print(request)
+    print("OLA")
+    print(id)
     product = Product.objects.get(id=id)
     if Jersey.objects.filter(product=product).exists():
         category="camisola"
@@ -394,6 +398,7 @@ def detailedProduct(request, id):
         p=Socks.objects.get(id=id)
     elif Boots.objects.filter(product=product).exists():
         category="chuteiras"
+        p=Boots.objects.get(id=id)
 
 
     user = User.objects.get(id=request.user.id)
