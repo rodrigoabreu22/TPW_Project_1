@@ -16,7 +16,6 @@
                             <th>Payment Method</th>
                             <th>Delivery Method</th>
                             <th>Address</th>
-                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -28,7 +27,6 @@
                             <td>{{ offer.get_payment_method_display }}</td>
                             <td>{{ offer.get_delivery_method_display }}</td>
                             <td>{{ offer.address }}</td>
-                            <td><span class="badge bg-secondary">{{ offer.status }}</span></td>
                             <td>
                                 <!-- Retract Offer -->
                                 <a href="{% url "retractOffer" id=offer.id %}" class="btn btn-sm btn-warning">
@@ -135,23 +133,43 @@
                             <td><a href="{% url 'detailedproduct' id=offer.product.id %}">{{ offer.product.name }}</a></td>
                             <td>{{ offer.value }}</td>
                             <td>{{ offer.address }}</td>
-                            <td><span class="badge bg-success">{{ offer.status }}</span></td>
+                            <td>
+                                {% if user.id == offer.buyer.id and not offer.paid %}
+                                    <span class="badge bg-danger">Pagamento pendente</span>
+                                {% elif user.id == offer.product.seller.id and not offer.delivered %}
+                                    <span class="badge bg-danger">Entrega pendente</span>
+                                {% else %}
+                                    <span class="badge bg-success">Tudo em ordem!</span>
+                                {% endif %}
+                            </td>
                             <td>
                                 {% if user.id == offer.buyer.id %}
                                     <!-- Confirm Receipt (Buyer) -->
-                                    <form action="" method="post">
+                                    <form action="{% url "confirmDelivery" id=offer.id %}" method="post">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-box-open"></i> Confirm Received
-                                        </button>
+                                        {% if offer.delivered %}
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-box-open"></i> Retract Delivery Confirmation
+                                            </button>
+                                        {% else %}
+                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-box-open"></i> Confirm Delivery Received
+                                            </button>
+                                        {% endif %}
                                     </form>
                                 {% elif user.id == offer.product.seller.id %}
                                     <!-- Confirm Payment Received (Seller) -->
-                                    <form action="" method="post">
+                                    <form action="{% url "confirmPayment" id=offer.id %}" method="post">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-money-check-alt"></i> Confirm Payment Received
-                                        </button>
+                                        {% if offer.paid %}
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-money-check-alt"></i> Retract Payment Confirmation
+                                            </button>
+                                        {% else %}
+                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-money-check-alt"></i> Confirm Payment Received
+                                            </button>
+                                        {% endif %}
                                     </form>
                                 {% endif %}
                             </td>
@@ -167,10 +185,10 @@
         {% endif %}
     </div>
 
-    <!-- Rejected Offers Section -->
+    <!-- Processed Offers Section -->
     <div>
-        <h3 class="text-danger">Rejected Offers</h3>
-        {% if offers_rejected %}
+        <h3 class="text-danger">Processed Offers</h3>
+        {% if offers_processed %}
             <div class="table-responsive mt-3">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
@@ -183,15 +201,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for offer in offers_rejected %}
+                        {% for offer in offers_processed %}
                         <tr>
                             <td><a href="{% url 'detailedproduct' id=offer.product.id %}">{{ offer.product.name }}</a></td>
                             <td>{{ offer.value }}</td>
                             <td>{{ offer.address }}</td>
-                            <td><span class="badge bg-danger">{{ offer.status }}</span></td>
+                            {% if offer.offer_status == "rejected" %}
+                                <td><span class="badge bg-danger">{{ offer.offer_status}}</span></td>
+                            {% else %}
+                                <td><span class="badge bg-success">{{ offer.offer_status}}</span></td>
+                            {% endif %}
                             <td>
                                 <!-- Dismiss Rejected Offer -->
-                                <form action="" method="post">
+                                <form action="{% url "retractOffer" id=offer.id %}" method="post">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-sm btn-outline-secondary">
                                         <i class="fas fa-trash"></i> Dismiss

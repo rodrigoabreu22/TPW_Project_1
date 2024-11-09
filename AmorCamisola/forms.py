@@ -131,7 +131,8 @@ class ListingOffer(forms.Form):
         self.fields['payment_method'].initial = 'store_credit'
         self.fields['delivery_method'].initial = 'transfer'
         self.fields['address_choice'].initial = 'profile_address'
-        self.fields['custom_address'].value = userProfile.address
+        if not userProfile is None:
+            self.fields['custom_address'].value = userProfile.address
 
 
 
