@@ -346,7 +346,9 @@ def home(request):
         'selected_teams': teams,
         'selected_types': product_types,
         'favorites_ids': favorites,
-        'profile': user_profile
+        'profile': user_profile,
+        'user': request.user,
+        'offer_count' : getOffersCount(request)
     })
 
 
