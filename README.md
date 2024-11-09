@@ -67,6 +67,7 @@ The project consists of a Django web application with the marketplace concept, d
 - Expand the variaty of products
 - Implement a more profesional deposit/withdrwal method
 - Improve overall aesthetics
+- Product redview after buying
 
 ## Deployment
 Insere aqui o link para a app no pythonanywhere
