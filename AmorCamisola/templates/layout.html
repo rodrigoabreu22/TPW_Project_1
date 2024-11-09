@@ -29,7 +29,7 @@
         <a href="{% url 'publishproduct' %}">Vender Produto</a>
         {% for group in user.groups.all %}
             {% if group.name == 'Moderators' %}
-                <a href="{% url 'moderator_dashboard' %}">Reports</a>
+                <a href="{% url 'moderator_dashboard' %}">Denúncias</a>
             {% endif %}
         {% endfor %}
     </div>

@@ -1,0 +1,63 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Gray Header -->
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <!-- Main Product Image on the Left -->
+        <div class="col-lg-7 mb-4 d-flex flex-column">
+            <img src="{{ product.product.image.url }}" alt="{{ product.product.name }}" class="img-fluid w-100 rounded shadow mb-3">
+            <h1>Denúncias:</h1>
+            {% if reports %}
+                {% for report in reports %}
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header d-flex align-items-center">
+                            <img src="{% if report.image %}/media/{{ report.image.name }}{% else %}{% static 'fonts/imgs/defaultUser.png' %}{% endif %}" alt="{{ report.sent_by.username }}" class="rounded-circle" style="width: 40px; height: 40px; margin-right: 10px;">
+                            <strong>{{ report.sent_by.username }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <p class="font-weight-bold">Razão: 
+                                {% if report.reasons == 'IN' %}
+                                    <span class="badge badge-warning">Conteúdo inapropriado</span>
+                                {% elif report.reasons == 'FR' %}
+                                    <span class="badge badge-warning">Fraude</span>
+                                {% elif report.reasons == 'OT' %}
+                                    <span class="badge badge-warning">Other</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Descrição:</strong> {{ report.description }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>Sem denúncias para este produto.</p>
+            {% endif %}
+        </div>
+    
+        <div class="col-lg-5 d-flex flex-column justify-content-between">
+            <div>
+                <h1 class="h3 text-dark mb-2">{{ product.product.name }} </h1>
+                <p>Categoria: {{ category }}</p>
+                <p>Tamanho: {{ product.size }}</p>
+                <p>Equipa: {{ product.product.team }}</p>
+                <p>Vendedor: <a href="{% url 'profile' username=product.product.seller.username %}">{{ product.product.seller.username }}</a></p>
+                <p>Contactar: </p>
+                <ul>
+                    <li class="text-muted">Telefone: <span class="text-muted">{{ sellerProfile.phone }}</span></li>
+                    <li class="text-muted">Email: <span class="text-muted">{{ product.product.seller.email }}</span></li>
+                </ul>
+                <p class="h4 text-danger fw-bold mb-3">{{ product.product.price }}€</p>
+                
+                <div class="mt-2 p-3 border rounded bg-light shadow-sm">
+                    <h2 class="h5">Descrição</h2>
+                    <p class="text-secondary">{{ product.product.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+

@@ -4,20 +4,20 @@
     
     {% load static %}
 <div class="container my-5">
-    <h1>Moderator Dashboard</h1>
+    <h1>Vista de moderador</h1>
 
     <!-- Toggle Buttons -->
     <div class="btn-group mb-4">
-        <button class="btn btn-primary" id="user-reports-btn">User Reports</button>
-        <button class="btn btn-primary" id="product-reports-btn">Product Reports</button>
+        <button class="btn btn-primary" id="user-reports-btn">Denúncias de usuários</button>
+        <button class="btn btn-primary" id="product-reports-btn">Denúncias de publicações</button>
     </div>
 
     <!-- User Reports Section -->
     <div class="report-section" id="user-reports-section">
-        <h2>User Reports</h2>
+        <h2>Denúncias de usuários</h2>
         {% for report in user_reports %}
             <div class="product-card card shadow-sm h-100 border-0">
-                    <a href="{% url 'profile' username=report.report.reporting.username %}">
+                    <a href="{% url 'user_mod_view' username=report.report.reporting.username %}">
                         <!-- Image Container with slightly larger height and center alignment -->
                         <div class="image-container bg-light rounded-top" style="height: 180px; overflow: hidden;">
                             <img src="{% if report.report.image %}/media/{{ report.report.image.name }}{% else %}{% static 'fonts/imgs/defaultUser.png' %}{% endif %}" alt="{{ report.report.reporting.username }}" class="img-fluid img-thumbnail w-100" style="object-fit: contain;">
@@ -25,37 +25,37 @@
                     </a>
                     <div class="card-body text-center p-2">
                         <h6 class="card-title mb-1 text-truncate">{{ report.report.reporting.username }}</h6>
-                        <p class="small text-muted mb-1"><strong>Number of Reports:</strong><a class="text-decoration-none">{{ report.count }}</a></p>
+                        <p class="small text-muted mb-1"><strong>Número de denúncias:</strong><a class="text-decoration-none">{{ report.count }}</a></p>
                     </div>
                     <div class="card-footer text-center bg-white border-0 p-2">
                         {% if report.report.reporting.is_active == True %}
                         <form method="post" action="{% url 'ban_user' report.report.reporting.id %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">Ban User</button>
+                            <button type="submit" class="btn btn-danger">Banir usuário</button>
                         </form>
                         {% else %}
                         <form method="post" action="{% url 'unban_user' report.report.reporting.id %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-info">Unban User</button>
+                            <button type="submit" class="btn btn-info">Desbanir usuário</button>
                         </form>
                         {% endif %}
                         <form method="post" action="{% url 'close_report' report.report.id %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-secondary">Close Report</button>
+                            <button type="submit" class="btn btn-secondary">Fechar denúncia</button>
                         </form>
                     </div>
             </div>
         {% empty %}
-            <p>No user reports.</p>
+            <p>Sem denúncias de usuários.</p>
         {% endfor %}
     </div>
 
     <!-- Product Reports Section -->
     <div class="report-section" id="product-reports-section" style="display: none;">
-        <h2>Product Reports</h2>
+        <h2>Denúncia de publicações</h2>
         {% for report in product_reports %}
             <div class="product-card card shadow-sm h-100 border-0">
-                    <a href="{% url 'detailedproduct' id=report.report.product.id %}">
+                    <a href="{% url 'product_mod_view' product_id=report.report.product.id %}">
                         <!-- Image Container with slightly larger height and center alignment -->
                         <div class="image-container bg-light rounded-top" style="height: 180px; overflow: hidden;">
                             <img src="{{ report.report.product.image.url }}" alt="{{ report.report.product.name }}" class="img-fluid img-thumbnail w-100" style="object-fit: contain;">
@@ -63,21 +63,17 @@
                     </a>
                     <div class="card-body text-center p-2">
                         <h6 class="card-title mb-1 text-truncate">{{ report.report.product.name }}</h6>
-                        <p class="small text-muted mb-1"><strong>Number of Reports:</strong><a class="text-decoration-none">{{ report.count }}</a></p>
+                        <p class="small text-muted mb-1"><strong>Número de denúncias:</strong><a class="text-decoration-none">{{ report.count }}</a></p>
                     </div>
                     <div class="card-footer text-center bg-white border-0 p-2">
                         <form method="post" action="{% url 'delete_product' product_id=report.report.product.id %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">Delete product</button>
-                        </form>
-                        <form method="post" action="{% url 'close_report' report.report.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-secondary">Close Report</button>
+                            <button type="submit" class="btn btn-danger">Apagar publicação</button>
                         </form>
                     </div>
             </div>
         {% empty %}
-            <p>No product reports.</p>
+            <p>Sem denúncias de publicações.</p>
         {% endfor %}
     </div>
 </div>
