@@ -39,14 +39,14 @@ The project consists of a Django web application with the marketplace concept, d
 - View/edit my profile
 - View other users' profile
 - Follow/unfollow a user
-- Report a user or product publication ❌
+- Report a user or product publication 
 - Log out
 
 
 ### Moderator:
-- Review reports ❌
-- Delete publications ❌
-- Ban users ❌
+- Review reports 
+- Delete publications 
+- Ban users 
 
 
 # User Accounts
