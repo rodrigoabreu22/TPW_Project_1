@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="{% static 'css/pubProduct.css' %}">
     <link rel="stylesheet" href="{% static 'css/user_list.css' %}">
     <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/layout.css' %}"></link>
   </head>
 
   <body>
@@ -36,7 +37,7 @@
     <div class="navbar-right">
             <a href="{% url 'userlist' %}" title="Utilizadores"><i class="fa-solid fa-users"></i></a>
           <a href="{% url 'offers' %}" class="notification-icon" style="position: relative;">
-            {% if request.user.is_authenticated %}
+            {% if user %}
               <i class="fa-regular fa-comments mx-3" style="color: #ffffff; cursor: pointer;" data-toggle="tooltip" title="Ofertas"></i>
                 {% if offer_count > 0 %}
                   <span class="notification-bubble">{{ offer_count }}</span> <!-- Example notification count -->

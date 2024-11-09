@@ -173,7 +173,7 @@ class Socks(models.Model):
 
 class Boots(models.Model):
     product = models.OneToOneField(Product, on_delete=models.CASCADE)
-    size = models.DecimalField(max_digits=50, decimal_places=2, choices=BOOTS_CHOICES)
+    size = models.IntegerField(choices=BOOTS_CHOICES)
 
     def __str__(self):
         return self.product.__str__()

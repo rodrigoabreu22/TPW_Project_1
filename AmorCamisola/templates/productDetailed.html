@@ -87,7 +87,7 @@
                     <li>A oferta deve ter um valor próximo do listado ({{ product.product.price }}€)<br/>
                     <li>Deve contactar o vendedor antes de colocar uma proposta
                     <hr>
-                    <form id="contactSellerForm" method="post" action="{% url 'detailedproduct' id=product.id %}">
+                    <form id="contactSellerForm" method="post" action="{% url 'detailedproduct' id=product.product.id %}">
                         {% csrf_token %}
                         {{ form }}
                     </form>
