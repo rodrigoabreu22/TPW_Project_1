@@ -51,17 +51,6 @@
     </div>
 </div>
 
-<!-- Messages Display -->
-{% if messages %}
-    <div class="container mt-3">
-        {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}
-
 <!-- JavaScript to Toggle Forms -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {

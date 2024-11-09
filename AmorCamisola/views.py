@@ -467,7 +467,7 @@ def viewProfile(request, username):
 
 @login_required(login_url='/login/')  # Redirects to login if not authenticated
 def pubProduct(request):
-    user_profile = User.objects.get(id=request.user.id)
+    user_profile = UserProfile.objects.get(user=request.user)
     if request.method == 'POST':
         form = ProductForm(request.POST,request.FILES)
         print(form.errors)
@@ -573,7 +573,6 @@ def userlist(request):
 
 def detailedProduct(request, id):
     print(request)
-    print("OLA")
     print(id)
     error = ""
     product = Product.objects.get(id=id)
@@ -601,12 +600,6 @@ def detailedProduct(request, id):
         userProfile = None
     if request.method == 'POST' and 'proposta' in request.POST:
         form = ListingOffer(userProfile, product, request.POST, request.FILES)
-        print(form.errors)
-        print(form.cleaned_data['address_choice'])
-        print(form.cleaned_data['value'])
-        print(form.cleaned_data['delivery_method'])
-        print(form.cleaned_data['payment_method'])
-        print(form.cleaned_data['custom_address'])
         if form.is_valid():
             print("valid")
             payment_method = form.cleaned_data['payment_method']
@@ -620,21 +613,17 @@ def detailedProduct(request, id):
                 buyer.wallet -= offer.value
                 buyer.save()
             offer.save()
-            print("saved")
             redirect('/')
     form = ListingOffer(userProfile, product)
 
     if request.user.is_authenticated:
-        print("Aconteceu")
         # Report form handling
         if request.method == 'POST' and 'report_product' in request.POST:
-            print("Report product")
             report_form = ReportForm(request.POST)
 
             report_form.instance.sent_by = request.user
             report_form.instance.product = product
             if report_form.is_valid():
-                print("Valid Report form")
                 report = report_form.save(commit=False)
                 report.save()
                 messages.success(request, 'Produto reportado com sucesso.')
@@ -810,7 +799,6 @@ def deposit_money(request):
         deposit_amount = depositoform.cleaned_data['deposit_amount']
         userinfo.wallet += deposit_amount
         userinfo.save()
-        messages.success(request, "Depósito foi bem-sucedido!")
         return redirect('wallet')  # Redirect back to main wallet page
 
     # If form is invalid, render the page with errors
@@ -828,12 +816,9 @@ def withdraw_money(request):
 
     if request.method == "POST" and levantamentoform.is_valid():
         withdrawal_amount = levantamentoform.cleaned_data['withdrawal_amount']
-        if withdrawal_amount > userinfo.wallet:
-            messages.error(request, "Erro: O valor solicitado excede o saldo da carteira.")
-        else:
+        if withdrawal_amount <= userinfo.wallet:
             userinfo.wallet -= withdrawal_amount
             userinfo.save()
-            messages.success(request, "Levantamento foi bem-sucedido!")
         return redirect('wallet')  # Redirect back to main wallet page
 
     # If form is invalid, render the page with errors
