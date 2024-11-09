@@ -27,6 +27,8 @@ urlpatterns = [
     path('retractOffer/<int:id>/', views.retractOffer, name='retractOffer'),
 
     path('rejectOffer/<int:id>/', views.rejectOffer, name='rejectOffer'),
+    path('confirm_payment/<int:id>/', views.confirmPayment, name='confirmPayment'),
+    path('confirm_received/<int:id>/', views.confirmDelivery, name='confirmDelivery'),
     path('offers/', views.offers, name='offers'),
     path('userlist/', views.userlist, name='userlist'),
     path('wallet/', views.walletLogic, name='wallet'),
