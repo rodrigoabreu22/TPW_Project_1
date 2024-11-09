@@ -55,12 +55,13 @@ def home(request):
     product_types=[]
     favorites=[]
     user_profile=None
-
     if form.is_valid():
         name_query = form.cleaned_data['name_query']
         user_query = form.cleaned_data['user_query']
         teams = form.cleaned_data['teams']
         product_types = form.cleaned_data['product_types']
+        print("Olá")
+        print(product_types)
         min_price = form.cleaned_data['min_price']
         max_price = form.cleaned_data['max_price']
         sort_by = form.cleaned_data['sort_by']
@@ -76,13 +77,13 @@ def home(request):
             products = products.filter(team__in=teams)
         if product_types:
             product_ids = []
-            if 'Jersey' in product_types:
+            if 'Camisola' in product_types:
                 product_ids += Jersey.objects.values_list('product_id', flat=True)
-            if 'Shorts' in product_types:
+            if 'Calções' in product_types:
                 product_ids += Shorts.objects.values_list('product_id', flat=True)
-            if 'Socks' in product_types:
+            if 'Meias' in product_types:
                 product_ids += Socks.objects.values_list('product_id', flat=True)
-            if 'Boots' in product_types:
+            if 'Chuteiras' in product_types:
                 product_ids += Boots.objects.values_list('product_id', flat=True)
             if not product_ids:
                 products = products.filter(id__in=product_ids)
@@ -105,6 +106,7 @@ def home(request):
         elif sort_by == 'seller_desc':
             products = products.order_by('-seller__username')
 
+    print("form nao valido")
     if request.user.is_authenticated:
         favorite_, _ = Favorite.objects.get_or_create(user=request.user)
         favorites = favorite_.products.values_list('id', flat=True)
