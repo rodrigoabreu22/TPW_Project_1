@@ -69,10 +69,12 @@ OFFER_STATUS = (
     ('rejected', 'Rejeitado')
 )
 
+phone_validator = RegexValidator(regex=r'^\d{9}$', message="Phone number must be exactly 9 digits.")
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     address = models.CharField(max_length=50)
-    phone = PhoneNumberField(unique=True, null=False, blank=False)
+    phone = models.CharField(max_length=9,unique=True,null=False,blank=False,validators=[phone_validator])
     image = models.FileField()
     wallet = models.DecimalField(max_digits=50, decimal_places=2, default=0)
 
