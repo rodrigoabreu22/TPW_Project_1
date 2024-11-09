@@ -316,7 +316,7 @@
             
             function toggleDeliveryLocation() {
                 if (addressChoiceField.value === 'profile_address') {
-                    customAddressField.value = "{{ userProfile.address }}";
+                    customAddressField.value = "{{ profile.address }}";
                     customAddressField.disabled = true;
                 } else {
                     customAddressField.disabled = false;
