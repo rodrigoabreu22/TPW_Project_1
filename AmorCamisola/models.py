@@ -112,6 +112,7 @@ class Product(models.Model):
     team = models.CharField(max_length=50, null=True)
     description = models.TextField()
     sold = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name

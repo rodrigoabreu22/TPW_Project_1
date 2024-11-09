@@ -37,20 +37,109 @@ def moderator_required(view_func):
 # Example moderator dashboard view
 @moderator_required
 def moderator_dashboard(request):
-    user_reports = Report.objects.filter(reporting__isnull=False)  # Reports for users
-    product_reports = Report.objects.filter(product__isnull=False)  # Reports for products
+    # Get all reports
+    all_reports = Report.objects.all()
+
+    # Initialize lists for storing unique reports
+    user_reports = []
+    product_reports = []
+
+    # Track counts of reports for each user
+    seen_users = {}
+    for report in all_reports.filter(reporting__isnull=False):
+        reporting_id = report.reporting.id
+        if reporting_id not in seen_users:
+            # Initialize count for new user
+            seen_users[reporting_id] = {'report': report, 'count': 1}
+        else:
+            # Increment count for existing user
+            seen_users[reporting_id]['count'] += 1
+
+    # Track counts of reports for each product
+    seen_products = {}
+    for report in all_reports.filter(product__isnull=False):
+        product_id = report.product.id
+        if product_id not in seen_products:
+            # Initialize count for new product
+            seen_products[product_id] = {'report': report, 'count': 1}
+        else:
+            # Increment count for existing product
+            seen_products[product_id]['count'] += 1
+
+    # Convert dictionaries to lists for the context
+    user_reports = list(seen_users.values())
+    product_reports = list(seen_products.values())
+
     context = {
         'user_reports': user_reports,
         'product_reports': product_reports,
     }
+
     return render(request, 'moderator_dashboard.html', context)
 
 @moderator_required
+def close_report(request, report_id):
+    # Get the report instance
+    report = get_object_or_404(Report, id=report_id)
+    if report:
+        report.delete()
+        # Display a success message
+        messages.success(request, 'Report has been deleted successfully.')
+    else:
+        print("Algo de errado não está certo")
+    # Redirect to the moderator dashboard or another appropriate page
+    return redirect('moderator_dashboard')
+
+
+@moderator_required
 def ban_user(request, user_id):
+    # Retrieve the user and their products
     user = get_object_or_404(User, id=user_id)
-    user.is_active = False  # Disable the user's account
+    user_products = Product.objects.filter(seller=user)
+
+    # Deactivate the user's account
+    user.is_active = False
     user.save()
-    messages.success(request, f"User {user.username} has been banned.")
+
+    for product in user_products:
+        product.is_active = False
+        product.save()
+
+    # Process offers related to the user as a buyer or seller
+    related_offers = Offer.objects.filter(
+        models.Q(buyer=user.userprofile) | models.Q(product__seller=user)
+    )
+
+    for offer in related_offers:
+        if offer.product.seller == user:
+            # Credit the buyer’s wallet for canceled offers where the user is the seller
+            buyer_profile = offer.buyer
+            buyer_profile.wallet += offer.value  # Assuming wallet is a field in UserProfile
+            buyer_profile.save()
+
+        # Delete the offer after processing
+        offer.delete()
+
+    messages.success(request, f"User {user.username} has been banned and associated data processed.")
+    return redirect('moderator_dashboard')
+
+
+@moderator_required
+def unban_user(request, user_id):
+    # Retrieve the user and their products
+    user = get_object_or_404(User, id=user_id)
+    user_products = Product.objects.filter(seller=user)
+
+    # Reactivate the user's account
+    user.is_active = True
+    user.save()
+
+    # Make the user's products accessible again
+    for product in user_products:
+        product.is_active = True
+        product.save()
+
+    messages.success(request, f"User {user.username} has been unbanned and their products are now accessible.")
     return redirect('moderator_dashboard')
 
 @moderator_required
@@ -172,11 +261,15 @@ def home(request):
         else:
             user_profile = UserProfile.objects.get(user=request.user)
 
+    final_products = []
+    for product in products:
+        if product.seller.is_active:
+            final_products.append(product)
 
     return render(request, 'home.html', {
         'form': form,
         'favorite_form': favorite_form,
-        'products': products,
+        'products': final_products,
         'selected_teams': teams,
         'selected_types': product_types,
         'favorites_ids': favorites,
@@ -232,9 +325,13 @@ def myProfile(request):
     return render(request, 'myProfile.html', tparams)
 
 def viewProfile(request, username):
-    favorite_form = FavoriteForm(request.POST or None)
     profile_user = User.objects.get(username=username)
     print("profile user: ",profile_user)
+    # Check if the user is banned
+    is_banned = not profile_user.is_active
+    print(is_banned)
+
+    favorite_form = FavoriteForm(request.POST or None)
 
     following = Following.objects.filter(following_id=profile_user.id)
     followers = Following.objects.filter(followed_id=profile_user.id)
@@ -289,9 +386,9 @@ def viewProfile(request, username):
             if user.username == f.following.username:
                 follows = True
                 print("follows true")
-        tparams = {"user": user,'favorite_form': favorite_form,'favorites_ids': favorites, "profile_user": profile_user, "following": following, "followers": followers, "products": selling, "profile": profile, "follows":follows, "offer_count": getOffersCount(request), "report_form": report_form}
+        tparams = {"is_banned": is_banned,"user": user,'favorite_form': favorite_form,'favorites_ids': favorites, "profile_user": profile_user, "following": following, "followers": followers, "products": selling, "profile": profile, "follows":follows, "offer_count": getOffersCount(request), "report_form": report_form}
     else:
-        tparams = {"profile_user": profile_user, "following": following, "followers": followers,"products": selling, "profile": profile, "offer_count": getOffersCount(request)}
+        tparams = {"is_banned": is_banned,"profile_user": profile_user, "following": following, "followers": followers,"products": selling, "profile": profile, "offer_count": getOffersCount(request)}
 
     return render(request, 'profile.html', tparams)
 
@@ -407,17 +504,17 @@ def detailedProduct(request, id):
     print(id)
     product = Product.objects.get(id=id)
     if Jersey.objects.filter(product=product).exists():
-        category="camisola"
-        p=Jersey.objects.get(id=id)
+        category = "camisola"
+        p = Jersey.objects.get(product=product)
     elif Shorts.objects.filter(product=product).exists():
-        category="calções"
-        p=Shorts.objects.get(id=id)
+        category = "calções"
+        p = Shorts.objects.get(product=product)
     elif Socks.objects.filter(product=product).exists():
-        category="meias"
-        p=Socks.objects.get(id=id)
+        category = "meias"
+        p = Socks.objects.get(product=product)
     elif Boots.objects.filter(product=product).exists():
-        category="chuteiras"
-        p=Boots.objects.get(id=id)
+        category = "chuteiras"
+        p = Boots.objects.get(product=product)
 
 
     user = User.objects.get(id=request.user.id)
