@@ -19,10 +19,13 @@ from django.shortcuts import render
 from django.contrib.auth import views as auth_views
 from django.urls import reverse
 
+def verifyIfAdmin(request):
+    if request.user.is_authenticated and request.user.is_superuser:
+        return True
+    return False
+
 # Define the test function for checking if the user is a moderator
 def is_moderator(user):
-    print("Cucu")
-    print(user.groups.filter(name='Moderators').exists())
     return user.groups.filter(name='Moderators').exists()
 
 # Custom decorator for requiring moderator status
@@ -36,6 +39,8 @@ def moderator_required(view_func):
 # Example moderator dashboard view
 @moderator_required
 def moderator_dashboard(request):
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     # Get all reports
     all_reports = Report.objects.all()
 
@@ -78,6 +83,8 @@ def moderator_dashboard(request):
 
 @moderator_required
 def user_mod_view(request,username):
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     profile_user = User.objects.get(username=username)
     print("profile user: ", profile_user)
 
@@ -98,6 +105,8 @@ def user_mod_view(request,username):
 
 @moderator_required
 def product_mod_view(request, product_id):
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     product = Product.objects.get(id=product_id)
     if Jersey.objects.filter(product=product).exists():
         category = "camisola"
@@ -208,6 +217,8 @@ def delete_product(request, product_id):
 
 @login_required
 def favorite_list(request):
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     favorite_form = FavoriteForm(request.POST or None)
     user_profile = None
     if request.user.is_authenticated:
@@ -257,6 +268,8 @@ class CustomLoginView(auth_views.LoginView):
 
 def home(request):
     print("Test")
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     form = ProductQuery(request.GET or None)
     favorite_form = FavoriteForm(request.POST or None)
     products = Product.objects.all()  # Start with all products
@@ -383,6 +396,8 @@ def createAccount(request):
 
 @login_required(login_url='/login/')  # Redirects to login if not authenticated
 def myProfile(request):
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     user = User.objects.get(id=request.user.id)
     # Get the list of users the current user is following
     following = Following.objects.filter(following=user)
@@ -397,6 +412,8 @@ def myProfile(request):
     return render(request, 'myProfile.html', tparams)
 
 def viewProfile(request, username):
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     profile_user = User.objects.get(username=username)
     print("profile user: ",profile_user)
     # Check if the user is banned
@@ -466,6 +483,8 @@ def viewProfile(request, username):
 
 @login_required(login_url='/login/')  # Redirects to login if not authenticated
 def pubProduct(request):
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     user_profile = UserProfile.objects.get(user=request.user)
     if request.method == 'POST':
         form = ProductForm(request.POST,request.FILES)
@@ -529,6 +548,8 @@ def unfollow_user(request, username):
 
 def userlist(request):
     # Initialize the search form
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     form = SearchUserForm(request.POST or None)
     query = None
     all_users = None
@@ -571,11 +592,8 @@ def userlist(request):
 
 
 def detailedProduct(request, id):
-    print(request)
-    print(request.POST)
-    print("OLA")
-    print(id)
-    print(request.user.id)
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     error = ""
     product = Product.objects.get(id=id)
     report_form = ReportForm()
@@ -647,6 +665,8 @@ def detailedProduct(request, id):
 
 @login_required
 def offers(request, action=None, id=None):
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     user = User.objects.get(id=request.user.id)
     userProfile = UserProfile.objects.get(user__id=request.user.id)
     if not action is None:
@@ -794,6 +814,8 @@ def notifyFailed(offer_id):
 
 @login_required
 def walletLogic(request):
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     userinfo = UserProfile.objects.get(user=request.user)
     depositoform = DepositForm()
     levantamentoform = WithdrawalForm()
@@ -806,6 +828,8 @@ def walletLogic(request):
 
 @login_required
 def deposit_money(request):
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     userinfo = UserProfile.objects.get(user=request.user)
     depositoform = DepositForm(request.POST or None)
 
@@ -825,6 +849,8 @@ def deposit_money(request):
 
 @login_required
 def withdraw_money(request):
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     userinfo = UserProfile.objects.get(user=request.user)
     levantamentoform = WithdrawalForm(request.POST or None)
 
@@ -845,6 +871,8 @@ def withdraw_money(request):
 
 @login_required
 def account(request):
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     image_form = UploadProfilePicture(request.POST)
     user = request.user
     account = UserProfile.objects.get(user=user)
@@ -853,6 +881,8 @@ def account(request):
 
 @login_required
 def accountSettings(request):
+    if verifyIfAdmin(request):
+        return redirect("/admin")
     if request.method == 'GET':
         user = request.user
         account = UserProfile.objects.get(user=user)
