@@ -389,7 +389,7 @@ def myProfile(request):
     # Get the list of users who follow the current user
     followers = Following.objects.filter(followed_id=user.id)
 
-    selling = Product.objects.filter(seller_id=request.user.id)
+    selling = Product.objects.filter(seller_id=request.user.id).exclude(sold=True)
     profile = UserProfile.objects.get(user=request.user)
 
     tparams = {"user" : user, "following" : following, "followers" : followers, "products" : selling, "profile" : profile  }
@@ -408,7 +408,7 @@ def viewProfile(request, username):
     following = Following.objects.filter(following_id=profile_user.id)
     followers = Following.objects.filter(followed_id=profile_user.id)
     print(followers)
-    selling = Product.objects.filter(seller_id=profile_user.id)
+    selling = Product.objects.filter(seller_id=profile_user.id).exclude(sold=True)
     profile = UserProfile.objects.get(user=profile_user)
 
     if request.user.is_authenticated:
@@ -452,7 +452,7 @@ def viewProfile(request, username):
         user = User.objects.get(id=request.user.id)
         if user == profile_user:
             return myProfile(request)
-        follows=False;
+        follows=False
         for f in followers:
             print(user.username, " == ", f.following.username)
             if user.username == f.following.username:
@@ -760,6 +760,9 @@ def getOffersCount(request):
 
 def notifySuccess(offer_id):
     offer = Offer.objects.get(id=offer_id)
+    otherOffers = Offer.objects.filter(product_id=offer.product.id)
+    for otherOffer in otherOffers:
+        otherOffer.offer_status = 'rejected'
     if (offer.payment_method == "store_credit"):
         seller = UserProfile.objects.get(user__id=offer.product.seller.id)
         seller.wallet += offer.value
