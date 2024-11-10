@@ -73,4 +73,19 @@ The project consists of a Django web application with the marketplace concept, d
 ## Deployment
 Insere aqui o link para a app no pythonanywhere
 
+## How to add a Moderator
+Pre-requisites:
+- We must have an admin;
+- We must have a user.
+
+How to associate a user to the moderator role:
+- Go into admin site (/admin)
+- Go to the users and click on the user you want to be a moderator
+- Give the Moderators Group to the user (by double-clicking for example)
+- Save the user
+
+How to test it:
+- Login into the user account
+- And if it works, the navbar of that user now have "Denúncias"
+
 ## How to run it locally
