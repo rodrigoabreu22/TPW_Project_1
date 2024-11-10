@@ -720,7 +720,8 @@ def confirmPayment(request, id):
                          address=offer.address, sent_by=offer.buyer, offer_status=offer.offer_status,
                          delivered=offer.delivered, paid=offer.paid)
         if offer.buyer == offer.sent_by:
-            newOffer = Offer(buyer=offer.buyer, product=offer.product, value=offer.value, payment_method=offer.payment_method, delivery_method=offer.delivery_method, address=offer.address, sent_by=offer.product.seller, offer_status=offer.offer_status, delivered=offer.delivered, paid=offer.paid)
+            userProfile = UserProfile.objects.get(user__id=offer.product.seller.id)
+            newOffer = Offer(buyer=offer.buyer, product=offer.product, value=offer.value, payment_method=offer.payment_method, delivery_method=offer.delivery_method, address=offer.address, sent_by=userProfile, offer_status=offer.offer_status, delivered=offer.delivered, paid=offer.paid)
         newOffer.save()
     return redirect("/offers/")
 
