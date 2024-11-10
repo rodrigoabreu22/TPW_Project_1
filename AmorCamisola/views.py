@@ -763,6 +763,10 @@ def notifySuccess(offer_id):
     otherOffers = Offer.objects.filter(product_id=offer.product.id)
     for otherOffer in otherOffers:
         otherOffer.offer_status = 'rejected'
+        if (otherOffer.payment_method == "store_credit"):
+            otherOffer.buyer.wallet += offer.value
+            otherOffer.buyer.save()
+        otherOffer.save()
     if (offer.payment_method == "store_credit"):
         seller = UserProfile.objects.get(user__id=offer.product.seller.id)
         seller.wallet += offer.value
