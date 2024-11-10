@@ -116,6 +116,7 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
 class ReportOptions(models.TextChoices):
     INAPPROPRIATE = 'IN', 'Inappropriate Content'
     FRAUD = 'FR', 'Fraud'
