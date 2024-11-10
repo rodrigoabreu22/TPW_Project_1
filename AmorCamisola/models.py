@@ -106,7 +106,6 @@ class Moderator(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=50)
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
-    # compra = models.ForeignKey(Purchase) isto seria caso tenhamos historico de compras
     image = models.ImageField(upload_to='produtos/')
     price = models.DecimalField(max_digits=50, decimal_places=2)
     team = models.CharField(max_length=50, null=True)
@@ -116,6 +115,7 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
 class ReportOptions(models.TextChoices):
     INAPPROPRIATE = 'IN', 'Inappropriate Content'
     FRAUD = 'FR', 'Fraud'
@@ -190,27 +190,4 @@ class Offer(models.Model):
     offer_status = models.CharField(max_length=50, choices=OFFER_STATUS, default='in_progress')
     delivered = models.BooleanField(default=False)
     paid = models.BooleanField(default=False)
-
-
-"""Deixar para o fim!!!
-class Purchase(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    buyer = models.ForeignKey(User, related_name='buyer', on_delete=models.CASCADE, primary_key=True)
-    seller = models.ForeignKey(User, related_name='seller', on_delete=models.CASCADE, primary_key=True)
-    products = models.ManyToOneField(Produto)
-
-
-   def __str__(self):
-        return self.buyer.username + " made a purchase with id " + self.id 
-
-class PurchaseItem(models.Model):
-    purchase_id = models.ForeignKey(Purchase, related_name='purchase', on_delete=models.CASCADE, primary_key=True)
-    product_id = models.ForeignKey(Product, related_name='product', on_delete=models.CASCADE, primary_key=True)
-    quantity = models.PositiveIntegerField()
-
-    def __str__(self):
-        return purchase_id.id + ' contains product with id ' + product_id.nome
-"""
-
-
 
