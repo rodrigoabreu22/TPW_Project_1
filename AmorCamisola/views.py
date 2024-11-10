@@ -9,7 +9,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import render, redirect, get_object_or_404
 
-from django.db.models import Count
+from django.db.models import Count, Case, When
 
 from django.contrib import messages
 
@@ -266,6 +266,12 @@ class CustomLoginView(auth_views.LoginView):
         # Proceed with default invalid form handling
         return super().form_invalid(form)
 
+
+SIZE_ORDER = {'XS': 0, 'S': 1, 'M': 2, 'L': 3, 'XL': 4}
+
+def get_size_order(size):
+    return SIZE_ORDER.get(size, -1)
+
 def home(request):
     print("Test")
     if verifyIfAdmin(request):
@@ -288,7 +294,8 @@ def home(request):
         max_price = form.cleaned_data['max_price']
         sort_by = form.cleaned_data['sort_by']
 
-
+        # Define custom order for categorical sizes
+        SIZE_ORDER = {'XS': 0, 'S': 1, 'M': 2, 'L': 3, 'XL': 4}
 
         # Filtering logic
         if name_query:
@@ -307,8 +314,7 @@ def home(request):
                 product_ids += Socks.objects.values_list('product_id', flat=True)
             if 'Chuteiras' in product_types:
                 product_ids += Boots.objects.values_list('product_id', flat=True)
-            if product_ids:
-                products = products.filter(id__in=product_ids)
+            products = products.filter(id__in=product_ids)
         if min_price is not None:
             products = products.filter(price__gte=min_price)
         if max_price is not None:
@@ -327,6 +333,31 @@ def home(request):
             products = products.order_by('seller__username')
         elif sort_by == 'seller_desc':
             products = products.order_by('-seller__username')
+        elif sort_by in ['size_asc', 'size_desc']:
+            # Create a list of products with associated sizes
+            product_size_map = []
+            for product in products:
+                if hasattr(product, 'jersey') and product.jersey.size:
+                    size = SIZE_ORDER.get(product.jersey.size, -1)
+                elif hasattr(product, 'shorts') and product.shorts.size:
+                    size = SIZE_ORDER.get(product.shorts.size, -1)
+                elif hasattr(product, 'socks') and product.socks.size:
+                    size = SIZE_ORDER.get(product.socks.size, -1)
+                elif hasattr(product, 'boots') and product.boots.size:
+                    size = product.boots.size
+                else:
+                    size = -1  # Default if size not found
+
+                product_size_map.append((product.id, size))
+
+            # Sort based on size
+            reverse = sort_by == 'size_desc'
+            product_size_map.sort(key=lambda x: x[1], reverse=reverse)
+
+            # Extract ordered IDs and fetch products in this order
+            ordered_ids = [prod_id for prod_id, _ in product_size_map]
+            preserved_order = Case(*[When(id=pk, then=pos) for pos, pk in enumerate(ordered_ids)])
+            products = Product.objects.filter(id__in=ordered_ids).order_by(preserved_order)
 
 
     if request.user.is_authenticated:
@@ -597,16 +628,22 @@ def detailedProduct(request, id):
     error = ""
     product = Product.objects.get(id=id)
     report_form = ReportForm()
+    print("product")
+    print(product)
     if Jersey.objects.filter(product=product).exists():
+        print("Cami")
         category = "camisola"
         p = Jersey.objects.get(product=product)
     elif Shorts.objects.filter(product=product).exists():
+        print("Shor")
         category = "calções"
         p = Shorts.objects.get(product=product)
     elif Socks.objects.filter(product=product).exists():
+        print("Mei")
         category = "meias"
         p = Socks.objects.get(product=product)
     elif Boots.objects.filter(product=product).exists():
+        print("Chut")
         category = "chuteiras"
         p = Boots.objects.get(product=product)
 
