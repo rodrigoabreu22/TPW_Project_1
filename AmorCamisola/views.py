@@ -334,15 +334,12 @@ def home(request):
         else:
             user_profile = UserProfile.objects.get(user=request.user)
 
-    final_products = []
-    for product in products:
-        if product.seller.is_active:
-            final_products.append(product)
+    products.filter(seller__is_active=True).exclude(sold=True)
 
     return render(request, 'home.html', {
         'form': form,
         'favorite_form': favorite_form,
-        'products': final_products,
+        'products': products,
         'selected_teams': teams,
         'selected_types': product_types,
         'favorites_ids': favorites,
@@ -768,6 +765,7 @@ def notifySuccess(offer_id):
         seller.wallet += offer.value
         seller.save()
     offer.product.sold = True
+    offer.product.save()
     offer.offer_status = 'accepted'
     offer.save()
 
