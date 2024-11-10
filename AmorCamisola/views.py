@@ -578,6 +578,7 @@ def detailedProduct(request, id):
     print(request.POST)
     print("OLA")
     print(id)
+    print(request.user.id)
     error = ""
     product = Product.objects.get(id=id)
     report_form = ReportForm()
@@ -598,6 +599,7 @@ def detailedProduct(request, id):
     sellerProfile = UserProfile.objects.get(user = product.seller)
     try:
         user = User.objects.get(id=request.user.id)
+        print(user)
         userProfile = UserProfile.objects.get(user__id=request.user.id)
     except User.DoesNotExist or UserProfile.DoesNotExist:
         user = None
