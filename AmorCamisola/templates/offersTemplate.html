@@ -150,7 +150,7 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if user.id == offer.buyer.id %}
+                                {% if user.id == offer.buyer.user.id %}
                                     <!-- Confirm Receipt (Buyer) -->
                                     <form action="{% url "confirmDelivery" id=offer.id %}" method="post">
                                         {% csrf_token %}
