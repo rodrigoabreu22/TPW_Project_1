@@ -1,18 +1,55 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from pkg_resources import require
 
 from AmorCamisola.models import *
-from phonenumber_field.formfields import PhoneNumberField
 
 
 class CreateAccountForm(UserCreationForm):
-    email = forms.EmailField(label='Email', required=True)
-    first_name = forms.CharField(label='First Name', max_length=30, required=True)
-    last_name = forms.CharField(label='Last Name', max_length=30, required=True)
-    address = forms.CharField(label='Address', max_length=50)
-    phone = forms.CharField(label='Phone', required=True, widget=forms.TextInput(attrs={'placeholder': 'Ex: 987654321'}))
-
+    email = forms.EmailField(
+        label='Email',
+        required=True,
+        error_messages={
+            'required': 'O campo \'email\' tem de ser preenchido.',
+            'invalid': 'Insira um endereço de email válido',
+        }
+    )
+    first_name = forms.CharField(
+        label='First Name',
+        max_length=30,
+        required=True,
+        error_messages={
+            'required': 'O campo \'Nome\' tem de ser preenchido.',
+            'max_length': 'O nome não pode exceder 30 caracteres.',
+        }
+    )
+    last_name = forms.CharField(
+        label='Last Name',
+        max_length=30,
+        required=True,
+        error_messages={
+            'required': 'O campo \'Apelido\' tem de ser preenchido.',
+            'max_length': 'O apelido não pode exceder 30 caracteres.',
+        }
+    )
+    address = forms.CharField(
+        label='Address',
+        max_length=50,
+        required=True,
+        error_messages={
+            'max_length': 'A morada não pode exceder 50 caracteres.',
+            'required': 'O campo \'Morada\' tem de ser preenchido.',
+        }
+    )
+    phone = forms.CharField(
+        label='Phone',
+        required=True,
+        validators=[RegexValidator(regex=r'^\d{9}$')],
+        widget=forms.TextInput(attrs={'placeholder': 'Ex: 9876543210'}),
+        error_messages={
+            'required': 'O campo \'Telefone\' tem de ser preenchido.',
+            'invalid': 'Insira um número de telefone válido (9 dígitos)',
+        }
+    )
 
     class Meta:
         model = User
@@ -56,7 +93,7 @@ class UpdateUser(forms.Form):
 
 class UpdateProfile(forms.Form):
     address = forms.CharField(label='Address', max_length=50)
-    phone = PhoneNumberField(label='Phone', required=True)
+    phone = forms.CharField(label='Phone', required=True)
 
 class ProductForm(forms.Form):
     CATEGORIES= [
