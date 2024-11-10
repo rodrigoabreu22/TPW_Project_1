@@ -334,7 +334,7 @@ def home(request):
         else:
             user_profile = UserProfile.objects.get(user=request.user)
 
-    products.filter(seller__is_active=True).exclude(sold=True)
+    products = products.filter(seller__is_active=True).exclude(sold=True)
 
     return render(request, 'home.html', {
         'form': form,
