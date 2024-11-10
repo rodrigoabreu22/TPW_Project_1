@@ -575,6 +575,7 @@ def userlist(request):
 
 def detailedProduct(request, id):
     print(request)
+    print(request.POST)
     print("OLA")
     print(id)
     error = ""
