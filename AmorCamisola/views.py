@@ -760,7 +760,7 @@ def getOffersCount(request):
 
 def notifySuccess(offer_id):
     offer = Offer.objects.get(id=offer_id)
-    otherOffers = Offer.objects.filter(product_id=offer.product.id)
+    otherOffers = Offer.objects.filter(product_id=offer.product.id).exclude(id=offer.id)
     for otherOffer in otherOffers:
         otherOffer.offer_status = 'rejected'
         if (otherOffer.payment_method == "store_credit"):

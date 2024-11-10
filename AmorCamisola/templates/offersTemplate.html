@@ -75,7 +75,7 @@
                                 <div class="btn-group" role="group">
                                     <form action="{% url 'acceptOffer' id=offer.id %}" method="post">
                                         {% csrf_token %}
-                                        {% if offer.buyer.id == user.id and offer.value > profile.wallet and offer.payment_method == 'store_credit' %}
+                                        {% if offer.buyer.user.id == user.id and offer.value > profile.wallet and offer.payment_method == 'store_credit' %}
                                             <button disabled type="submit" class="btn btn-sm btn-warning">
                                                 <i class="fas fa-check"></i> Saldo Insuficiente
                                             </button>
@@ -141,7 +141,7 @@
                             <td>{{ offer.value }}</td>
                             <td>{{ offer.address }}</td>
                             <td>
-                                {% if user.id == offer.buyer.id and not offer.paid %}
+                                {% if user.id == offer.buyer.user.id and not offer.paid %}
                                     <span class="badge bg-danger">Pagamento pendente</span>
                                 {% elif user.id == offer.product.seller.id and not offer.delivered %}
                                     <span class="badge bg-danger">Entrega pendente</span>
