@@ -68,6 +68,7 @@ The project consists of a Django web application with the marketplace concept, d
 - Implement a more profesional deposit/withdrawal method
 - Improve overall aesthetics
 - Product review after buying
+- Reviews and ratings for users
 
 ## Deployment
 Insere aqui o link para a app no pythonanywhere
