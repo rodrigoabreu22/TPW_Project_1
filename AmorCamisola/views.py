@@ -77,6 +77,8 @@ def moderator_dashboard(request):
     context = {
         'user_reports': user_reports,
         'product_reports': product_reports,
+        'offer_count': getOffersCount(request),
+        'profile': UserProfile.objects.get(user=request.user)
     }
 
     return render(request, 'moderator_dashboard.html', context)
@@ -97,7 +99,8 @@ def user_mod_view(request,username):
     reports = Report.objects.filter(reporting=profile_user)
 
     tparams = {"profile_user": profile_user, "following": following, "followers": followers, "products": selling,
-               "profile": profile, "offer_count": getOffersCount(request), "reports": reports}
+               "offer_count": getOffersCount(request), "reports": reports,
+        'profile': UserProfile.objects.get(user=request.user)}
 
     return render(request, 'profile_moderatorview.html', tparams)
 
@@ -244,7 +247,8 @@ def favorite_list(request):
         'favorite_form': favorite_form,
         'favorites_ids': favorites,
         'products': products,
-        'profile': user_profile
+        'profile': user_profile,
+        'offer_count': getOffersCount(request),
     })
 
 
@@ -422,7 +426,7 @@ def createAccount(request):
 
     else:
         form = CreateAccountForm()
-    return render(request, 'createAccount.html', {'form': form, 'error': False})
+    return render(request, 'createAccount.html', {'form': form, 'error': False, 'offer_count' : getOffersCount(request),})
 
 @login_required(login_url='/login/')  # Redirects to login if not authenticated
 def myProfile(request):
@@ -437,7 +441,7 @@ def myProfile(request):
     selling = Product.objects.filter(seller_id=request.user.id).exclude(sold=True)
     profile = UserProfile.objects.get(user=request.user)
 
-    tparams = {"user" : user, "following" : following, "followers" : followers, "products" : selling, "profile" : profile  }
+    tparams = {"user" : user, "following" : following, "followers" : followers, "products" : selling, "profile" : profile, 'offer_count' : getOffersCount(request)  }
 
     return render(request, 'myProfile.html', tparams)
 
@@ -445,7 +449,6 @@ def viewProfile(request, username):
     if verifyIfAdmin(request):
         return redirect("/admin")
     profile_user = User.objects.get(username=username)
-    print("profile user: ",profile_user)
     # Check if the user is banned
     is_banned = not profile_user.is_active
     print(is_banned)
@@ -505,9 +508,9 @@ def viewProfile(request, username):
             if user.username == f.following.username:
                 follows = True
                 print("follows true")
-        tparams = {"is_banned": is_banned,"user": user,'favorite_form': favorite_form,'favorites_ids': favorites, "profile_user": profile_user, "following": following, "followers": followers, "products": selling, "profile": profile, "follows":follows, "offer_count": getOffersCount(request), "report_form": report_form}
+        tparams = {"is_banned": is_banned,"user": user,'favorite_form': favorite_form,'favorites_ids': favorites, "profile_user": profile_user, "following": following, "followers": followers, "products": selling, 'profile': UserProfile.objects.get(user=request.user), "view_profile":profile, "follows":follows, "offer_count": getOffersCount(request), "report_form": report_form}
     else:
-        tparams = {"is_banned": is_banned,"profile_user": profile_user, "following": following, "followers": followers,"products": selling, "profile": profile, "offer_count": getOffersCount(request)}
+        tparams = {"is_banned": is_banned,"profile_user": profile_user, "following": following, "followers": followers,"products": selling, 'profile': UserProfile.objects.get(user=request.user),"view_profile":profile, "offer_count": getOffersCount(request)}
 
     return render(request, 'profile.html', tparams)
 
@@ -860,6 +863,7 @@ def walletLogic(request):
         'depositoform': depositoform,
         'levantamentoform': levantamentoform,
         'profile': userinfo,
+        'offer_count': getOffersCount(request)
     })
 
 @login_required
@@ -881,6 +885,7 @@ def deposit_money(request):
         'depositoform': depositoform,
         'levantamentoform': levantamentoform,
         'profile': userinfo,
+        'offer_count': getOffersCount(request)
     })
 
 @login_required
@@ -903,6 +908,7 @@ def withdraw_money(request):
         'depositoform': depositoform,
         'levantamentoform': levantamentoform,
         'profile': userinfo,
+        'offer_count': getOffersCount(request)
     })
 
 @login_required
@@ -913,7 +919,7 @@ def account(request):
     user = request.user
     account = UserProfile.objects.get(user=user)
 
-    return render(request, 'account.html', {'user':user, 'account': account})
+    return render(request, 'account.html', {'user':user, 'account': account,'offer_count' : getOffersCount(request),'profile': UserProfile.objects.get(user=request.user)})
 
 @login_required
 def accountSettings(request):
@@ -927,7 +933,7 @@ def accountSettings(request):
         profile_form = UpdateProfile(initial={'address':account.address, 'phone':account.phone})
         password_form = UpdatePassword()
         return render(request, 'account.html', {'user': user, 'profile':account,'image_form': image_form, 'user_form': user_form,
-                                                         'profile_form': profile_form, 'password_form': password_form})
+                                                         'profile_form': profile_form, 'password_form': password_form,'offer_count' : getOffersCount(request)})
     elif request.method == 'POST':
         if 'image' in request.FILES:
             user=request.user
@@ -944,7 +950,7 @@ def accountSettings(request):
                 else:
                     image_form = UploadProfilePicture()
                     print(image_form.errors)
-                    return render(request, 'account.html', {'user': user, 'profile':account, 'image_form': image_form})
+                    return render(request, 'account.html', {'user': user,'offer_count' : getOffersCount(request), 'profile':account, 'image_form': image_form})
 
         elif  'profile_change' in request.POST:
             # get the form info
@@ -986,20 +992,20 @@ def accountSettings(request):
                                                                      'image_form': image_form,
                                                                      'profile_form': profile_form,
                                                                      'user_form': user_form,
-                                                                     'success': 'Password changed successfully!'})
+                                                                     'success': 'Password changed successfully!','offer_count' : getOffersCount(request)})
                 else:
                     print('Passwords do not match!')
                     return render(request, 'account.html', {'user': user, 'profile':account, 'password_form': password_form,
                                                                      'image_form': image_form,
                                                                      'profile_form': profile_form,
                                                                      'user_form': user_form,
-                                                                     'error': 'Passwords do not match!'})
+                                                                     'error': 'Passwords do not match!','offer_count' : getOffersCount(request)})
 
             else:
                 return render(request, 'account.html', {'user': user, 'profile':account, 'password_form': password_form,
                                                                  'image_form': image_form,
                                                                  'profile_form': profile_form,
                                                                  'user_form': user_form,
-                                                                 'error': 'Invalid form!'})
+                                                                 'error': 'Invalid form!','offer_count' : getOffersCount(request)})
 
 
