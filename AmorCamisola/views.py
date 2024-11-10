@@ -755,7 +755,7 @@ def perform_sale(buyer : UserProfile, seller : UserProfile, offer : Offer):
 
 def getOffersCount(request):
     if request.user.is_authenticated:
-        receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer_id=request.user.id)
+        receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer__user_id=request.user.id)
         receivedOffersFiltered = receivedOffers.exclude(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
         return receivedOffersFiltered.count()
     return 0
