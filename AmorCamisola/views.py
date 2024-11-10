@@ -366,7 +366,6 @@ def home(request):
 def createAccount(request):
     if request.method == 'POST':
         form = CreateAccountForm(request.POST)
-        print(form.errors)
 
         if form.is_valid():
             username = form.cleaned_data['username']
