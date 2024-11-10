@@ -95,21 +95,31 @@ class UpdateProfile(forms.Form):
     address = forms.CharField(label='Address', max_length=50)
     phone = forms.CharField(label='Phone', required=True)
 
+
 class ProductForm(forms.Form):
-    CATEGORIES= [
+    CATEGORIES = [
         ('1', 'Camisola'),
         ('2', 'Calções'),
         ('3', 'Meias'),
         ('4', 'Chuteira'),
     ]
 
-    name = forms.CharField(label='Nome', max_length=255, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    description = forms.CharField(label='Descrição', required=True, widget=forms.Textarea(attrs={'class': 'form-control'}))
-    price = forms.DecimalField(label='Preço', required=True, widget=forms.NumberInput(attrs={'class': 'form-control'}))
-    team = forms.CharField(label='Equipa', max_length=255, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    category = forms.ChoiceField(label='Categoria', choices=CATEGORIES, required=True, widget=forms.Select(attrs={'class': 'form-control'}))
-    image = forms.ImageField(label='Imagem do Produto', required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'}))
-    size = forms.CharField(label='Tamanho', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    # Defina todas as opções de tamanho possíveis, independentemente da categoria
+    SIZE_CHOICES = [
+        ('XS', 'XS'), ('S', 'S'), ('M', 'M'), ('L', 'L'), ('XL', 'XL'), ('XXL', 'XXL'),
+        ('30', '30'), ('31', '31'), ('32', '32'), ('33', '33'), ('34', '34'), ('35', '35'),
+        ('36', '36'), ('37', '37'), ('38', '38'), ('39', '39'), ('40', '40'), ('41', '41'),
+        ('42', '42'), ('43', '43'), ('44', '44'), ('45', '45'), ('46', '46'), ('47', '47'), ('48', '48')
+    ]
+
+    name = forms.CharField(label='Nome', max_length=255, required=True)
+    description = forms.CharField(label='Descrição', required=True, widget=forms.Textarea)
+    price = forms.DecimalField(label='Preço', required=True)
+    team = forms.CharField(label='Equipa', max_length=255, required=False)
+    category = forms.ChoiceField(label='Categoria', choices=CATEGORIES, required=True)
+    size = forms.ChoiceField(label='Tamanho', choices=SIZE_CHOICES, required=True)
+    image = forms.ImageField(label='Imagem do Produto', required=True)
+
 
 class ListingOffer(forms.Form):
     PAYMENT_METHOD_CHOICES = [

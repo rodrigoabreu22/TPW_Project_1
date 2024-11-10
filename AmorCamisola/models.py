@@ -1,4 +1,3 @@
-import uuid
 from django.contrib.auth.models import User
 from django.db import models
 from django.core.validators import RegexValidator
@@ -27,29 +26,25 @@ ReportOptions = (
 )
 
 BOOTS_CHOICES = (
+    (30, 30),
+    (31, 31),
+    (32, 32),
+    (33, 33),
+    (34, 34),
+    (35, 35),
     (36, 36),
-    (36.5, 36.5),
     (37, 37),
-    (37.5, 37.5),
     (38, 38),
-    (38.5, 38.5),
     (39, 39),
-    (39.5, 39.5),
     (40, 40),
-    (40.5, 40.5),
     (41, 41),
-    (41.5, 41.5),
     (42, 42),
-    (42.5, 42.5),
     (43, 43),
-    (43.5, 43.5),
     (44, 44),
-    (44.5, 44.5),
     (45, 45),
-    (45.5, 45.5),
     (46, 46),
-    (46.5, 46.5),
-    (47, 47)
+    (47, 47),
+    (48, 48)
 )
 
 PAYMENT_METHOD_CHOICES = (

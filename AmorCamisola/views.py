@@ -1,7 +1,3 @@
-from datetime import datetime
-from itertools import product, count
-from django.http import JsonResponse
-
 from AmorCamisola.forms import *
 from AmorCamisola.models import *
 from django.contrib.auth.models import Group
@@ -523,7 +519,9 @@ def pubProduct(request):
         form = ProductForm(request.POST,request.FILES)
         print(form.errors)
         if form.is_valid():
+            print("form is valid")
             if request.user.is_authenticated:
+                print("is authenticated")
                 name = form.cleaned_data['name']
                 description = form.cleaned_data['description']
                 price = form.cleaned_data['price']
@@ -555,7 +553,7 @@ def pubProduct(request):
                     except ValueError:
                         return render(request, 'publishProduct.html', {'form': form, 'error': True, "offer_count": getOffersCount(request), "profile": user_profile})
 
-                    if size in [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]:
+                    if size in [30,31,32,33,34,35,36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,48]:
                         boots = Boots(product=product, size=size)
                         boots.save()
 
