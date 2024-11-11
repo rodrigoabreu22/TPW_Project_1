@@ -294,9 +294,6 @@ def home(request):
         max_price = form.cleaned_data['max_price']
         sort_by = form.cleaned_data['sort_by']
 
-        # Define custom order for categorical sizes
-        SIZE_ORDER = {'XS': 0, 'S': 1, 'M': 2, 'L': 3, 'XL': 4}
-
         # Filtering logic
         if name_query:
             products = products.filter(name__icontains=name_query)
@@ -333,31 +330,6 @@ def home(request):
             products = products.order_by('seller__username')
         elif sort_by == 'seller_desc':
             products = products.order_by('-seller__username')
-        elif sort_by in ['size_asc', 'size_desc']:
-            # Create a list of products with associated sizes
-            product_size_map = []
-            for product in products:
-                if hasattr(product, 'jersey') and product.jersey.size:
-                    size = SIZE_ORDER.get(product.jersey.size, -1)
-                elif hasattr(product, 'shorts') and product.shorts.size:
-                    size = SIZE_ORDER.get(product.shorts.size, -1)
-                elif hasattr(product, 'socks') and product.socks.size:
-                    size = SIZE_ORDER.get(product.socks.size, -1)
-                elif hasattr(product, 'boots') and product.boots.size:
-                    size = product.boots.size
-                else:
-                    size = -1  # Default if size not found
-
-                product_size_map.append((product.id, size))
-
-            # Sort based on size
-            reverse = sort_by == 'size_desc'
-            product_size_map.sort(key=lambda x: x[1], reverse=reverse)
-
-            # Extract ordered IDs and fetch products in this order
-            ordered_ids = [prod_id for prod_id, _ in product_size_map]
-            preserved_order = Case(*[When(id=pk, then=pos) for pos, pk in enumerate(ordered_ids)])
-            products = Product.objects.filter(id__in=ordered_ids).order_by(preserved_order)
 
 
     if request.user.is_authenticated:

@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'AmorCamisola.apps.AmorcamisolaConfig',
-    'phonenumber_field',
 ]
 
 MIDDLEWARE = [

@@ -231,8 +231,6 @@ class ProductQuery(forms.Form):
         ('name_desc', 'Nome (Z a A)'),
         ('seller_asc', 'Vendedor (A a Z)'),
         ('seller_desc', 'Vendedor (Z a A)'),
-        ('size_asc', 'Size (Menor a Maior)'),
-        ('size_desc', 'Size (Maior a Menor)'),
     ]
     sort_by = forms.ChoiceField(
         choices=SORT_CHOICES,
