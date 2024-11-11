@@ -53,15 +53,15 @@ The project consists of a Django web application with the marketplace concept, d
 
 ### Moderator
 | Usename | Password |
-|:---|:---:|
-| cr7 | cr7goat7 |
+|:--------|:--------:|
+| admin   |  admin   |
 
 ### Users 
-| Usename | Password |
-|:---|:---:|
-| manel  | cr7goat7 |
-| tony   | cr7goat7 |
-| martim | cr7goat7 |
+| Usename |  Password   |
+|:---|:-----------:|
+| manel  | password123 |
+| tony   | password123 |
+| martim | password123 |
 
 ## Features that we would like to implement:
 - Expand the variaty of products
@@ -88,3 +88,18 @@ How to test it:
 - And if it works, the navbar of that user now have "Denúncias"
 
 ## How to run it locally
+
+If you have this files remove them:
+
+    db.sqlite3
+    migrations/<any file that is not __init__.py>
+
+Commands to run the code:
+```bash
+    python3 manage.py makemigrations
+    python3 manage.py migrate
+    python3 insertData.py
+    python3 manage.py runserver
+```
+
+
