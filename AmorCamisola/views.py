@@ -60,11 +60,13 @@ def moderator_dashboard(request):
     user_reports = list(seen_users.values())
     product_reports = list(seen_products.values())
 
+    logged = UserProfile.objects.get(user=request.user)
+
     context = {
         'user_reports': user_reports,
         'product_reports': product_reports,
         'offer_count': getOffersCount(request),
-        'profile': UserProfile.objects.get(user=request.user)
+        'profile': logged
     }
 
     return render(request, 'moderator_dashboard.html', context)
@@ -83,9 +85,11 @@ def user_mod_view(request,username):
 
     reports = Report.objects.filter(reporting=profile_user)
 
+    logged= UserProfile.objects.get(user=request.user)
+
     tparams = {"profile_user": profile_user, "following": following, "followers": followers, "products": selling,
                "offer_count": getOffersCount(request), "reports": reports,
-        'profile': UserProfile.objects.get(user=request.user)}
+        'profile': logged}
 
     return render(request, 'profile_moderatorview.html', tparams)
 
@@ -443,9 +447,11 @@ def viewProfile(request, username):
             if user.username == f.following.username:
                 follows = True
                 print("follows true")
-        tparams = {"is_banned": is_banned,"user": user,'favorite_form': favorite_form,'favorites_ids': favorites, "profile_user": profile_user, "following": following, "followers": followers, "products": selling, 'profile': UserProfile.objects.get(user=request.user), "view_profile":profile, "follows":follows, "offer_count": getOffersCount(request), "report_form": report_form}
+
+        logged = UserProfile.objects.get(user=request.user)
+        tparams = {"is_banned": is_banned,"user": user,'favorite_form': favorite_form,'favorites_ids': favorites, "profile_user": profile_user, "following": following, "followers": followers, "products": selling, 'profile': logged, "view_profile":profile, "follows":follows, "offer_count": getOffersCount(request), "report_form": report_form}
     else:
-        tparams = {"is_banned": is_banned,"profile_user": profile_user, "following": following, "followers": followers,"products": selling, 'profile': UserProfile.objects.get(user=request.user),"view_profile":profile, "offer_count": getOffersCount(request)}
+        tparams = {"is_banned": is_banned,"profile_user": profile_user, "following": following, "followers": followers,"products": selling,"view_profile":profile, "offer_count": getOffersCount(request)}
 
     return render(request, 'profile.html', tparams)
 
