@@ -64,7 +64,6 @@ class CreateAccountForm(UserCreationForm):
             user.email = self.cleaned_data['email']
             user.first_name = self.cleaned_data['first_name']
             user.last_name = self.cleaned_data['last_name']
-            # Save additional fields in UserProfile
             UserProfile.objects.create(
                 user=user,
                 address=self.cleaned_data['address'],
@@ -186,7 +185,6 @@ class ProductQuery(forms.Form):
     name_query = forms.CharField(label='Search product name', max_length=50, required=False)
     user_query = forms.CharField(label='Search seller', max_length=50, required=False)
 
-    # Dynamically load teams from the Product model
     teams = forms.MultipleChoiceField(
         label="Teams",
         choices=[],
@@ -208,7 +206,6 @@ class ProductQuery(forms.Form):
         required=False
     )
 
-    # Price range fields
     min_price = forms.DecimalField(
         label='Minimum Price',
         max_digits=10,
@@ -222,7 +219,6 @@ class ProductQuery(forms.Form):
         required=False
     )
 
-    # Sorting options
     SORT_CHOICES = [
         ('price_asc', 'Preço (Menor a Maior)'),
         ('price_desc', 'Preço (Maior a Menor)'),
@@ -230,8 +226,6 @@ class ProductQuery(forms.Form):
         ('name_desc', 'Nome (Z a A)'),
         ('seller_asc', 'Vendedor (A a Z)'),
         ('seller_desc', 'Vendedor (Z a A)'),
-        ('size_asc', 'Size (Menor a Maior)'),
-        ('size_desc', 'Size (Maior a Menor)'),
     ]
     sort_by = forms.ChoiceField(
         choices=SORT_CHOICES,
@@ -241,7 +235,6 @@ class ProductQuery(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Define os choices de 'teams' dinamicamente
         self.fields['teams'].choices = [
             (team, team) for team in Product.objects.filter(sold=False).values_list("team", flat=True).distinct() if
             team

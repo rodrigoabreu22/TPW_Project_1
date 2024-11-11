@@ -129,7 +129,6 @@ class Report(models.Model):
         return f"{target} reported by {self.sent_by.username}"
 
     def clean(self):
-        # Ensure either 'reporting' or 'product' is set, but not both
         if not self.reporting and not self.product:
             raise ValidationError("You must report either a user or a product.")
         if self.reporting and self.product:

@@ -37,22 +37,15 @@ def moderator_required(view_func):
 def moderator_dashboard(request):
     if verifyIfAdmin(request):
         return redirect("/admin")
-    # Get all reports
     all_reports = Report.objects.all()
-
-    # Initialize lists for storing unique reports
-    user_reports = []
-    product_reports = []
 
     # Track counts of reports for each user
     seen_users = {}
     for report in all_reports.filter(reporting__isnull=False):
         reporting_id = report.reporting.id
         if reporting_id not in seen_users:
-            # Initialize count for new user
             seen_users[reporting_id] = {'report': report, 'count': 1}
         else:
-            # Increment count for existing user
             seen_users[reporting_id]['count'] += 1
 
     # Track counts of reports for each product
@@ -60,13 +53,10 @@ def moderator_dashboard(request):
     for report in all_reports.filter(product__isnull=False):
         product_id = report.product.id
         if product_id not in seen_products:
-            # Initialize count for new product
             seen_products[product_id] = {'report': report, 'count': 1}
         else:
-            # Increment count for existing product
             seen_products[product_id]['count'] += 1
 
-    # Convert dictionaries to lists for the context
     user_reports = list(seen_users.values())
     product_reports = list(seen_products.values())
 
@@ -90,7 +80,6 @@ def user_mod_view(request,username):
     followers = Following.objects.filter(followed_id=profile_user.id)
     print(followers)
     selling = Product.objects.filter(seller_id=profile_user.id)
-    profile = UserProfile.objects.get(user=profile_user)
 
     reports = Report.objects.filter(reporting=profile_user)
 
@@ -135,25 +124,20 @@ def product_mod_view(request, product_id):
 
 @moderator_required
 def close_report(request, report_id):
-    # Get the report instance
     report = get_object_or_404(Report, id=report_id)
     if report:
         report.delete()
-        # Display a success message
         messages.success(request, 'Report has been deleted successfully.')
     else:
         print("Algo de errado não está certo")
-    # Redirect to the moderator dashboard or another appropriate page
     return redirect('moderator_dashboard')
 
 
 @moderator_required
 def ban_user(request, user_id):
-    # Retrieve the user and their products
     user = get_object_or_404(User, id=user_id)
     user_products = Product.objects.filter(seller=user)
 
-    # Deactivate the user's account
     user.is_active = False
     user.save()
 
@@ -161,7 +145,6 @@ def ban_user(request, user_id):
         product.is_active = False
         product.save()
 
-    # Process offers related to the user as a buyer or seller
     related_offers = Offer.objects.filter(
         models.Q(buyer=user.userprofile) | models.Q(product__seller=user)
     )
@@ -171,9 +154,8 @@ def ban_user(request, user_id):
         offer_status_conditions = offer.offer_status in ["in_progress", "accepted","rejected"] and offer.paid and not offer.delivered
 
         if offer.product.seller == user and offer_status_conditions:
-            # Credit the buyer’s wallet for canceled offers where the user is the seller
             buyer_profile = offer.buyer
-            buyer_profile.wallet += offer.value  # Assuming wallet is a field in UserProfile
+            buyer_profile.wallet += offer.value
             buyer_profile.save()
             offer.delete()
 
@@ -188,15 +170,12 @@ def ban_user(request, user_id):
 
 @moderator_required
 def unban_user(request, user_id):
-    # Retrieve the user and their products
     user = get_object_or_404(User, id=user_id)
     user_products = Product.objects.filter(seller=user)
 
-    # Reactivate the user's account
     user.is_active = True
     user.save()
 
-    # Make the user's products accessible again
     for product in user_products:
         product.is_active = True
         product.save()
@@ -211,8 +190,6 @@ def delete_product(request, product_id):
     messages.success(request, f"Product '{product.name}' has been deleted.")
     return redirect('moderator_dashboard')
 
-
-# Create your views here.
 
 @login_required
 def favorite_list(request):
@@ -252,18 +229,15 @@ class CustomLoginView(auth_views.LoginView):
     template_name = "login.html"
 
     def form_invalid(self, form):
-        # Get the username from the submitted form data
         username = form.data.get('username')
         try:
-            # Check if the user exists and is marked as inactive
             user = User.objects.get(username=username)
             if not user.is_active:
                 messages.error(self.request, "This account has been banned.")
                 return redirect(reverse('login') + '?banned=true')
         except User.DoesNotExist:
-            pass  # Proceed with default behavior if user does not exist
+            pass
 
-        # Proceed with default invalid form handling
         return super().form_invalid(form)
 
 
@@ -278,7 +252,7 @@ def home(request):
         return redirect("/admin")
     form = ProductQuery(request.GET or None)
     favorite_form = FavoriteForm(request.POST or None)
-    products = Product.objects.all()  # Start with all products
+    products = Product.objects.all()
     teams=[]
     product_types=[]
     favorites=[]
@@ -293,9 +267,6 @@ def home(request):
         min_price = form.cleaned_data['min_price']
         max_price = form.cleaned_data['max_price']
         sort_by = form.cleaned_data['sort_by']
-
-        # Define custom order for categorical sizes
-        SIZE_ORDER = {'XS': 0, 'S': 1, 'M': 2, 'L': 3, 'XL': 4}
 
         # Filtering logic
         if name_query:
@@ -333,31 +304,6 @@ def home(request):
             products = products.order_by('seller__username')
         elif sort_by == 'seller_desc':
             products = products.order_by('-seller__username')
-        elif sort_by in ['size_asc', 'size_desc']:
-            # Create a list of products with associated sizes
-            product_size_map = []
-            for product in products:
-                if hasattr(product, 'jersey') and product.jersey.size:
-                    size = SIZE_ORDER.get(product.jersey.size, -1)
-                elif hasattr(product, 'shorts') and product.shorts.size:
-                    size = SIZE_ORDER.get(product.shorts.size, -1)
-                elif hasattr(product, 'socks') and product.socks.size:
-                    size = SIZE_ORDER.get(product.socks.size, -1)
-                elif hasattr(product, 'boots') and product.boots.size:
-                    size = product.boots.size
-                else:
-                    size = -1  # Default if size not found
-
-                product_size_map.append((product.id, size))
-
-            # Sort based on size
-            reverse = sort_by == 'size_desc'
-            product_size_map.sort(key=lambda x: x[1], reverse=reverse)
-
-            # Extract ordered IDs and fetch products in this order
-            ordered_ids = [prod_id for prod_id, _ in product_size_map]
-            preserved_order = Case(*[When(id=pk, then=pos) for pos, pk in enumerate(ordered_ids)])
-            products = Product.objects.filter(id__in=ordered_ids).order_by(preserved_order)
 
 
     if request.user.is_authenticated:
@@ -402,18 +348,15 @@ def createAccount(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password1']
 
-            # Save the user (this automatically hashes the password)
             user = form.save(commit=True)
 
-            # Add the user to the 'Users' group
             group = Group.objects.get(name='Users')
             user.groups.add(group)
 
-            # Authenticate and log the user in
             user = authenticate(username=username, password=password)
             if user is not None:
                 auth_login(request, user)
-                return redirect('/')  # Redirect to home or another page
+                return redirect('/')
             else:
                 return render(request, 'createAccount.html', {'form': form, 'error': 'Authentication failed', "offer_count": getOffersCount(request)})
 
@@ -424,14 +367,12 @@ def createAccount(request):
         form = CreateAccountForm()
     return render(request, 'createAccount.html', {'form': form, 'error': False, 'offer_count' : getOffersCount(request),})
 
-@login_required(login_url='/login/')  # Redirects to login if not authenticated
+@login_required(login_url='/login/')
 def myProfile(request):
     if verifyIfAdmin(request):
         return redirect("/admin")
     user = User.objects.get(id=request.user.id)
-    # Get the list of users the current user is following
     following = Following.objects.filter(following=user)
-    # Get the list of users who follow the current user
     followers = Following.objects.filter(followed_id=user.id)
 
     selling = Product.objects.filter(seller_id=request.user.id).exclude(sold=True)
@@ -445,7 +386,6 @@ def viewProfile(request, username):
     if verifyIfAdmin(request):
         return redirect("/admin")
     profile_user = User.objects.get(username=username)
-    # Check if the user is banned
     is_banned = not profile_user.is_active
     print(is_banned)
 
@@ -458,7 +398,6 @@ def viewProfile(request, username):
     profile = UserProfile.objects.get(user=profile_user)
 
     if request.user.is_authenticated:
-        #favoritos codigo
         favorite_, _ = Favorite.objects.get_or_create(user=request.user)
         favorites = favorite_.products.values_list('id', flat=True)
 
@@ -510,7 +449,7 @@ def viewProfile(request, username):
 
     return render(request, 'profile.html', tparams)
 
-@login_required(login_url='/login/')  # Redirects to login if not authenticated
+@login_required(login_url='/login/')
 def pubProduct(request):
     if verifyIfAdmin(request):
         return redirect("/admin")
@@ -578,7 +517,6 @@ def unfollow_user(request, username):
     return redirect('profile', username=username)
 
 def userlist(request):
-    # Initialize the search form
     if verifyIfAdmin(request):
         return redirect("/admin")
     form = SearchUserForm(request.POST or None)
@@ -589,20 +527,16 @@ def userlist(request):
     if request.user.is_authenticated:
         myprofile = UserProfile.objects.get(user=request.user)
 
-    # Fetch the 10 most popular users based on follower count
     popular_users = (
         User.objects.annotate(num_followers=Count('followers_set'))
         .order_by('-num_followers')[:10]
     )
-    # Fetch the UserProfile objects for popular users
+
     popular_users_profiles = UserProfile.objects.filter(user__in=popular_users)
 
-    # Check if a search query is submitted
     if request.method == 'POST' and form.is_valid():
         query = form.cleaned_data['query']
-        # Filter users by username matching the query
         all_users = User.objects.filter(username__icontains=query)
-        # Fetch UserProfile objects for the search results
         print(all_users)
         all_user_profiles = UserProfile.objects.filter(user__in=all_users)
         print(all_user_profiles)
@@ -875,10 +809,9 @@ def deposit_money(request):
         deposit_amount = depositoform.cleaned_data['deposit_amount']
         userinfo.wallet += deposit_amount
         userinfo.save()
-        return redirect('wallet')  # Redirect back to main wallet page
+        return redirect('wallet')
 
-    # If form is invalid, render the page with errors
-    levantamentoform = WithdrawalForm()  # Provide empty form to avoid errors
+    levantamentoform = WithdrawalForm()
     return render(request, 'wallet.html', {
         'depositoform': depositoform,
         'levantamentoform': levantamentoform,
@@ -898,10 +831,9 @@ def withdraw_money(request):
         if withdrawal_amount <= userinfo.wallet:
             userinfo.wallet -= withdrawal_amount
             userinfo.save()
-        return redirect('wallet')  # Redirect back to main wallet page
+        return redirect('wallet')
 
-    # If form is invalid, render the page with errors
-    depositoform = DepositForm()  # Provide empty form to avoid errors
+    depositoform = DepositForm()
     return render(request, 'wallet.html', {
         'depositoform': depositoform,
         'levantamentoform': levantamentoform,
