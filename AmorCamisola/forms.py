@@ -104,7 +104,6 @@ class ProductForm(forms.Form):
         ('4', 'Chuteira'),
     ]
 
-    # Defina todas as opções de tamanho possíveis, independentemente da categoria
     SIZE_CHOICES = [
         ('XS', 'XS'), ('S', 'S'), ('M', 'M'), ('L', 'L'), ('XL', 'XL'), ('XXL', 'XXL'),
         ('30', '30'), ('31', '31'), ('32', '32'), ('33', '33'), ('34', '34'), ('35', '35'),
