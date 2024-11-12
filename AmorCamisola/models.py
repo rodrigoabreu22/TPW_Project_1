@@ -105,17 +105,16 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-class ReportOptions(models.TextChoices):
-    INAPPROPRIATE = 'IN', 'Inappropriate Content'
-    FRAUD = 'FR', 'Fraud'
-    IMPERSONATE = 'IM', 'Impersonate'
-    OTHER = 'OT', 'Other'
+class ReportOptionsProducts(models.TextChoices):
+    INAPPROPRIATE = 'IN', 'Conteúdo inapropriado'
+    FRAUD = 'FR', 'Fraude'
+    OTHER = 'OT', 'Outro'
 
 class Report(models.Model):
     sent_by = models.ForeignKey(User, related_name='reports_sent', on_delete=models.CASCADE)
     reporting = models.ForeignKey(User, related_name='reports_received', on_delete=models.CASCADE, null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
-    reasons = models.CharField(max_length=2, choices=ReportOptions.choices)
+    reasons = models.CharField(max_length=2, choices=ReportOptionsProducts.choices)
     description = models.TextField(max_length=500)
 
     def __str__(self):
