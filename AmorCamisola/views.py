@@ -612,7 +612,7 @@ def detailedProduct(request, id):
                 buyer.wallet -= offer.value
                 buyer.save()
             offer.save()
-            redirect('/')
+            return redirect('/')
     form = ListingOffer(userProfile, product)
 
     if request.user.is_authenticated:
@@ -674,7 +674,7 @@ def offers(request, action=None, id=None):
                     offer.sent_by = userProfile
                     offer.save()
                     print("saved")
-        redirect("/offers")
+        return redirect("/offers")
     form = ListingOffer(userProfile, None)
     madeOffers = Offer.objects.filter(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
     receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer__user_id=request.user.id)
