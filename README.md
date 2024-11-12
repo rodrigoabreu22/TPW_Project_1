@@ -75,7 +75,6 @@ Group 2
 ### Users 
 | Usename |  Password   |
 |:---|:-----------:|
-| manel  | password123 |
 | tony   | password123 |
 | martim | password123 |
 
