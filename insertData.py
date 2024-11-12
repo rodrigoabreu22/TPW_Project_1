@@ -6,7 +6,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'TPW_Project_1.settings')
 django.setup()
 
 from django.contrib.auth.models import User, Group
-from AmorCamisola.models import UserProfile, Moderator, Product, Jersey, Shorts, Socks, Boots, Favorite, Following, Report, Offer
+from AmorCamisola.models import UserProfile, Product, Jersey, Shorts, Socks, Boots, Favorite, Following, Report, Offer
 
 
 def create_users():

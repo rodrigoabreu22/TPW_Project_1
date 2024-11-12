@@ -4,7 +4,6 @@ from AmorCamisola.models import *
 # Register your models here.
 admin.site.register(UserProfile)
 admin.site.register(Following)
-admin.site.register(Moderator)
 admin.site.register(Product)
 admin.site.register(Favorite)
 admin.site.register(Jersey)

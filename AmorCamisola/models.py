@@ -12,13 +12,6 @@ CLOTHES_CHOICES = (
     ("XXL", "XXL")
 )
 
-ReportOptions = (
-    ("Scam", "Burla"),
-    ("Impersonating", "Faz-se passar por outra pessoa"),
-    ("Toxic", "Comportamento Tóxico"),
-    ("Other", "Other")
-)
-
 BOOTS_CHOICES = (
     (30, 30),
     (31, 31),
@@ -84,13 +77,6 @@ class Following(models.Model):
         return self.following.username + " follows " + self.followed.username
 
 
-class Moderator(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    admin = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.user.username
-
 
 class Product(models.Model):
     name = models.CharField(max_length=50)
@@ -105,7 +91,7 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-class ReportOptionsProducts(models.TextChoices):
+class ReportOptions(models.TextChoices):
     INAPPROPRIATE = 'IN', 'Conteúdo inapropriado'
     FRAUD = 'FR', 'Fraude'
     OTHER = 'OT', 'Outro'
@@ -114,7 +100,7 @@ class Report(models.Model):
     sent_by = models.ForeignKey(User, related_name='reports_sent', on_delete=models.CASCADE)
     reporting = models.ForeignKey(User, related_name='reports_received', on_delete=models.CASCADE, null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
-    reasons = models.CharField(max_length=2, choices=ReportOptionsProducts.choices)
+    reasons = models.CharField(max_length=2, choices=ReportOptions.choices)
     description = models.TextField(max_length=500)
 
     def __str__(self):

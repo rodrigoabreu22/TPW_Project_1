@@ -112,7 +112,7 @@ class ProductForm(forms.Form):
 
     name = forms.CharField(label='Nome', max_length=255, required=True)
     description = forms.CharField(label='Descrição', required=True, widget=forms.Textarea)
-    price = forms.DecimalField(label='Preço', required=True)
+    price = forms.DecimalField(label='Preço', required=True, min_value=0.00)
     team = forms.CharField(label='Equipa', max_length=255, required=False)
     category = forms.ChoiceField(label='Categoria', choices=CATEGORIES, required=True)
     size = forms.ChoiceField(label='Tamanho', choices=SIZE_CHOICES, required=True)
