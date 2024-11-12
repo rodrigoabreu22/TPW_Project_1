@@ -12,16 +12,10 @@ CLOTHES_CHOICES = (
     ("XXL", "XXL")
 )
 
-SOCKS_CHOICES = (
-    ("S", "S"),
-    ("M", "M"),
-    ("L", "L")
-)
-
 ReportOptions = (
-    ("Scam", "Scam"),
-    ("Impersonating", "Impersonating"),
-    ("Toxic", "Toxic"),
+    ("Scam", "Burla"),
+    ("Impersonating", "Faz-se passar por outra pessoa"),
+    ("Toxic", "Comportamento Tóxico"),
     ("Other", "Other")
 )
 
@@ -159,7 +153,7 @@ class Shorts(models.Model):
 
 class Socks(models.Model):
     product = models.OneToOneField(Product, on_delete=models.CASCADE)
-    size = models.CharField(max_length=50, choices=SOCKS_CHOICES)
+    size = models.CharField(max_length=50, choices=CLOTHES_CHOICES)
 
     def __str__(self):
         return self.product.__str__()

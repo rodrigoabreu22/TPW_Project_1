@@ -25,8 +25,8 @@ def create_users():
 
 
     UserProfile.objects.create(user=manel, address="Rua do Manel", phone="987654322", image='users/manel.jpeg')
-    UserProfile.objects.create(user=martim, address="Martim's Address", phone="987654323", image='users/martim.jpeg')
-    UserProfile.objects.create(user=tony, address="Tony's Address", phone="987654324", image='users/tony.jpeg')
+    UserProfile.objects.create(user=martim, address="Rua do Martim", phone="987654323", image='users/martim.jpeg')
+    UserProfile.objects.create(user=tony, address="Rua do Tony", phone="987654324", image='users/tony.jpeg')
 
 
     return manel, martim, tony
@@ -57,8 +57,6 @@ def create_products(users):
     ]
 
     for product_type, name, seller, price, image, description, team in product_data:
-        #with open(image, 'rb') as img_file:
-        #    image_file= File(img_file)
         product = Product.objects.create(
             name=name,
             seller=seller,
