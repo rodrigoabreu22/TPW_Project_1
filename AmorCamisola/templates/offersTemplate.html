@@ -1,22 +1,22 @@
 {% extends 'layout.html' %}
 {% block content %}
 <div class="container my-5">
-    <h2 class="mb-4">Offers Dashboard</h2>
+    <h2 class="mb-4">Dashboard das Ofertas</h2>
 
     <!-- Offers Made Section -->
     <div class="mb-5">
-        <h3 class="text-primary">Offers You Made</h3>
+        <h3 class="text-primary">Propostas enviadas</h3>
         {% if offers_made %}
             <div class="table-responsive mt-3">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>Product</th>
-                            <th>Value (€)</th>
-                            <th>Payment Method</th>
-                            <th>Delivery Method</th>
-                            <th>Address</th>
-                            <th>Actions</th>
+                            <th>Produto</th>
+                            <th>Valor (€)</th>
+                            <th>Método de Pagamento</th>
+                            <th>Método de Entrega</th>
+                            <th>Endereço</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -30,7 +30,7 @@
                             <td>
                                 <!-- Retract Offer -->
                                 <a href="{% url "retractOffer" id=offer.id %}" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-undo-alt"></i> Retract
+                                    <i class="fas fa-undo-alt"></i> Retirar proposta
                                 </a>
                             </td>
                         </tr>
@@ -40,26 +40,26 @@
             </div>
         {% else %}
             <div class="alert alert-info mt-3" role="alert">
-                You haven't made any offers yet.
+                Ainda não fizeste qualquer proposta
             </div>
         {% endif %}
     </div>
 
     <!-- Offers Received Section -->
     <div class="mb-5">
-        <h3 class="text-primary">Offers You Received</h3>
+        <h3 class="text-primary">Propostas recebidas</h3>
         {% if offers_received %}
             <div class="table-responsive mt-3">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>Product</th>
-                            <th>Buyer</th>
-                            <th>Value (€)</th>
-                            <th>Payment Method</th>
-                            <th>Delivery Method</th>
-                            <th>Address</th>
-                            <th>Actions</th>
+                            <th>Produto</th>
+                            <th>Comprador</th>
+                            <th>Valor (€)</th>
+                            <th>Método de Pagamento</th>
+                            <th>Método de Entrega</th>
+                            <th>Endereço</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -81,14 +81,14 @@
                                             </button>
                                         {% else %}
                                             <button type="submit" class="btn btn-sm btn-success">
-                                                <i class="fas fa-check"></i> Accept
+                                                <i class="fas fa-check"></i> Aceitar
                                             </button>
                                         {% endif %}
                                     </form>
                                     <form action="{% url 'rejectOffer' id=offer.id %}" method="post" class="ms-2">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-sm btn-danger">
-                                            <i class="fas fa-times"></i> Reject
+                                            <i class="fas fa-times"></i> Rejeitar
                                         </button>
                                     </form>
                                         <button
@@ -103,7 +103,7 @@
                                             data-value="{{ offer.value }}"
                                             data-address="{{ offer.address }}"
                                         >
-                                            <i class="fas fa-exchange-alt"></i> Counter Offer
+                                            <i class="fas fa-exchange-alt"></i> Contra-proposta
                                         </button>
                                 </div>
                             </td>
@@ -114,24 +114,24 @@
             </div>
         {% else %}
             <div class="alert alert-info mt-3" role="alert">
-                No offers received yet.
+                Ainda não recebeu nenhuma proposta
             </div>
         {% endif %}
     </div>
 
     <!-- Accepted Offers Section -->
     <div class="mb-5">
-        <h3 class="text-success">Accepted Offers</h3>
+        <h3 class="text-success">Propostas aceites</h3>
         {% if offers_accepted %}
             <div class="table-responsive mt-3">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>Product</th>
-                            <th>Value (€)</th>
-                            <th>Address</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>Produto</th>
+                            <th>Valor (€)</th>
+                            <th>Endereço</th>
+                            <th>Estado</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -156,11 +156,11 @@
                                         {% csrf_token %}
                                         {% if offer.delivered %}
                                             <button type="submit" class="btn btn-sm btn-danger">
-                                                <i class="fas fa-box-open"></i> Retract Delivery Confirmation
+                                                <i class="fas fa-box-open"></i> Cancelar confirmação de entrega
                                             </button>
                                         {% else %}
                                             <button type="submit" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-box-open"></i> Confirm Delivery Received
+                                                <i class="fas fa-box-open"></i> Confirmar entrega
                                             </button>
                                         {% endif %}
                                     </form>
@@ -170,11 +170,11 @@
                                         {% csrf_token %}
                                         {% if offer.paid %}
                                             <button type="submit" class="btn btn-sm btn-danger">
-                                                <i class="fas fa-money-check-alt"></i> Retract Payment Confirmation
+                                                <i class="fas fa-money-check-alt"></i> Cancelar confirmação de pagamento
                                             </button>
                                         {% else %}
                                             <button type="submit" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-money-check-alt"></i> Confirm Payment Received
+                                                <i class="fas fa-money-check-alt"></i> Confirmar pagamento
                                             </button>
                                         {% endif %}
                                     </form>
@@ -187,24 +187,24 @@
             </div>
         {% else %}
             <div class="alert alert-info mt-3" role="alert">
-                No accepted offers to display.
+                Não tem nenhuma proposta aceite
             </div>
         {% endif %}
     </div>
 
     <!-- Processed Offers Section -->
     <div>
-        <h3 class="text-danger">Processed Offers</h3>
+        <h3 class="text-danger">Propostas processadas</h3>
         {% if offers_processed %}
             <div class="table-responsive mt-3">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>Product</th>
-                            <th>Value (€)</th>
-                            <th>Address</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>Produto</th>
+                            <th>Valor (€)</th>
+                            <th>Endereço</th>
+                            <th>Resultado</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -214,16 +214,18 @@
                             <td>{{ offer.value }}</td>
                             <td>{{ offer.address }}</td>
                             {% if offer.offer_status == "rejected" %}
-                                <td><span class="badge bg-danger">{{ offer.offer_status}}</span></td>
+                                <td><span class="badge bg-danger">Rejeitado</span></td>
+                            {% elif offer.buyer.user.id == profile.user.id %}
+                                <td><span class="badge bg-success">Comprado</span></td>
                             {% else %}
-                                <td><span class="badge bg-success">{{ offer.offer_status}}</span></td>
+                                <td><span class="badge bg-success">Vendido</span></td>
                             {% endif %}
                             <td>
                                 <!-- Dismiss Rejected Offer -->
                                 <form action="{% url "retractOffer" id=offer.id %}" method="post">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-sm btn-outline-secondary">
-                                        <i class="fas fa-trash"></i> Dismiss
+                                        <i class="fas fa-trash"></i> Esquecer
                                     </button>
                                 </form>
                             </td>
@@ -234,7 +236,7 @@
             </div>
         {% else %}
             <div class="alert alert-info mt-3" role="alert">
-                No rejected offers to display.
+                Não tem nenhuma proposta processada
             </div>
         {% endif %}
     </div>
