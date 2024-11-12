@@ -1,9 +1,18 @@
 # Amor à Camisola
+1st project of the TPW class 2024/25, group 2 - Development of a Django Web App
 
 ## Project Description
-The project consists of a Django web application with the marketplace concept, dedicated to football fans. Users will be able to view and buy football equipment or sell it to other users. 
+The project is a Django web application designed as a marketplace for football fans. Users can view and buy football equipment or sell it to other users.
+
+To buy a product, a user must access the product details page and make an offer, which will be reviewed by the seller. The seller can then choose to accept, reject, or counter the offer. Once an offer is accepted, the seller must confirm that they have received the payment, and the buyer must confirm that they have received the product to complete the transaction.
+
+Each user has a profile, which other users can search for and view. Profiles contain personal information and a list of products the user is selling. Users can also follow or unfollow each other. Each user can also change his personal information and credentials in the profile settings page.
+
+Users will be able to report publications and other users. These reports are analysed by moderators (users with special permissions), who then decide whether to remove the product or ban the user (can be unbanned later).
+
 
 ## Members
+Group 2
 
 | Name | NMec |
 |:---|:---:|
@@ -56,7 +65,12 @@ The project consists of a Django web application with the marketplace concept, d
 ### Admin
 | Usename | Password |
 |:--------|:--------:|
-| admin   |  admin   |
+| admin  |  admin   |
+
+### Moderator
+| Usename | Password |
+|:--------|:--------:|
+| manel   |  password123   |
 
 ### Users 
 | Usename |  Password   |
@@ -66,29 +80,13 @@ The project consists of a Django web application with the marketplace concept, d
 | martim | password123 |
 
 ## Features that we would like to implement:
-- Possibility to remove my published products
 - Expand the variaty of products
 - Implement a more profesional deposit/withdrawal method
 - Improve overall aesthetics
 - Reviews and ratings for users
 
 ## Deployment
-https://rantunes038.pythonanywhere.com/
-
-## How to add a Moderator
-Pre-requisites:
-- We must have an admin;
-- We must have a user.
-
-How to associate a user to the moderator role:
-- Go into admin site (/admin)
-- Go to the users and click on the user you want to be a moderator
-- Give the Moderators Group to the user (by double-clicking for example)
-- Save the user
-
-How to test it:
-- Login into the user account
-- And if it works, the navbar of that user now have "Denúncias"
+https://jneto.pythonanywhere.com/
 
 ## How to run it locally
 
@@ -105,4 +103,27 @@ Commands to run the code:
     python3 manage.py runserver
 ```
 
+
+## How to add a Moderator
+Pre-requisites:
+- We must have a super user;
+- We must have a user.
+
+How to associate a user to the moderator role:
+- Go into admin site (/admin)
+- Go to the users and click on the user you want to be a moderator
+- Give the Moderators Group to the user (by double-clicking for example)
+- Save the user
+
+How to test it:
+- Login into the user account
+- And if it works, the navbar of that user now have "Denúncias"
+
+
+### Conclusion
+Django has proved to be very useful in the realization of this project due to its simplicity and abstraction. Django facilitates user authentication, the assignment of different user roles, user session management and database management. 
+
+Its modularity made it easy for the team to develop collaboratively, as Django's structured architecture allows each team member to focus on different components while maintaining cohesion across the project. 
+
+Additionally, Django's built-in features, like the admin interface, automatic form handling, and ORM (Object-Relational Mapping) for database interactions, saved development time and ensured a secure, maintainable codebase. 
 
