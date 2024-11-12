@@ -246,12 +246,12 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="counterOfferModalLabel">Make a Counter Offer</h5>
+                    <h5 class="modal-title" id="counterOfferModalLabel">Fazer contra-proposta</h5>
                 </div>
                 <div class="modal-body">
-                    <p>Counter offer to <span id="modalBuyer"></span> for the product "<span id="modalProductName"></span>".</p>
+                    <p>Contra-proposta a <span id="modalBuyer"></span> para o produto "<span id="modalProductName"></span>".</p>
                     <ul>
-                        <li>Your counter offer should be close to the listed price (<span id="modalProductPrice"></span>€)</li>
+                        <li>A sua contra-proposta deve ter um valor próximo ao listado (<span id="modalProductPrice"></span>€)</li>
                     </ul>
                     <hr>
                     <form id="counterOfferForm" data-base-url="{% url 'counterOffer' 0 %}" method="post" action="">
@@ -260,8 +260,8 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="submit" form="counterOfferForm" class="btn btn-primary">Send Counter Offer</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" id="submit" form="counterOfferForm" class="btn btn-primary">Enviar contra-proposta</button>
                 </div>
             </div>
         </div>

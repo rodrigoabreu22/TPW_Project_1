@@ -222,7 +222,7 @@ class ProductQuery(forms.Form):
     SORT_CHOICES = [
         ('price_asc', 'Preço (Menor a Maior)'),
         ('price_desc', 'Preço (Maior a Menor)'),
-        ('name_asc', 'Name (A a Z)'),
+        ('name_asc', 'Nome (A a Z)'),
         ('name_desc', 'Nome (Z a A)'),
         ('seller_asc', 'Vendedor (A a Z)'),
         ('seller_desc', 'Vendedor (Z a A)'),
