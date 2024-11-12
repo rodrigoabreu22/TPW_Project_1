@@ -778,7 +778,7 @@ def notifySuccess(offer_id):
 
 def notifyFailed(offer_id):
     offer = Offer.objects.get(id=offer_id)
-    if (offer.payment_method == "store_credit" and offer.buyer.user.id != offer.sent_by.user.id):
+    if (offer.payment_method == "store_credit" and offer.buyer.user.id == offer.sent_by.user.id):
         offer.buyer.wallet += offer.value
         offer.buyer.save()
     newOffer = Offer(buyer=offer.buyer, product=offer.product, value=offer.value,
