@@ -70,7 +70,7 @@ The project consists of a Django web application with the marketplace concept, d
 - Reviews and ratings for users
 
 ## Deployment
-Insere aqui o link para a app no pythonanywhere
+https://rantunes038.pythonanywhere.com/
 
 ## How to add a Moderator
 Pre-requisites:
