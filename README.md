@@ -1,7 +1,7 @@
 # Amor à Camisola
 
 ## Project Description
-The project consists of a Django web application with the marketplace concept, dedicated to football fans. Users will be able to view, buy football equipment or sell it to other users. 
+The project consists of a Django web application with the marketplace concept, dedicated to football fans. Users will be able to view and buy football equipment or sell it to other users. 
 
 ## Members
 
@@ -32,7 +32,7 @@ The project consists of a Django web application with the marketplace concept, d
 - Accept, reject or counter an offer for a product
 - Make an offer on a product
 - Confirm an offer
-- View my sales/purchase history ❌
+- View my sales/purchase history
 - Add a product to the favourites list
 - Remove a product from the favourites list
 - Deposit or withdraw money in my account
@@ -44,6 +44,7 @@ The project consists of a Django web application with the marketplace concept, d
 
 
 ### Moderator:
+- All authenticated user functionalities
 - Review reports 
 - Delete publications 
 - Ban users 
@@ -51,7 +52,7 @@ The project consists of a Django web application with the marketplace concept, d
 
 ## User Accounts
 
-### Moderator
+### Admin
 | Usename | Password |
 |:--------|:--------:|
 | admin   |  admin   |
@@ -64,13 +65,14 @@ The project consists of a Django web application with the marketplace concept, d
 | martim | password123 |
 
 ## Features that we would like to implement:
+- Possibility to remove my published products
 - Expand the variaty of products
 - Implement a more profesional deposit/withdrawal method
 - Improve overall aesthetics
 - Reviews and ratings for users
 
 ## Deployment
-Insere aqui o link para a app no pythonanywhere
+https://rantunes038.pythonanywhere.com/
 
 ## How to add a Moderator
 Pre-requisites:
