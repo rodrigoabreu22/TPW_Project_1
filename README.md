@@ -39,6 +39,7 @@ The project consists of a Django web application with the marketplace concept, d
 - View/edit my profile
 - View other users' profile
 - Follow/unfollow a user
+- View my followers/following
 - Report a user or product publication 
 - Log out
 
