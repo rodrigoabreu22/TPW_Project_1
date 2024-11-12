@@ -44,6 +44,7 @@ The project consists of a Django web application with the marketplace concept, d
 
 
 ### Moderator:
+- All authenticated user functionalities
 - Review reports 
 - Delete publications 
 - Ban users 
