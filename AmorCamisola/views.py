@@ -692,11 +692,12 @@ def rejectOffer(request, id):
 
 def counterOffer(request, id):
     offer = Offer.objects.get(id=id)
-    if offer.sent_by.id == offer.buyer.id:
-        offer.buyer.wallet -= offer.value
-    else:
-        offer.buyer.wallet += offer.value
-    offer.buyer.save()
+    if offer.payment_method == "store_credit":
+        if offer.sent_by.id != offer.buyer.id:
+            offer.buyer.wallet -= offer.value
+        else:
+            offer.buyer.wallet += offer.value
+        offer.buyer.save()
     return offers(request, 'counter', id)
 
 def retractOffer(request, id):
@@ -758,6 +759,8 @@ def getOffersCount(request):
 def notifySuccess(offer_id):
     offer = Offer.objects.get(id=offer_id)
     otherOffers = Offer.objects.filter(product_id=offer.product.id).exclude(id=offer.id)
+    if (offer.payment_method == "store_credit" and offer.buyer.user.id != offer.sent_by.user.id):
+        offer.buyer.wallet -= offer.value
     for otherOffer in otherOffers:
         otherOffer.offer_status = 'rejected'
         if (otherOffer.payment_method == "store_credit"):
@@ -775,7 +778,7 @@ def notifySuccess(offer_id):
 
 def notifyFailed(offer_id):
     offer = Offer.objects.get(id=offer_id)
-    if (offer.payment_method == "store_credit"):
+    if (offer.payment_method == "store_credit" and offer.buyer.user.id != offer.sent_by.user.id):
         offer.buyer.wallet += offer.value
         offer.buyer.save()
     newOffer = Offer(buyer=offer.buyer, product=offer.product, value=offer.value,
