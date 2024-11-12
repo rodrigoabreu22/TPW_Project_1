@@ -43,6 +43,8 @@ urlpatterns = [
     path('moderator/unban_user/<int:user_id>/', views.unban_user, name='unban_user'),
     path('close_report/<int:report_id>/', views.close_report, name='close_report'),
     path('moderator/delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
+
+    path('moderator/delete_product_user/<int:product_id>/', views.delete_product_user, name='delete_product_user'),
     path('productviewbymoderator/<int:product_id>/', views.product_mod_view, name='product_mod_view'),
     path('userviewbymoderator/<str:username>/', views.user_mod_view, name='user_mod_view'),
 

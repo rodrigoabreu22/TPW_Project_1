@@ -139,6 +139,7 @@ def close_report(request, report_id):
 
 @moderator_required
 def ban_user(request, user_id):
+    print("Banning")
     user = get_object_or_404(User, id=user_id)
     user_products = Product.objects.filter(seller=user)
 
@@ -155,17 +156,35 @@ def ban_user(request, user_id):
 
 
     for offer in related_offers:
-        offer_status_conditions = offer.offer_status in ["in_progress", "accepted","rejected"] and offer.paid and not offer.delivered
+        print(offer)
+        offer_status_conditions = offer.paid and not offer.delivered
 
-        if offer.product.seller == user and offer_status_conditions:
-            buyer_profile = offer.buyer
+        offer_status_conditions2 = offer.offer_status in ["accepted","rejected"] and not offer.paid and not offer.delivered
+
+        offer_status_conditions3 = offer.offer_status in ["in_progress"]
+
+        print(offer.product)
+
+        buyer_profile = offer.buyer
+        seller_profile = UserProfile.objects.get(user=offer.product.seller)
+
+        if (offer.product.seller == user and (offer_status_conditions or offer_status_conditions2)) or \
+                (offer.buyer == user and (offer_status_conditions or offer_status_conditions2)):
+            print("Condition 1 or 2 met: Transferring money from seller to buyer and deleting offer")
+
             buyer_profile.wallet += offer.value
             buyer_profile.save()
+            seller_profile.wallet -= offer.value
+            seller_profile.save()
+
             offer.delete()
 
-        elif offer.buyer == user and offer_status_conditions:
-            user.userprofile.wallet += offer.value
-            user.save()
+        elif offer_status_conditions3:
+            print("Condition 3 met: Adding money to buyer and deleting offer")
+
+            buyer_profile.wallet += offer.value
+            buyer_profile.save()
+
             offer.delete()
 
     messages.success(request, f"User {user.username} has been banned and associated data processed.")
@@ -189,10 +208,90 @@ def unban_user(request, user_id):
 
 @moderator_required
 def delete_product(request, product_id):
+
     product = get_object_or_404(Product, id=product_id)
+
+    related_offers = Offer.objects.filter(
+        models.Q(product=product)
+    )
+
+    for offer in related_offers:
+        print(offer)
+        offer_status_conditions = offer.paid and not offer.delivered
+
+        offer_status_conditions2 = offer.offer_status in ["accepted",
+                                                          "rejected"] and not offer.paid and not offer.delivered
+
+        offer_status_conditions3 = offer.offer_status in ["in_progress"]
+
+        print(offer.product)
+
+        if offer_status_conditions or offer_status_conditions2:
+            print("Condition 1 or 2 met: Transferring money from seller to buyer and deleting offer")
+
+            buyer = offer.buyer
+            buyer.wallet += offer.value
+            buyer.save()
+            seller = offer.product.seller
+            seller.wallet -= offer.value
+            seller.save()
+
+            offer.delete()
+
+        elif offer_status_conditions3:
+            print("Condition 3 met: Adding money to buyer and deleting offer")
+
+            buyer = offer.buyer
+            buyer.wallet += offer.value
+            buyer.save()
+
+            offer.delete()
     product.delete()
     messages.success(request, f"Product '{product.name}' has been deleted.")
     return redirect('moderator_dashboard')
+
+def delete_product_user(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    related_offers = Offer.objects.filter(
+        models.Q(product=product)
+    )
+
+    for offer in related_offers:
+        print(offer)
+        offer_status_conditions = offer.paid and not offer.delivered
+
+        offer_status_conditions2 = offer.offer_status in ["accepted",
+                                                          "rejected"] and not offer.paid and not offer.delivered
+
+        offer_status_conditions3 = offer.offer_status in ["in_progress"]
+
+        print(offer.product)
+
+        if offer_status_conditions or offer_status_conditions2:
+            print("Condition 1 or 2 met: Transferring money from seller to buyer and deleting offer")
+
+            buyer = offer.buyer
+            buyer.wallet += offer.value
+            buyer.save()
+            seller = offer.product.seller
+            seller.wallet -= offer.value
+            seller.save()
+
+            offer.delete()
+
+        elif offer_status_conditions3:
+            print("Condition 3 met: Adding money to buyer and deleting offer")
+
+            buyer = offer.buyer
+            buyer.wallet += offer.value
+            buyer.save()
+
+            offer.delete()
+
+    product.delete()
+    messages.success(request, f"Product '{product.name}' has been deleted.")
+    return redirect('myprofile')
 
 
 @login_required
@@ -674,7 +773,7 @@ def offers(request, action=None, id=None):
                     offer.sent_by = userProfile
                     offer.save()
                     print("saved")
-        return redirect("/offers")
+        return redirect('/offers')
     form = ListingOffer(userProfile, None)
     madeOffers = Offer.objects.filter(sent_by__user_id=request.user.id).filter(offer_status__exact='in_progress')
     receivedOffers = Offer.objects.filter(product__seller_id=request.user.id) | Offer.objects.filter(buyer__user_id=request.user.id)
@@ -767,10 +866,12 @@ def notifySuccess(offer_id):
             otherOffer.buyer.wallet += offer.value
             otherOffer.buyer.save()
         otherOffer.save()
-    if (offer.payment_method == "store_credit"):
+
+    if offer.payment_method == "store_credit":
         seller = UserProfile.objects.get(user__id=offer.product.seller.id)
         seller.wallet += offer.value
         seller.save()
+
     offer.product.sold = True
     offer.product.save()
     offer.offer_status = 'accepted'
@@ -778,7 +879,7 @@ def notifySuccess(offer_id):
 
 def notifyFailed(offer_id):
     offer = Offer.objects.get(id=offer_id)
-    if (offer.payment_method == "store_credit" and offer.buyer.user.id == offer.sent_by.user.id):
+    if offer.payment_method == "store_credit" and offer.buyer.user.id == offer.sent_by.user.id:
         offer.buyer.wallet += offer.value
         offer.buyer.save()
     newOffer = Offer(buyer=offer.buyer, product=offer.product, value=offer.value,

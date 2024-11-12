@@ -53,6 +53,12 @@
                         {% csrf_token %}
                         <input type="hidden" name="favorite_product_id" value="{{ product.id }}">
                     </form>
+                    <div class="card-footer text-center bg-white border-0 p-2">
+                        <form method="post" action="{% url 'delete_product_user' product_id=product.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Apagar publicação</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
