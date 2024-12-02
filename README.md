@@ -1,5 +1,7 @@
 # Amor à Camisola
-1st project of the TPW class 2024/25, group 2 - Development of a Django Web App
+1st project of the TPW class 2024/25, group 2 - Development of a Django Web App. 
+
+#### Grade : 20
 
 ## Project Description
 The project is a Django web application designed as a marketplace for football fans. Users can view and buy football equipment or sell it to other users.
